@@ -1,18 +1,28 @@
-[gd_scene load_steps=5 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=15 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
+[ext_resource type="Script" uid="uid://eav1hnyrhu2x" path="res://controllers/scripts/StateMchinePlayer/camera_3d_controller.gd" id="3_uovkr"]
+[ext_resource type="Script" uid="uid://bdhoyf88f6a32" path="res://controllers/scripts/StateMchinePlayer/state_machine.gd" id="4_l8yvu"]
+[ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
+[ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
+[ext_resource type="Script" uid="uid://bkbq0qu5e2cnw" path="res://controllers/scripts/StateMchinePlayer/running_state.gd" id="7_fyafc"]
+[ext_resource type="Script" uid="uid://bhr4wvq73b3ov" path="res://controllers/scripts/StateMchinePlayer/jumping_state.gd" id="8_tg6sc"]
+[ext_resource type="Script" uid="uid://cxxvkcg48u2d" path="res://controllers/scripts/StateMchinePlayer/falling_state.gd" id="9_yvtcv"]
+[ext_resource type="Script" uid="uid://4thtivtrpy4n" path="res://controllers/scripts/StateMchinePlayer/crouch_state.gd" id="10_h7h5r"]
+[ext_resource type="Script" uid="uid://raajygfbuuyd" path="res://controllers/scripts/StateMchinePlayer/crouch_walking_state.gd" id="11_fdopr"]
+[ext_resource type="Script" uid="uid://hn8vcj011s76" path="res://controllers/scripts/StateMchinePlayer/leaning_state.gd" id="12_5b0ob"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6tj1"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_6tv51"]
 material = ExtResource("2_gldw4")
 
-[node name="CharacterBody3D" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER")]
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine")]
 script = ExtResource("1_pgc1p")
 WALK_SPEED = 4.0
-MOUSE_SENSITIVITY = 0.25
 CAMERA_CONTROLLER = NodePath("CameraController/Camera3D")
+state_machine = NodePath("StateMachine")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -21,11 +31,41 @@ shape = SubResource("CapsuleShape3D_u6tj1")
 [node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
 mesh = SubResource("CapsuleMesh_6tv51")
 
-[node name="CameraController" type="Node3D" parent="."]
+[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "CAMERA_CONTROLLER")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+script = ExtResource("3_uovkr")
+player = NodePath("..")
+CAMERA_CONTROLLER = NodePath("Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="CameraController"]
 
 [node name="ReflectionProbe" type="ReflectionProbe" parent="CameraController/Camera3D"]
-visible = false
 enable_shadows = true
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("4_l8yvu")
+initial_state = NodePath("IdleState")
+
+[node name="IdleState" type="Node" parent="StateMachine"]
+script = ExtResource("5_5w0k0")
+
+[node name="WalkingState" type="Node" parent="StateMachine"]
+script = ExtResource("6_3og01")
+
+[node name="SprintingState" type="Node" parent="StateMachine"]
+script = ExtResource("7_fyafc")
+
+[node name="JumpingState" type="Node" parent="StateMachine"]
+script = ExtResource("8_tg6sc")
+
+[node name="FallingState" type="Node" parent="StateMachine"]
+script = ExtResource("9_yvtcv")
+
+[node name="CrouchState" type="Node" parent="StateMachine"]
+script = ExtResource("10_h7h5r")
+
+[node name="CrouchWalkingState" type="Node" parent="StateMachine"]
+script = ExtResource("11_fdopr")
+
+[node name="LeaningState" type="Node" parent="StateMachine"]
+script = ExtResource("12_5b0ob")
