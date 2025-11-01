@@ -72,6 +72,10 @@ lean_right={
 ]
 }
 
+[layer_names]
+
+3d_physics/layer_2="player"
+
 [rendering]
 
 textures/default_filters/anisotropic_filtering_level=4

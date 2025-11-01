@@ -34,6 +34,10 @@ func check_transitions() -> State:
 	if Input.is_action_just_pressed("jump"):
 		return state_machine.get_state("JumpingState")
 	
+	# Check for slide (crouch while sprinting)
+	if Input.is_action_just_pressed("crouch"):
+		return state_machine.get_state("SlidingState")
+		
 	# Check if sprint released
 	if not Input.is_action_pressed("sprint"):
 		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
