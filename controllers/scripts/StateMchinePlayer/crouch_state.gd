@@ -17,16 +17,19 @@ extends State
 # 	if collision_shape and collision_shape.shape is CapsuleShape3D:
 # 		original_collision_height = collision_shape.shape.height
 
-# func enter() -> void:
-# 	player.SPEED = crouch_speed
-# 	# Start crouching animation
-# 	_animate_crouch(true)
+func enter() -> void:
+	print("entering crouch state")
+	player.SPEED = crouch_speed
+	# Start crouching animation
+	# _animate_crouch(true)
 
-# func exit() -> void:
-# 	# Stand up animation
-# 	_animate_crouch(false)
+func exit() -> void:
+	print("exiting crouch state")
+	# Stand up animation
+	# _animate_crouch(false)
 
 func update(delta: float) -> void:
+	print("crouch state update")
 	pass
 	# Animate the crouch
 	# var collision_shape = player.get_node("CollisionShape3D")
@@ -57,15 +60,18 @@ func update(delta: float) -> void:
 	
 # 	player.move_and_slide()
 
-# func check_transitions() -> State:
-# 	# Check for falling
-# 	if not player.is_on_floor():
-# 		return state_machine.get_state("FallingState")
+func check_transitions() -> State:
+	print("checking crouch state transitions")
+	# Check for falling
+	if not player.is_on_floor():
+		return state_machine.get_state("FallingState")
 	
 # 	# Check if crouch released and can stand up
-# 	if not Input.is_action_pressed("crouch"):
-# 		if _can_stand_up():
-# 			return state_machine.get_state("IdleState")
+	if not Input.is_action_pressed("crouch"):
+		# if _can_stand_up():
+			return state_machine.get_state("IdleState")
+	
+	return null
 	
 # 	# Check for movement while crouched
 # 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")

@@ -22,11 +22,8 @@ func check_transitions() -> State:
 		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 		
 		# Check for crouch on landing
-		if Input.is_action_pressed("crouch"):
-			if input_dir.length() > 0.1:
-				return state_machine.get_state("CrouchWalkingState")
-			else:
-				return state_machine.get_state("CrouchingState")
+		if Input.is_action_just_pressed("crouch"):
+			return state_machine.get_state("CrouchWalkingState")
 		
 		# Regular landing
 		if input_dir.length() > 0.1:

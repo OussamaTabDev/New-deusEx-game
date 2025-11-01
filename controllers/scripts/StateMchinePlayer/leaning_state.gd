@@ -79,10 +79,8 @@ func check_transitions() -> State:
 		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 		
 		if Input.is_action_pressed("crouch"):
-			if input_dir.length() > 0.1:
-				return state_machine.get_state("CrouchWalkingState")
-			else:
-				return state_machine.get_state("CrouchingState")
+			return state_machine.get_state("CrouchWalkingState")
+			
 		
 		if input_dir.length() > 0.1:
 			if Input.is_action_pressed("sprint"):

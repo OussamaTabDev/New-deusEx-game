@@ -2,7 +2,7 @@ class_name StateMachine
 extends Node
 
 @export var initial_state: State
-
+@export var player: CharacterBody3D
 var current_state: State
 var states: Dictionary = {}
 
@@ -12,8 +12,12 @@ func _ready():
 	
 	# Register all child states
 	for child in get_children():
+
 		if child is State:
+			# child.state_machine = self
+			# child.player = owner
 			states[child.name.to_lower()] = child
+
 	
 	# Set initial state
 	if initial_state:

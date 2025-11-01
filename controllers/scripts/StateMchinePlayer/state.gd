@@ -8,8 +8,8 @@ var state_machine: Node
 func _ready():
 	# Wait for state machine to be ready
 	await owner.ready
-	player = owner as CharacterBody3D
 	state_machine = get_parent()
+	player = state_machine.player
 
 # Called when entering the state
 func enter() -> void:

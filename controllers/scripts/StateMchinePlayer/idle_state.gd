@@ -25,8 +25,9 @@ func check_transitions() -> State:
 		return state_machine.get_state("JumpingState")
 	
 	# Check for crouch
-	if Input.is_action_pressed("crouch"):
-		return state_machine.get_state("CrouchingState")
+	if Input.is_action_just_pressed("crouch"):
+		print("Crouch pressed")
+		return state_machine.get_state("CrouchWalkingState")
 	
 	# Check for movement
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")

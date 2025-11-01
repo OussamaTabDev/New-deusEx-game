@@ -35,7 +35,7 @@ func check_transitions() -> State:
 		return state_machine.get_state("JumpingState")
 	
 	# Check for crouch
-	if Input.is_action_pressed("crouch"):
+	if Input.is_action_just_pressed("crouch"):
 		return state_machine.get_state("CrouchWalkingState")
 	
 	# Check for sprint

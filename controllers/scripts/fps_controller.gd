@@ -6,7 +6,7 @@ class_name Player extends CharacterBody3D
 @export var JUMP_VELOCITY: float = 4.5
 @export var CAMERA_CONTROLLER: Camera3D
 @export var state_machine: StateMachine
-
+@export var anim_player: AnimationPlayer
 # Current speed (modified by states)
 var SPEED: float = 5.0
 

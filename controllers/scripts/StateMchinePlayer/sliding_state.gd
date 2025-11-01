@@ -1,0 +1,142 @@
+class_name SlidingState
+extends State
+
+# @export var slide_speed: float = 10.0  # Initial slide speed (faster than sprint)
+# @export var slide_friction: float = 3.0  # How quickly the slide decelerates
+# @export var min_slide_speed: float = 3.0  # Minimum speed before transitioning out
+# @export var slide_duration: float = 1.0  # Maximum slide duration
+# @export var crouch_height: float = 0.5  # Height multiplier when sliding
+@export var headCast: ShapeCast3D
+# var slide_direction: Vector3
+# var slide_timer: float = 0.0
+# var original_collision_height: float
+# var target_collision_height: float
+# var crouch_animation_speed: float = 10.0  # Faster crouch for slide
+
+# func _ready():
+# 	super._ready()
+# 	await player.ready
+	
+# 	# Store original collision shape height
+# 	var collision_shape = player.get_node("CollisionShape3D")
+# 	if collision_shape and collision_shape.shape is CapsuleShape3D:
+# 		original_collision_height = collision_shape.shape.height
+
+# func enter() -> void:
+# 	# Capture the direction player was moving when slide started
+# 	var horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
+	
+# 	if horizontal_velocity.length() > 0:
+# 		slide_direction = horizontal_velocity.normalized()
+# 	else:
+# 		# Fallback to forward direction if somehow no velocity
+# 		slide_direction = -player.transform.basis.z
+	
+# 	# Set initial slide speed based on current velocity
+# 	var current_speed = horizontal_velocity.length()
+# 	slide_speed = max(current_speed, slide_speed)
+	
+# 	# Reset slide timer
+# 	slide_timer = 0.0
+	
+# 	# Start crouch animation (instant for slide feel)
+# 	target_collision_height = original_collision_height * crouch_height
+
+# func exit() -> void:
+# 	# Stand up animation
+# 	target_collision_height = original_collision_height
+
+# func update(delta: float) -> void:
+# 	# Animate the crouch (faster than normal crouch)
+# 	var collision_shape = player.get_node("CollisionShape3D")
+# 	if collision_shape and collision_shape.shape is CapsuleShape3D:
+# 		collision_shape.shape.height = lerp(
+# 			collision_shape.shape.height,
+# 			target_collision_height,
+# 			crouch_animation_speed * delta
+# 		)
+		
+# 		# Adjust camera position to match crouch
+# 		if player.CAMERA_CONTROLLER:
+# 			var target_y = (target_collision_height - original_collision_height) * 0.5
+# 			player.CAMERA_CONTROLLER.position.y = lerp(
+# 				player.CAMERA_CONTROLLER.position.y,
+# 				target_y,
+# 				crouch_animation_speed * delta
+# 			)
+	
+# 	# Increment slide timer
+# 	slide_timer += delta
+
+# func physics_update(delta: float) -> void:
+# 	# Apply gravity
+# 	if not player.is_on_floor():
+# 		player.velocity.y -= player.gravity * delta
+	
+# 	# Calculate slide velocity with deceleration
+# 	var current_slide_speed = slide_speed - (slide_friction * slide_timer)
+# 	current_slide_speed = max(current_slide_speed, 0)
+	
+# 	# Apply slide movement
+# 	player.velocity.x = slide_direction.x * current_slide_speed
+# 	player.velocity.z = slide_direction.z * current_slide_speed
+	
+# 	# Optional: Very minimal air control during slide
+# 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+# 	if input_dir.length() > 0:
+# 		var input_direction = (player.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+# 		# Allow slight steering during slide (10% influence)
+# 		slide_direction = slide_direction.lerp(input_direction, 0.1 * delta)
+# 		slide_direction = slide_direction.normalized()
+	
+# 	player.move_and_slide()
+
+# func check_transitions() -> State:
+# 	# Check for falling (went off edge while sliding)
+# 	if not player.is_on_floor():
+# 		return state_machine.get_state("FallingState")
+	
+# 	# Check if slide should end
+# 	var current_slide_speed = slide_speed - (slide_friction * slide_timer)
+# 	var should_end_slide = false
+	
+# 	# End slide if:
+# 	# 1. Speed dropped below minimum
+# 	if current_slide_speed < min_slide_speed:
+# 		should_end_slide = true
+	
+# 	# 2. Maximum slide duration reached
+# 	if slide_timer >= slide_duration:
+# 		should_end_slide = true
+	
+# 	# 3. Player released crouch and can stand up
+# 	if not Input.is_action_pressed("crouch") and _can_stand_up():
+# 		should_end_slide = true
+	
+# 	# 4. Player pressed jump to cancel slide
+# 	if Input.is_action_just_pressed("jump"):
+# 		return state_machine.get_state("JumpingState")
+	
+# 	if should_end_slide:
+# 		# Check if still holding crouch
+# 		if Input.is_action_pressed("crouch"):
+# 			var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+# 			
+# 				return state_machine.get_state("CrouchWalkingState")
+# 			
+# 		else:
+# 			# Check if can stand up
+# 			if _can_stand_up():
+# 				var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+# 				if input_dir.length() > 0.1:
+# 					return state_machine.get_state("WalkingState")
+# 				else:
+# 					return state_machine.get_state("IdleState")
+# 			else:
+# 				# Can't stand, stay crouched
+# 				return state_machine.get_state("CrouchWalkingState")
+	
+# 	return null
+
+func _can_stand_up() -> bool:
+	return headCast.is_colliding() == false
