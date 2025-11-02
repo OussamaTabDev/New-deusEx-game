@@ -6,6 +6,7 @@ extends State
 @export var slide_friction: float = 3.0  # How quickly the slide decelerates
 @export var min_slide_speed: float = 3.0  # Minimum speed before transitioning out
 @export var slide_duration: float = 2.0  # Maximum slide duration
+@export var tilt_amount: float =  0.09 # Tilt angle during slide
 @export var headCast: ShapeCast3D
 @export_range(1,10,0.1) var crouch_speed: float = 5.0
 
@@ -21,7 +22,7 @@ func _ready():
 func enter() -> void:
     # Capture the direction player was moving when slide started
     var horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
-    
+    set_tilt(player.rotation)
     if horizontal_velocity.length() > 0:
         slide_direction = horizontal_velocity.normalized()
     else:
@@ -128,3 +129,14 @@ func _animate_crouch(is_crouching: bool) -> void:
         player.anim_player.play("Sliding" , -1 , crouch_speed)
     else:
         player.anim_player.play("Crouching" , -1 , -crouch_speed , true)
+
+func set_tilt(current_rotation: Vector3) -> void:
+
+    var tilt = Vector3.ZERO
+    tilt.z = clamp(tilt_amount * current_rotation.z, -0.1, 0.1)
+    if tilt.z == 0.0:
+        tilt.z = 0.05
+        player.anim_player.get_animation("Sliding").track_set_key_value(3,1,tilt)
+        player.anim_player.get_animation("Sliding").track_set_key_value(3,2,tilt)
+        
+    # print(player.anim_player.get_animation("Sliding").track_get_path(3) , tilt.z)

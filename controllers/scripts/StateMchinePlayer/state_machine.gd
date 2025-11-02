@@ -47,6 +47,9 @@ func transition_to(new_state: State):
     # Debug output
     print("Transitioned to: ", current_state.name, " (from: ", previous_state.name if previous_state else "None", ")")
 
+func get_current_state_name() -> String:
+    return current_state.name if current_state else ""
+    
 func get_state(state_name: String) -> State:
     return states.get(state_name.to_lower())
 

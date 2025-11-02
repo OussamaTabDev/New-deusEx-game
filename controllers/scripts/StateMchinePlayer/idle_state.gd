@@ -37,4 +37,7 @@ func check_transitions() -> State:
 		else:
 			return state_machine.get_state("WalkingState")
 	
+	# if Input.is_action_pressed("lean_left") or Input.is_action_pressed("lean_right"):
+	# 	return state_machine.get_state("LeaningState")
+		
 	return null

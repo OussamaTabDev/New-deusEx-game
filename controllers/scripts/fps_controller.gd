@@ -4,7 +4,7 @@ class_name Player extends CharacterBody3D
 @export var WALK_SPEED: float = 5.0
 @export var SPRINT_SPEED: float = 8.0
 @export var JUMP_VELOCITY: float = 4.5
-@export var CAMERA_CONTROLLER: Camera3D
+@export var CAMERA_CONTROLLER: CameraController
 @export var state_machine: StateMachine
 @export var anim_player: AnimationPlayer
 # Current speed (modified by states)
@@ -20,7 +20,6 @@ func _ready():
 	pass
 
 func _physics_process(delta):
-	# State machine handles all physics updates
 	pass
 
 func _process(delta):
@@ -49,3 +48,4 @@ func wants_to_jump() -> bool:
 
 func is_leaning() -> bool:
 	return Input.is_action_pressed("lean_left") or Input.is_action_pressed("lean_right")
+
