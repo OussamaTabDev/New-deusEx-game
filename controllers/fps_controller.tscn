@@ -156,6 +156,18 @@ tracks/6/keys = {
 "update": 0,
 "values": [75.0]
 }
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("CameraController:FOV_CHANGE")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.5]
+}
 
 [sub_resource type="Animation" id="Animation_3og01"]
 resource_name = "Sliding"
@@ -234,7 +246,7 @@ tracks/5/keys = {
 }
 tracks/6/type = "value"
 tracks/6/imported = false
-tracks/6/enabled = true
+tracks/6/enabled = false
 tracks/6/path = NodePath("CameraController/Camera3D:fov")
 tracks/6/interp = 2
 tracks/6/loop_wrap = true
@@ -243,6 +255,18 @@ tracks/6/keys = {
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
 "values": [75.0, 85.7, 75.0]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("CameraController:FOV_CHANGE")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.7466211, 5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [1.5, 3.0, 1.5]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_5w0k0"]
@@ -316,7 +340,10 @@ script = ExtResource("12_5b0ob")
 
 [node name="SlidingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast")]
 script = ExtResource("13_l8yvu")
+slide_friction = 5.0
+slide_duration = 2.5
 headCast = NodePath("../../Raycasters/HeadCast")
+crouch_speed = 4.0
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

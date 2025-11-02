@@ -37,11 +37,11 @@ func check_transitions() -> State:
 	# Check for crouch
 	if Input.is_action_just_pressed("crouch"):
 		# If moving fast, slide instead of crouch walk
-		var horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
-		if horizontal_velocity.length() >= player.WALK_SPEED * 0.8:
-			return state_machine.get_state("SlidingState")
-		else:
-			return state_machine.get_state("CrouchWalkingState")
+		# var horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
+		# if horizontal_velocity.length() >= player.WALK_SPEED * 0.8:
+		# 	return state_machine.get_state("SlidingState")
+		# else:
+		return state_machine.get_state("CrouchWalkingState")
 		
 	
 	# Check for sprint

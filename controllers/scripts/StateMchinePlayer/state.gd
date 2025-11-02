@@ -3,7 +3,7 @@ extends Node
 
 # Reference to the player
 var player: CharacterBody3D
-var state_machine: Node
+var state_machine: StateMachine
 
 func _ready():
 	# Wait for state machine to be ready

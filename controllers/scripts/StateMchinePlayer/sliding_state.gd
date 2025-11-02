@@ -2,6 +2,7 @@ class_name SlidingState
 extends State
 
 @export var slide_speed: float = 10.0  # Initial slide speed (faster than sprint)
+@export var is_toggle_crouch: bool = false # Whether crouch is toggle or hold
 @export var slide_friction: float = 3.0  # How quickly the slide decelerates
 @export var min_slide_speed: float = 3.0  # Minimum speed before transitioning out
 @export var slide_duration: float = 2.0  # Maximum slide duration
@@ -29,7 +30,11 @@ func enter() -> void:
     
     # Set initial slide speed based on current velocity
     var current_speed = horizontal_velocity.length()
-    slide_speed = max(current_speed, slide_speed)
+    if state_machine.previous_state.name == "SprintingState":
+        slide_speed = max(current_speed, slide_speed)
+    # else: MVP
+    #     slide_speed =  slide_speed * 0.3  # Reduced speed if not from sprint
+    #     slide_duration = slide_duration *  0.3  # Shorter slide duration if not from sprint
     
     # Reset slide timer
     slide_timer = 0.0
@@ -88,22 +93,23 @@ func check_transitions() -> State:
         should_end_slide = true
     
     # 3. Player released crouch and can stand up
-    if not Input.is_action_pressed("crouch") and _can_stand_up():
+    if ((not Input.is_action_pressed("crouch") and not is_toggle_crouch )) and _can_stand_up() and slide_timer >= slide_duration:
         should_end_slide = true
     
     # 4. Player pressed jump to cancel slide
     if Input.is_action_just_pressed("jump"):
+        _animate_crouch(false)
         return state_machine.get_state("JumpingState")
     
     if should_end_slide:
         # Check if still holding crouch
-        if Input.is_action_pressed("crouch"):
-            # _animate_crouch(true)
+        if Input.is_action_pressed("crouch") or (is_toggle_crouch and not Input.is_action_just_pressed("crouch")):
             return state_machine.get_state("CrouchWalkingState")
         
         # Check if can stand up
-        if _can_stand_up():
+        if _can_stand_up() and (is_toggle_crouch and Input.is_action_just_pressed("crouch") or not is_toggle_crouch):
             var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+            _animate_crouch(false)
             if input_dir.length() > 0.1:
                 return state_machine.get_state("WalkingState")
             else:
@@ -120,5 +126,5 @@ func _can_stand_up() -> bool:
 func _animate_crouch(is_crouching: bool) -> void:
     if is_crouching:
         player.anim_player.play("Sliding" , -1 , crouch_speed)
-    # else:
-    #     player.anim_player.play("Sliding" , -1 , -crouch_speed , true)
+    else:
+        player.anim_player.play("Crouching" , -1 , -crouch_speed , true)

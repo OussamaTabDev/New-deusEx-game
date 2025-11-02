@@ -14,7 +14,10 @@ func _ready():
 
 func enter() -> void:
 	player.SPEED = walk_crouch_speed
-	_animate_crouch(true)
+	if state_machine.previous_state.name == "SlidingState":
+		pass
+	else:
+		_animate_crouch(true)
 
 func exit() -> void:
 	_animate_crouch(false)
@@ -72,4 +75,3 @@ func _animate_crouch(is_crouching: bool) -> void:
 
 func _can_stand_up() -> bool:
 	return headCast.is_colliding() == false
-
