@@ -2,12 +2,11 @@ class_name CameraController
 extends Node3D
 
 @export var player: CharacterBody3D
+@export var CAMERA_CONTROLLER: Camera3D
 @export var MOUSE_SENSITIVITY: float = 0.5
 @export var TILT_LOWER_LIMIT := deg_to_rad(-90.0)
 @export var TILT_UPPER_LIMIT := deg_to_rad(90.0)
-@export var CAMERA_CONTROLLER: Camera3D
 
-@export var resurrected_states := ["SprintingState", "SlidingState","JumpingState","FallingState"]
 # Head bob variables
 @export var BOB_FREQ: float = 2.4
 @export var BOB_AMP: float = 0.08
@@ -21,8 +20,15 @@ var t_bob: float = 0.0
 @export var LEAN_AMOUNT: float = 0.3
 @export var LEAN_SPEED: float = 8.0
 @export var LEAN_ROLL_ANGLE: float = deg_to_rad(5.0)  # Subtle camera tilt
+@export var lean_shape_cast_left: ShapeCast3D
+@export var lean_shape_cast_right: ShapeCast3D
+@export var resurrected_states := ["SprintingState", "SlidingState","JumpingState","FallingState"]
+
+
 var current_roll: float = 0.0
 var current_lean: float = 0.0
+
+
 
 # Mouse input
 var _mouse_input: bool = false
@@ -61,18 +67,14 @@ func _update_camera(delta):
 	player.global_transform.basis = Basis.from_euler(_player_rotation)
 	CAMERA_CONTROLLER.rotation.z = 0.0
 
-	# Leaning
-	set_lean(delta)
-	
-
 	# Head bob
 	t_bob += delta * player.velocity.length() * float(player.is_on_floor())
 	var bob_offset: Vector3 = _headbob(t_bob)
-
-	# Combine lean and bob into camera local offset
-	var lean_offset = Vector3(current_lean, 0.0, 0.0)
-	CAMERA_CONTROLLER.transform.origin = lean_offset + bob_offset
-
+	
+	# Leaning
+	set_lean(delta , bob_offset)
+	
+	
 	# FOV
 	var velocity_clamped = clamp(player.velocity.length(), 0.5, player.SPEED * 2)
 	var target_fov = BASE_FOV + FOV_CHANGE * velocity_clamped
@@ -92,17 +94,19 @@ func is_leaning() -> bool:
 	return Input.is_action_pressed("lean_left") or Input.is_action_pressed("lean_right")
 
 
-func set_lean(delta: float) -> void:
+func set_lean(delta: float ,bob_offset) -> void:
 	var target_lean: float = 0.0
 	var target_roll: float = 0.0
 
 	# Only allow leaning if not in restricted states
 	if player.state_machine.get_current_state_name() not in resurrected_states:
-		if Input.is_action_pressed("lean_left"):
-			target_lean = -LEAN_AMOUNT
+		if is_leaning_left():
+			if not lean_shape_cast_left.is_colliding():
+				target_lean = -LEAN_AMOUNT
 			target_roll = LEAN_ROLL_ANGLE  # Roll left (negative)
-		elif Input.is_action_pressed("lean_right"):
-			target_lean = LEAN_AMOUNT
+		elif is_leaning_right():
+			if not lean_shape_cast_right.is_colliding():
+				target_lean = LEAN_AMOUNT
 			target_roll = -LEAN_ROLL_ANGLE   # Roll right (positive)
 
 	# Smoothly interpolate lean and roll
@@ -114,3 +118,15 @@ func set_lean(delta: float) -> void:
 
 	# Apply roll directly to the camera
 	CAMERA_CONTROLLER.rotation.z = current_roll
+	# Combine lean and bob into camera local offset
+	
+	CAMERA_CONTROLLER.transform.origin = lean_offset + bob_offset
+
+
+
+func is_leaning_left():
+	return Input.is_action_pressed("lean_left")
+
+func is_leaning_right():
+	return Input.is_action_pressed("lean_right")
+
