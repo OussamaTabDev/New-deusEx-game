@@ -22,13 +22,10 @@ var t_bob: float = 0.0
 @export var LEAN_ROLL_ANGLE: float = deg_to_rad(5.0)  # Subtle camera tilt
 @export var lean_shape_cast_left: ShapeCast3D
 @export var lean_shape_cast_right: ShapeCast3D
-@export var resurrected_states := ["SprintingState", "SlidingState","JumpingState","FallingState"]
-
+@export var resurrected_states := ["SprintingState", "SlidingState", "JumpingState", "FallingState"]
 
 var current_roll: float = 0.0
 var current_lean: float = 0.0
-
-
 
 # Mouse input
 var _mouse_input: bool = false
@@ -71,9 +68,8 @@ func _update_camera(delta):
 	t_bob += delta * player.velocity.length() * float(player.is_on_floor())
 	var bob_offset: Vector3 = _headbob(t_bob)
 	
-	# Leaning
-	set_lean(delta , bob_offset)
-	
+	# Leaning + Strafe tilt
+	set_lean(delta, bob_offset)
 	
 	# FOV
 	var velocity_clamped = clamp(player.velocity.length(), 0.5, player.SPEED * 2)
@@ -91,42 +87,46 @@ func _headbob(time: float) -> Vector3:
 	return pos
 
 func is_leaning() -> bool:
-	return Input.is_action_pressed("lean_left") or Input.is_action_pressed("lean_right")
+	return is_leaning_left() or is_leaning_right()
 
+func is_leaning_left() -> bool:
+	return Input.is_action_pressed("lean_left")
 
-func set_lean(delta: float ,bob_offset) -> void:
+func is_leaning_right() -> bool:
+	return Input.is_action_pressed("lean_right")
+
+func set_lean(delta: float, bob_offset: Vector3) -> void:
 	var target_lean: float = 0.0
 	var target_roll: float = 0.0
 
-	# Only allow leaning if not in restricted states
+	# --- Manual leaning (overrides strafe roll) ---
 	if player.state_machine.get_current_state_name() not in resurrected_states:
 		if is_leaning_left():
 			if not lean_shape_cast_left.is_colliding():
 				target_lean = -LEAN_AMOUNT
-			target_roll = LEAN_ROLL_ANGLE  # Roll left (negative)
+			target_roll = LEAN_ROLL_ANGLE
 		elif is_leaning_right():
 			if not lean_shape_cast_right.is_colliding():
 				target_lean = LEAN_AMOUNT
-			target_roll = -LEAN_ROLL_ANGLE   # Roll right (positive)
+			target_roll = -LEAN_ROLL_ANGLE
 
-	# Smoothly interpolate lean and roll
+	# --- Automatic strafe tilt (only if grounded and not manually leaning) ---
+	var is_manually_leaning = is_leaning_left() or is_leaning_right()
+	if player.is_on_floor() and not is_manually_leaning:
+		var move_dir = Input.get_axis("move_left", "move_right")
+		if move_dir != 0.0:
+			# Tilt opposite to strafe direction (like banking in a turn)
+			target_roll = -move_dir * LEAN_ROLL_ANGLE * 0.7
+
+	# Smooth interpolation
 	current_lean = lerp(current_lean, target_lean, delta * LEAN_SPEED)
 	current_roll = lerp(current_roll, target_roll, delta * LEAN_SPEED)
 
 	# Apply lean offset (X-axis)
 	var lean_offset := Vector3(current_lean, 0.0, 0.0)
 
-	# Apply roll directly to the camera
+	# Apply roll to camera Z rotation
 	CAMERA_CONTROLLER.rotation.z = current_roll
+
 	# Combine lean and bob into camera local offset
-	
 	CAMERA_CONTROLLER.transform.origin = lean_offset + bob_offset
-
-
-
-func is_leaning_left():
-	return Input.is_action_pressed("lean_left")
-
-func is_leaning_right():
-	return Input.is_action_pressed("lean_right")
-
