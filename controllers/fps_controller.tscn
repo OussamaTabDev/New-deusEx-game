@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=27 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
@@ -65,7 +65,7 @@ tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
 tracks/3/path = NodePath("Raycasters/HeadCast:position")
-tracks/3/interp = 1
+tracks/3/interp = 2
 tracks/3/loop_wrap = true
 tracks/3/keys = {
 "times": PackedFloat32Array(0, 1),
@@ -73,32 +73,53 @@ tracks/3/keys = {
 "update": 0,
 "values": [Vector3(0, 3.089416, 0), Vector3(0, 2.939, 0)]
 }
-
-[sub_resource type="Animation" id="Animation_fyafc"]
-resource_name = "Leaning"
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("CameraController/Camera3D:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.98),
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Raycasters/ClimbingCasts/ChestCast:shape:size")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector3(0, 0, 0), Vector3(0, 0, 0)]
+"values": [Vector3(0.99, 1.64, 1), Vector3(0.785, 0.67, 1)]
 }
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("CameraController/Camera3D:rotation")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.98),
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Raycasters/ClimbingCasts:position")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector3(0, 0, 0), Vector3(0, 0, 0)]
+"values": [Vector3(0, 0, 0), Vector3(0, -0.605, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Raycasters/ClimbingCasts/UpperChestCast:shape:size")
+tracks/6/interp = 2
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(1.015, 1.535, 1.255), Vector3(0.89, 1.19, 1.255)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Raycasters/ClimbingCasts/ChestCast:target_position")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, -1.165, 0), Vector3(0, -1.02, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_5w0k0"]
@@ -178,31 +199,31 @@ tracks/5/keys = {
 tracks/6/type = "value"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("CameraController/Camera3D:fov")
+tracks/6/path = NodePath("CameraController:FOV_CHANGE")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [75.0]
+"values": [1.5]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath("CameraController:FOV_CHANGE")
+tracks/7/path = NodePath("CameraController/Camera3D:position")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [1.5]
+"values": [Vector3(0, 0, 0)]
 }
 tracks/8/type = "value"
 tracks/8/imported = false
 tracks/8/enabled = true
-tracks/8/path = NodePath("CameraController/Camera3D:position")
+tracks/8/path = NodePath("CameraController/Camera3D:rotation")
 tracks/8/interp = 1
 tracks/8/loop_wrap = true
 tracks/8/keys = {
@@ -214,14 +235,50 @@ tracks/8/keys = {
 tracks/9/type = "value"
 tracks/9/imported = false
 tracks/9/enabled = true
-tracks/9/path = NodePath("CameraController/Camera3D:rotation")
+tracks/9/path = NodePath("Raycasters/ClimbingCasts/ChestCast:shape:size")
 tracks/9/interp = 1
 tracks/9/loop_wrap = true
 tracks/9/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Raycasters/ClimbingCasts:position")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
 "values": [Vector3(0, 0, 0)]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Raycasters/ClimbingCasts/UpperChestCast:shape:size")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1.535, 1.255)]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Raycasters/ClimbingCasts/ChestCast:target_position")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, -1.165, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_3og01"]
@@ -279,7 +336,7 @@ tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
 tracks/4/path = NodePath("CameraController:FOV_CHANGE")
-tracks/4/interp = 1
+tracks/4/interp = 2
 tracks/4/loop_wrap = true
 tracks/4/keys = {
 "times": PackedFloat32Array(0, 0.7466211, 5),
@@ -311,30 +368,30 @@ tracks/6/keys = {
 "update": 0,
 "values": [10.0, 4.0]
 }
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = false
-tracks/7/path = NodePath("CameraController/Camera3D:fov")
-tracks/7/interp = 2
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0, 0.74910825, 5),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [75.0, 85.7, 75.0]
-}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_5w0k0"]
 _data = {
 &"Crouching": SubResource("Animation_l8yvu"),
-&"Leaning": SubResource("Animation_fyafc"),
 &"RESET": SubResource("Animation_5w0k0"),
 &"Sliding": SubResource("Animation_3og01")
 }
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_l8yvu"]
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player")]
+[sub_resource type="BoxShape3D" id="BoxShape3D_5w0k0"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3og01"]
+size = Vector3(1, 1.535, 1.255)
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5w0k0"]
+albedo_color = Color(1, 0.30345234, 0.20271397, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_3og01"]
+material = SubResource("ORMMaterial3D_5w0k0")
+radius = 0.05
+height = 0.1
+
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "upperchest_Cast", "h_cast", "h_cast_up", "r_cast")]
 collision_layer = 2
 script = ExtResource("1_pgc1p")
 WALK_SPEED = 4.0
@@ -342,6 +399,12 @@ JUMP_VELOCITY = 4.8
 CAMERA_CONTROLLER = NodePath("CameraController")
 state_machine = NodePath("StateMachine")
 anim_player = NodePath("AnimationPlayer")
+head_Cast = NodePath("Raycasters/HeadCast")
+chest_Cast = NodePath("Raycasters/ClimbingCasts/ChestCast")
+upperchest_Cast = NodePath("Raycasters/ClimbingCasts/UpperChestCast")
+h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
+h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
+r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -370,6 +433,7 @@ enable_shadows = true
 [node name="Crosshair" parent="CameraController/Camera3D" instance=ExtResource("4_5w0k0")]
 
 [node name="Raycasters" type="Node3D" parent="CameraController"]
+visible = false
 
 [node name="CameraLeftCast" type="ShapeCast3D" parent="CameraController/Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 1.1100001, 0)
@@ -400,8 +464,17 @@ script = ExtResource("8_tg6sc")
 script = ExtResource("9_yvtcv")
 air_control_factor = 0.85
 
-[node name="CrouchState" type="Node" parent="StateMachine"]
+[node name="ClimbState" type="Node" parent="StateMachine" node_paths=PackedStringArray("head_Cast", "chest_Cast", "upperchest_Cast", "crouchState", "standState")]
 script = ExtResource("10_h7h5r")
+climb_hight = 2.8
+move_speed = 2.0
+time_to_climb = 0.7
+time_to_move = 0.3
+head_Cast = NodePath("../../Raycasters/HeadCast")
+chest_Cast = NodePath("../../Raycasters/ClimbingCasts/ChestCast")
+upperchest_Cast = NodePath("../../Raycasters/ClimbingCasts/UpperChestCast")
+crouchState = NodePath("../CrouchWalkingState")
+standState = NodePath("../IdleState")
 
 [node name="CrouchWalkingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast")]
 script = ExtResource("11_fdopr")
@@ -432,3 +505,31 @@ anim_player = NodePath("../AnimationPlayer")
 [node name="HeadCast" type="ShapeCast3D" parent="Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
 shape = SubResource("SphereShape3D_l8yvu")
+
+[node name="ClimbingCasts" type="Node3D" parent="Raycasters"]
+
+[node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9917719, -0.6089425)
+shape = SubResource("BoxShape3D_5w0k0")
+target_position = Vector3(0, -1.165, 0)
+
+[node name="UpperChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.3664618, -1.0712972)
+shape = SubResource("BoxShape3D_3og01")
+
+[node name="H_cast" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4899526, 0)
+target_position = Vector3(0, 0, -2)
+
+[node name="H_cast_up" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.035036, 0)
+target_position = Vector3(0, 0, -2)
+
+[node name="R_castController" type="Node3D" parent="Raycasters/ClimbingCasts"]
+
+[node name="R_Cast" type="RayCast3D" parent="Raycasters/ClimbingCasts/R_castController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.49277425, 0)
+target_position = Vector3(0, -10, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Raycasters/ClimbingCasts/R_castController/R_Cast"]
+mesh = SubResource("CapsuleMesh_3og01")

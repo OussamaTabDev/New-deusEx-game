@@ -7,12 +7,22 @@ class_name Player extends CharacterBody3D
 @export var CAMERA_CONTROLLER: CameraController
 @export var state_machine: StateMachine
 @export var anim_player: AnimationPlayer
+
+@export var head_Cast : ShapeCast3D
+@export var chest_Cast: ShapeCast3D
+@export var upperchest_Cast: ShapeCast3D
+@export var h_cast : RayCast3D
+@export var h_cast_up : RayCast3D
+@export var r_cast : RayCast3D
+
 # Current speed (modified by states)
 var SPEED: float = 5.0
 
 # Gravity
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
+# hitmarker points
+var hit_point2: Vector3
 # State machine reference
 
 func _ready():
@@ -20,6 +30,7 @@ func _ready():
 	pass
 
 func _physics_process(delta):
+	ledge_detect()
 	pass
 
 func _process(delta):
@@ -49,3 +60,31 @@ func wants_to_jump() -> bool:
 func is_leaning() -> bool:
 	return Input.is_action_pressed("lean_left") or Input.is_action_pressed("lean_right")
 
+func can_climb():
+
+	return not head_Cast.is_colliding() and not upperchest_Cast.is_colliding() and chest_Cast.is_colliding() and hit_point2.distance_to(global_transform.origin) < 3.5
+
+
+func ledge_detect():
+	var hit_point1 = h_cast.get_collision_point()
+	var hit_point1_up = h_cast_up.get_collision_point()
+	var raycast2_holder = r_cast.get_parent()
+	var ledge_marker = r_cast.get_child(0)
+	hit_point2 = r_cast.get_collision_point()
+	var offset = Vector3(0, 3, 0)
+	if h_cast.is_colliding():
+		raycast2_holder.global_transform.origin = hit_point1 + offset
+		ledge_marker.global_transform.origin = hit_point2
+
+		ledge_marker.visible = true
+		r_cast.enabled = true
+	elif h_cast_up.is_colliding():
+		raycast2_holder.global_transform.origin = hit_point1_up + offset
+		ledge_marker.global_transform.origin = hit_point2
+
+		ledge_marker.visible = true
+		r_cast.enabled = true
+
+	else:
+		ledge_marker.visible = false
+		r_cast.enabled = false

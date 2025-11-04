@@ -8,52 +8,52 @@ var previous_state: State  # <-- new variable to track previous state
 var states: Dictionary = {}
 
 func _ready():
-    # Wait for owner to be ready
-    await owner.ready
-    
-    # Register all child states
-    for child in get_children():
-        if child is State:
-            states[child.name.to_lower()] = child
+	# Wait for owner to be ready
+	await owner.ready
+	
+	# Register all child states
+	for child in get_children():
+		if child is State:
+			states[child.name.to_lower()] = child
 
-    # Set initial state
-    if initial_state:
-        current_state = initial_state
-        current_state.enter()
+	# Set initial state
+	if initial_state:
+		current_state = initial_state
+		current_state.enter()
 
 func _process(delta: float):
-    if current_state:
-        current_state.update(delta)
+	if current_state:
+		current_state.update(delta)
 
 func _physics_process(delta: float):
-    if current_state:
-        current_state.physics_update(delta)
-        
-        # Check for state transitions
-        var next_state = current_state.check_transitions()
-        if next_state and next_state != current_state:
-            transition_to(next_state)
+	if current_state:
+		current_state.physics_update(delta)
+		
+		# Check for state transitions
+		var next_state = current_state.check_transitions()
+		if next_state and next_state != current_state:
+			transition_to(next_state)
 
 func transition_to(new_state: State):
-    if current_state:
-        current_state.exit()
-    
-    # Save the current state as previous before switching
-    previous_state = current_state
-    
-    current_state = new_state
-    current_state.enter()
-    
-    # Debug output
-    print("Transitioned to: ", current_state.name, " (from: ", previous_state.name if previous_state else "None", ")")
+	if current_state:
+		current_state.exit()
+	
+	# Save the current state as previous before switching
+	previous_state = current_state
+	
+	current_state = new_state
+	current_state.enter()
+	
+	# Debug output
+	print("Transitioned to: ", current_state.name, " (from: ", previous_state.name if previous_state else "None", ")")
 
 func get_current_state_name() -> String:
-    return current_state.name if current_state else ""
-    
+	return current_state.name if current_state else ""
+	
 func get_state(state_name: String) -> State:
-    return states.get(state_name.to_lower())
+	return states.get(state_name.to_lower())
 
 # Optional helper to go back to previous state
 func revert_to_previous_state():
-    if previous_state:
-        transition_to(previous_state)
+	if previous_state:
+		transition_to(previous_state)

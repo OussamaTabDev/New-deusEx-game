@@ -1,6 +1,9 @@
 class_name WalkingState
 extends State
 
+
+
+
 func enter() -> void:
 	player.SPEED = player.WALK_SPEED
 

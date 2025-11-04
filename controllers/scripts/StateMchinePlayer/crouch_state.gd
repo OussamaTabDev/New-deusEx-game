@@ -1,99 +1,82 @@
-class_name CrouchingState
+class_name ClimbState
 extends State
 
-@export var crouch_speed: float = 2.5
-# @export var crouch_height: float = 0.5  # Height multiplier when crouched
+@export var move_speed: float = 5.0
+@export var time_to_climb: float = 1.0
+@export var time_to_move: float = 0.5
 
-# var original_collision_height: float
-# var target_collision_height: float
-# var crouch_animation_speed: float = 5.0
+var climb_hight: float 
+@export var head_Cast : ShapeCast3D
+@export var chest_Cast: ShapeCast3D
+@export var upperchest_Cast: ShapeCast3D
 
-# func _ready():
-# 	super._ready()
-# 	# await player.ready
-	
-# 	# Store original collision shape height
-# 	var collision_shape = player.get_node("CollisionShape3D")
-# 	if collision_shape and collision_shape.shape is CapsuleShape3D:
-# 		original_collision_height = collision_shape.shape.height
+@export var crouchState: State
+@export var standState: State
+
+var tween: Tween  # store tween reference if needed
 
 func enter() -> void:
-	print("entering crouch state")
-	player.SPEED = crouch_speed
-	# Start crouching animation
-	# _animate_crouch(true)
+	climb_hight = player.hit_point2.y
+	print("Entering Climb state")
+	climb()  # start climb immediately when entering
+
 
 func exit() -> void:
-	print("exiting crouch state")
-	# Stand up animation
-	# _animate_crouch(false)
+	print("Exiting Climb state")
+
 
 func update(delta: float) -> void:
-	print("crouch state update")
 	pass
-	# Animate the crouch
-	# var collision_shape = player.get_node("CollisionShape3D")
-	# if collision_shape and collision_shape.shape is CapsuleShape3D:
-	# 	collision_shape.shape.height = lerp(
-	# 		collision_shape.shape.height,
-	# 		target_collision_height,
-	# 		crouch_animation_speed * delta
-	# 	)
-		
-	# 	# Adjust camera position to match crouch
-	# 	if player.CAMERA_CONTROLLER:
-	# 		var target_y = (target_collision_height - original_collision_height) * 0.5
-	# 		player.CAMERA_CONTROLLER.position.y = lerp(
-	# 			player.CAMERA_CONTROLLER.position.y,
-	# 			target_y,
-	# 			crouch_animation_speed * delta
-	# 		)
 
-# func physics_update(delta: float) -> void:
-# 	# Apply gravity
-# 	if not player.is_on_floor():
-# 		player.velocity.y -= player.gravity * delta
-	
-# 	# Apply deceleration
-# 	player.velocity.x = move_toward(player.velocity.x, 0, player.SPEED)
-# 	player.velocity.z = move_toward(player.velocity.z, 0, player.SPEED)
-	
-# 	player.move_and_slide()
+
+func physics_update(delta: float) -> void:
+	player.move_and_slide()
+
 
 func check_transitions() -> State:
-	print("checking crouch state transitions")
-	# Check for falling
-	if not player.is_on_floor():
-		return state_machine.get_state("FallingState")
-	
-# 	# Check if crouch released and can stand up
-	if not Input.is_action_pressed("crouch"):
-		# if _can_stand_up():
-			return state_machine.get_state("IdleState")
-	
+	# Manual override if player cancels
+	# Allow cancelling climb by moving downwards
+	if Input.is_action_just_pressed("move_backward"):
+		if tween and tween.is_running():
+			tween.kill()
+			return state_machine.get_state("FallingState")
 	return null
-	
-# 	# Check for movement while crouched
-# 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-# 	if input_dir.length() > 0.1:
-# 		return state_machine.get_state("CrouchWalkingState")
-	
-# 	return null
 
-# func _animate_crouch(is_crouching: bool) -> void:
-# 	if is_crouching:
-# 		target_collision_height = original_collision_height * crouch_height
-# 	else:
-# 		target_collision_height = original_collision_height
 
-# func _can_stand_up() -> bool:
-# 	# Raycast upward to check if player can stand
-# 	var space_state = player.get_world_3d().direct_space_state
-# 	var query = PhysicsRayQueryParameters3D.create(
-# 		player.global_position,
-# 		player.global_position + Vector3(0, original_collision_height, 0)
-# 	)
-# 	query.exclude = [player]
+func _can_stand_up() -> bool:
+	return head_Cast.is_colliding()
+
+
+func climb():
+	var vertical_target = player.global_position + Vector3(0, climb_hight, 0)
+	var forward_target = player.global_position  + (-player.global_transform.basis.z * move_speed) + Vector3(0, climb_hight, 0)
+
+	# Step 1 — climb up
+	tween = create_tween()
+	tween.tween_property(
+		player,
+		"global_position",
+		vertical_target,
+		time_to_climb
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
 	
-# 	var result = space_state.intersect_ray(query)
-# 	return result.is_empty()
+
+	# Step 2 — after climbing, move forward
+	tween.tween_property(
+		player,
+		"global_position",
+		forward_target,
+		time_to_move
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+	
+
+	# Wait for tween to finish, then return to idle/crouch
+	await tween.finished
+	print("Climb animation done!")
+
+	if state_machine.previous_state.name == "WalkingCrouchState" or not _can_stand_up():
+		state_machine.transition_to(crouchState)
+	else:
+		state_machine.transition_to(standState)

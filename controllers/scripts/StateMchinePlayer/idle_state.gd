@@ -22,6 +22,8 @@ func check_transitions() -> State:
 	
 	# Check for jump
 	if Input.is_action_just_pressed("jump"):
+		if player.can_climb():
+			return state_machine.get_state("CLimbState")
 		return state_machine.get_state("JumpingState")
 	
 	# Check for crouch
@@ -37,7 +39,6 @@ func check_transitions() -> State:
 		else:
 			return state_machine.get_state("WalkingState")
 	
-	# if Input.is_action_pressed("lean_left") or Input.is_action_pressed("lean_right"):
-	# 	return state_machine.get_state("LeaningState")
+	
 		
 	return null
