@@ -11,98 +11,163 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_nrohy")
-crosshairColor = Color(0.94919604, 0.8093608, 0.75558716, 1)
+crosshairThickness = 2.145
+crosshairSize = 10.58
+crosshairGap = 6.29
+crosshairLinesVisible = false
+crosshairLineCap = 1
+crosshairDot = true
+dotShape = 1
+dotScale = 2.5
+crosshairTStyle = true
+crosshairHorizontalLinesPosition = 2.185
+crosshairHorizontalLinesThickness = 2.615
+circleRadius = 38.5
+circleThickness = 6.3
+circleColor = Color(1, 1, 1, 1)
+circleOutlineThickness = 1.1
+splitCircle = true
+circleGapCount = 6
+sprintMode = true
+sprintExpansion = 28.0
+sprintTransitionSpeed = 6.6
 
 [node name="TopLine" type="Line2D" parent="."]
-points = PackedVector2Array(0, -4, 0, -9)
-width = 2.0
-default_color = Color(0, 1, 0, 1)
+visible = false
+points = PackedVector2Array(0, -7.3625, 0, -17.9425)
+width = 2.145
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="topLineOutline" type="Line2D" parent="TopLine"]
 visible = false
 z_index = -1
-points = PackedVector2Array(0, -3, 0, -8)
-width = 2.0
+points = PackedVector2Array(0, -7.0775003, 0, -19.0575)
+width = 5.085
 default_color = Color(0, 0, 0, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="topHorizontalLine" type="Line2D" parent="TopLine"]
 visible = false
+points = PackedVector2Array(-4.2175, -7.3825, 4.2175, -7.3825)
+width = 2.615
+begin_cap_mode = 2
+end_cap_mode = 2
 
 [node name="topHorizontalLineOutline" type="Line2D" parent="TopLine/topHorizontalLine"]
 visible = false
 z_index = -1
-points = PackedVector2Array(0, -3, 0, -8)
-width = 2.0
+points = PackedVector2Array(-5.81, -8.3975, 5.81, -8.3975)
+width = 5.085
 default_color = Color(0, 0, 0, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="BottomLine" type="Line2D" parent="."]
-points = PackedVector2Array(0, 4, 0, 9)
-width = 2.0
-default_color = Color(0, 1, 0, 1)
+visible = false
+points = PackedVector2Array(0, 7.3625, 0, 17.9425)
+width = 2.145
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="bottomLineOutline" type="Line2D" parent="BottomLine"]
 visible = false
 z_index = -1
+points = PackedVector2Array(0, 7.0775003, 0, 19.0575)
+width = 5.085
 default_color = Color(0, 0, 0, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="bottomHorizontalLine" type="Line2D" parent="BottomLine"]
 visible = false
+points = PackedVector2Array(-4.2175, 7.3825, 4.2175, 7.3825)
+width = 2.615
+begin_cap_mode = 2
+end_cap_mode = 2
 
 [node name="bottomHorizontalLineOutline" type="Line2D" parent="BottomLine/bottomHorizontalLine"]
 visible = false
 z_index = -1
-points = PackedVector2Array(0, -3, 0, -8)
-width = 2.0
+points = PackedVector2Array(-5.81, 8.3975, 5.81, 8.3975)
+width = 5.085
 default_color = Color(0, 0, 0, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="LeftLine" type="Line2D" parent="."]
-points = PackedVector2Array(-4, 0, -9, 0)
-width = 2.0
-default_color = Color(0, 1, 0, 1)
+visible = false
+points = PackedVector2Array(-7.3625, 0, -17.9425, 0)
+width = 2.145
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="leftLineOutline" type="Line2D" parent="LeftLine"]
 visible = false
 z_index = -1
+points = PackedVector2Array(-7.0775003, 0, -19.0575, 0)
+width = 5.085
 default_color = Color(0, 0, 0, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="leftHorizontalLine" type="Line2D" parent="LeftLine"]
 visible = false
+points = PackedVector2Array(-7.3825, 4.2175, -7.3825, -4.2175)
+width = 2.615
+begin_cap_mode = 2
+end_cap_mode = 2
 
 [node name="leftHorizontalLineOutline" type="Line2D" parent="LeftLine/leftHorizontalLine"]
 visible = false
 z_index = -1
-points = PackedVector2Array(0, -3, 0, -8)
-width = 2.0
+points = PackedVector2Array(-8.3975, 5.81, -8.3975, -5.81)
+width = 5.085
 default_color = Color(0, 0, 0, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="RightLine" type="Line2D" parent="."]
-points = PackedVector2Array(4, 0, 9, 0)
-width = 2.0
-default_color = Color(0, 1, 0, 1)
+visible = false
+points = PackedVector2Array(7.3625, 0, 17.9425, 0)
+width = 2.145
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="rightLineOutline" type="Line2D" parent="RightLine"]
 visible = false
 z_index = -1
+points = PackedVector2Array(7.0775003, 0, 19.0575, 0)
+width = 5.085
 default_color = Color(0, 0, 0, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
 
 [node name="rightHorizontalLine" type="Line2D" parent="RightLine"]
 visible = false
+points = PackedVector2Array(7.3825, 4.2175, 7.3825, -4.2175)
+width = 2.615
+begin_cap_mode = 2
+end_cap_mode = 2
 
 [node name="rightHorizontalLineOutline" type="Line2D" parent="RightLine/rightHorizontalLine"]
 visible = false
 z_index = -1
-points = PackedVector2Array(0, -3, 0, -8)
-width = 2.0
+points = PackedVector2Array(8.3975, 5.81, 8.3975, -5.81)
+width = 5.085
 default_color = Color(0, 0, 0, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
 antialiased = true
