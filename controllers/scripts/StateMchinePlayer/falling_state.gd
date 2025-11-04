@@ -1,6 +1,7 @@
 class_name FallingState
 extends State
 
+@export var air_control_factor: float = 0.3
 func physics_update(delta: float) -> void:
 	# Apply gravity
 	player.velocity.y -= player.gravity * delta
@@ -11,8 +12,8 @@ func physics_update(delta: float) -> void:
 	
 	if direction:
 		# Reduced air control for more realistic movement
-		player.velocity.x = lerp(player.velocity.x, direction.x * player.SPEED, 0.3)
-		player.velocity.z = lerp(player.velocity.z, direction.z * player.SPEED, 0.3)
+		player.velocity.x = lerp(player.velocity.x, direction.x * player.SPEED * air_control_factor, 0.3)
+		player.velocity.z = lerp(player.velocity.z, direction.z * player.SPEED * air_control_factor, 0.3)
 	
 	player.move_and_slide()
 

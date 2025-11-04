@@ -18,7 +18,6 @@ crosshairLinesVisible = false
 crosshairLineCap = 1
 crosshairDot = true
 dotShape = 1
-dotScale = 2.5
 crosshairTStyle = true
 crosshairHorizontalLinesPosition = 2.185
 crosshairHorizontalLinesThickness = 2.615

@@ -356,6 +356,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
 player = NodePath("..")
 CAMERA_CONTROLLER = NodePath("Camera3D")
+CONTROLLER_SENSITIVITY = 1.5
 LEAN_AMOUNT = 0.75
 lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
 lean_shape_cast_right = NodePath("Raycasters/CameraRightCast")
@@ -366,8 +367,7 @@ lean_shape_cast_right = NodePath("Raycasters/CameraRightCast")
 visible = false
 enable_shadows = true
 
-[node name="Crosshair" parent="CameraController" instance=ExtResource("4_5w0k0")]
-crosshairLinesVisible = null
+[node name="Crosshair" parent="CameraController/Camera3D" instance=ExtResource("4_5w0k0")]
 
 [node name="Raycasters" type="Node3D" parent="CameraController"]
 
@@ -398,6 +398,7 @@ script = ExtResource("8_tg6sc")
 
 [node name="FallingState" type="Node" parent="StateMachine"]
 script = ExtResource("9_yvtcv")
+air_control_factor = 0.85
 
 [node name="CrouchState" type="Node" parent="StateMachine"]
 script = ExtResource("10_h7h5r")
