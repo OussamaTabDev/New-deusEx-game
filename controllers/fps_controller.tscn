@@ -1,8 +1,9 @@
-[gd_scene load_steps=23 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=24 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
 [ext_resource type="Script" uid="uid://eav1hnyrhu2x" path="res://controllers/scripts/StateMchinePlayer/camera_3d_controller.gd" id="3_uovkr"]
+[ext_resource type="PackedScene" uid="uid://dy5rhgomnd2s8" path="res://controllers/UI/CrossHair.tscn" id="4_5w0k0"]
 [ext_resource type="Script" uid="uid://bdhoyf88f6a32" path="res://controllers/scripts/StateMchinePlayer/state_machine.gd" id="4_l8yvu"]
 [ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
 [ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
@@ -356,8 +357,8 @@ script = ExtResource("3_uovkr")
 player = NodePath("..")
 CAMERA_CONTROLLER = NodePath("Camera3D")
 LEAN_AMOUNT = 0.75
-lean_shape_cast_left = NodePath("CameraLeftCast")
-lean_shape_cast_right = NodePath("CameraRightCast")
+lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
+lean_shape_cast_right = NodePath("Raycasters/CameraRightCast")
 
 [node name="Camera3D" type="Camera3D" parent="CameraController"]
 
@@ -365,12 +366,30 @@ lean_shape_cast_right = NodePath("CameraRightCast")
 visible = false
 enable_shadows = true
 
-[node name="CameraLeftCast" type="ShapeCast3D" parent="CameraController"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 1.11, 0)
+[node name="CrossHair" parent="CameraController/Camera3D" instance=ExtResource("4_5w0k0")]
+crosshair_scale = 1.36
+z_index_custom = 1
+outline_enabled = false
+dot_size = 8.0
+arm_rotation = -180.0
+ring_enabled = true
+ring_radius = 16.0
+ring_thickness = 4.6
+ring_segments = 32
+ads_enabled = false
+ads_scale = 0.6
+hitmarker_scale = 3.5
+hitmarker_color = Color(1, 0.25882354, 0.25882354, 1)
+use_subpixel = false
+
+[node name="Raycasters" type="Node3D" parent="CameraController"]
+
+[node name="CameraLeftCast" type="ShapeCast3D" parent="CameraController/Raycasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 1.1100001, 0)
 shape = SubResource("SphereShape3D_5w0k0")
 
-[node name="CameraRightCast" type="ShapeCast3D" parent="CameraController"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 1.11, 0)
+[node name="CameraRightCast" type="ShapeCast3D" parent="CameraController/Raycasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 1.1100001, 0)
 shape = SubResource("SphereShape3D_5w0k0")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "player")]

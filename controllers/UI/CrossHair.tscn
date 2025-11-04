@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://dy5rhgomnd2s8"]
+
+[ext_resource type="Script" uid="uid://do2t7qrbqn61i" path="res://controllers/UI/cross_hair.gd" id="1_wjn52"]
+
+[node name="CrossHair" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wjn52")
+outline_thickness = 0.0
+dot_enabled = true
+dot_size = 5.5
+arm_rotation = 36.0
