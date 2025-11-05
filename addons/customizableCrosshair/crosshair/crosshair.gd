@@ -253,7 +253,7 @@ extends CenterContainer
 
 
 @export_subgroup("Breathing Animation")
-## Enable gentle pulsing animation
+## Enable gentle pulsing animation for crosshair lines
 @export var breathingEnabled: bool = false:
 	set(value):
 		breathingEnabled = value
@@ -270,8 +270,99 @@ extends CenterContainer
 	set(value):
 		breathingAmplitude = value
 
+## Breathing waveform type
+@export_enum(
+	"Sine",
+	"Smooth Step",
+	"Triangle",
+	"Square"
+) var breathingWaveform: int = 0:
+	set(value):
+		breathingWaveform = value
 
 
+@export_subgroup("Dot Breathing")
+## Enable breathing animation for center dot
+@export var dotBreathingEnabled: bool = false:
+	set(value):
+		dotBreathingEnabled = value
+
+## Dot breathing speed (independent from main breathing)
+@export_range(0.1, 5.0, 0.1) var dotBreathingSpeed: float = 1.0:
+	set(value):
+		dotBreathingSpeed = value
+
+## Dot breathing amplitude (scale multiplier)
+@export_range(0.1, 3.0, 0.05) var dotBreathingAmplitude: float = 0.3:
+	set(value):
+		dotBreathingAmplitude = value
+
+## Dot breathing waveform
+@export_enum(
+	"Sine",
+	"Smooth Step",
+	"Triangle",
+	"Square"
+) var dotBreathingWaveform: int = 0:
+	set(value):
+		dotBreathingWaveform = value
+
+## Phase offset for dot (0-1, controls sync with main breathing)
+@export_range(0.0, 1.0, 0.05) var dotBreathingPhase: float = 0.0:
+	set(value):
+		dotBreathingPhase = value
+
+
+@export_subgroup("Circle Breathing")
+## Enable breathing animation for circle
+@export var circleBreathingEnabled: bool = false:
+	set(value):
+		circleBreathingEnabled = value
+
+## Circle breathing speed
+@export_range(0.1, 5.0, 0.1) var circleBreathingSpeed: float = 1.0:
+	set(value):
+		circleBreathingSpeed = value
+
+## Circle breathing amplitude (radius change)
+@export_range(0.5, 20.0, 0.5) var circleBreathingAmplitude: float = 3.0:
+	set(value):
+		circleBreathingAmplitude = value
+
+## Circle breathing waveform
+@export_enum(
+	"Sine",
+	"Smooth Step",
+	"Triangle",
+	"Square"
+) var circleBreathingWaveform: int = 0:
+	set(value):
+		circleBreathingWaveform = value
+
+## Phase offset for circle (0-1, controls sync with main breathing)
+@export_range(0.0, 1.0, 0.05) var circleBreathingPhase: float = 0.0:
+	set(value):
+		circleBreathingPhase = value
+
+## Enable circle rotation animation
+@export var circleRotationEnabled: bool = false:
+	set(value):
+		circleRotationEnabled = value
+
+## Circle rotation speed (degrees per second)
+@export_range(-360.0, 360.0, 1.0) var circleRotationSpeed: float = 30.0:
+	set(value):
+		circleRotationSpeed = value
+
+## Enable pulsing thickness for circle
+@export var circleThicknessPulse: bool = false:
+	set(value):
+		circleThicknessPulse = value
+
+## Circle thickness pulse amplitude
+@export_range(0.1, 5.0, 0.1) var circleThicknessPulseAmplitude: float = 1.0:
+	set(value):
+		circleThicknessPulseAmplitude = value
 
 
 # Line nodes
@@ -279,15 +370,24 @@ extends CenterContainer
 @onready var BottomLineRef: Node2D = $BottomLine
 @onready var LeftLineRef: Node2D = $LeftLine
 @onready var RightLineRef: Node2D = $RightLine
+@onready var CircleLineRef: Line2D = $CircleLine  # ADD THIS
+@onready var CircleOutlineRef: Line2D = $CircleOutline  # ADD THIS
 
 # Animation variables
 var breathingTime: float = 0.0
+var dotBreathingTime: float = 0.0
+var circleBreathingTime: float = 0.0
+var circleRotationTime: float = 0.0
 var currentSprintOffset: float = 0.0
 var targetSprintOffset: float = 0.0
 
 # Dynamic offset variables
 var crosshairDynamicOffset: float = 0.0
 var crosshairStaticOffset: float = 0.0
+var currentDotScale: float = 1.0
+var currentCircleRadius: float = 20.0
+var currentCircleThickness: float = 2.0
+var currentCircleRotation: float = 0.0
 
 # Config dictionary
 var crosshairConfig: Dictionary
@@ -303,13 +403,69 @@ func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	
-	# Breathing animation
+	var needs_redraw = false
+	
+	# Main breathing animation (affects crosshair lines)
 	if breathingEnabled:
 		breathingTime += delta * breathingSpeed
-		var breathingOffset = sin(breathingTime * PI) * breathingAmplitude
+		var breathingOffset = calculate_wave(breathingTime, breathingWaveform) * breathingAmplitude
 		update_static_offset(breathingOffset)
 	
+	# Dot breathing animation
+	if dotBreathingEnabled and crosshairDot:
+		dotBreathingTime += delta * dotBreathingSpeed
+		var phase_offset = dotBreathingPhase * TAU
+		var wave = calculate_wave(dotBreathingTime + phase_offset / TAU, dotBreathingWaveform)
+		currentDotScale = dotScale + (wave * dotBreathingAmplitude)
+		needs_redraw = true
+	else:
+		currentDotScale = dotScale
 	
+	# Circle breathing animation
+	if circleBreathingEnabled and circleMode:
+		circleBreathingTime += delta * circleBreathingSpeed
+		var phase_offset = circleBreathingPhase * TAU
+		var wave = calculate_wave(circleBreathingTime + phase_offset / TAU, circleBreathingWaveform)
+		currentCircleRadius = circleRadius + (wave * circleBreathingAmplitude)
+		needs_redraw = true
+	else:
+		currentCircleRadius = circleRadius
+	
+	# Circle rotation animation
+	if circleRotationEnabled and circleMode:
+		circleRotationTime += delta
+		currentCircleRotation = fmod(circleRotationSpeed * circleRotationTime, 360.0)
+		needs_redraw = true
+	else:
+		currentCircleRotation = circleRotationOffset
+	
+	# Circle thickness pulse
+	if circleThicknessPulse and circleMode:
+		var pulse_wave = calculate_wave(circleBreathingTime, circleBreathingWaveform)
+		currentCircleThickness = circleThickness + (pulse_wave * circleThicknessPulseAmplitude)
+		needs_redraw = true
+	else:
+		currentCircleThickness = circleThickness
+	
+	if needs_redraw:
+		queue_redraw()
+
+
+func calculate_wave(time: float, waveform: int) -> float:
+	var normalized_time = fmod(time, 1.0)
+	
+	match waveform:
+		0: # Sine
+			return sin(time * PI)
+		1: # Smooth Step
+			var t = sin(time * PI * 0.5)
+			return t * t * (3.0 - 2.0 * t)
+		2: # Triangle
+			return 1.0 - abs(fmod(time * 2.0, 2.0) - 1.0)
+		3: # Square
+			return 1.0 if sin(time * TAU) > 0 else -1.0
+		_:
+			return sin(time * PI)
 
 
 func valid_config(config: Dictionary) -> bool:
@@ -356,6 +512,9 @@ func parse_config_string(configString: String) -> void:
 	config["lineCap"] = int(config["lineCap"])
 	config["dotShape"] = int(config["dotShape"])
 	config["circleGapCount"] = int(config["circleGapCount"])
+	config["breathingWaveform"] = int(config["breathingWaveform"])
+	config["dotBreathingWaveform"] = int(config["dotBreathingWaveform"])
+	config["circleBreathingWaveform"] = int(config["circleBreathingWaveform"])
 
 	get_crosshair_settings(config)
 
@@ -395,6 +554,21 @@ func get_crosshair_settings(config: Dictionary) -> void:
 		breathingEnabled = config["breathingEnabled"]
 		breathingSpeed = config["breathingSpeed"]
 		breathingAmplitude = config["breathingAmplitude"]
+		breathingWaveform = config["breathingWaveform"]
+		dotBreathingEnabled = config["dotBreathingEnabled"]
+		dotBreathingSpeed = config["dotBreathingSpeed"]
+		dotBreathingAmplitude = config["dotBreathingAmplitude"]
+		dotBreathingWaveform = config["dotBreathingWaveform"]
+		dotBreathingPhase = config["dotBreathingPhase"]
+		circleBreathingEnabled = config["circleBreathingEnabled"]
+		circleBreathingSpeed = config["circleBreathingSpeed"]
+		circleBreathingAmplitude = config["circleBreathingAmplitude"]
+		circleBreathingWaveform = config["circleBreathingWaveform"]
+		circleBreathingPhase = config["circleBreathingPhase"]
+		circleRotationEnabled = config["circleRotationEnabled"]
+		circleRotationSpeed = config["circleRotationSpeed"]
+		circleThicknessPulse = config["circleThicknessPulse"]
+		circleThicknessPulseAmplitude = config["circleThicknessPulseAmplitude"]
 		update_crosshair()
 	else:
 		push_warning("Invalid config.")
@@ -412,9 +586,6 @@ func update_dynamic_offset(amount: float) -> void:
 func update_static_offset(amount: float) -> void:
 	crosshairStaticOffset = amount
 	update_crosshair()
-
-
-
 
 
 func update_line_style(style: int):
@@ -476,6 +647,21 @@ func update_crosshair_config() -> void:
 		"breathingEnabled": breathingEnabled,
 		"breathingSpeed": breathingSpeed,
 		"breathingAmplitude": breathingAmplitude,
+		"breathingWaveform": breathingWaveform,
+		"dotBreathingEnabled": dotBreathingEnabled,
+		"dotBreathingSpeed": dotBreathingSpeed,
+		"dotBreathingAmplitude": dotBreathingAmplitude,
+		"dotBreathingWaveform": dotBreathingWaveform,
+		"dotBreathingPhase": dotBreathingPhase,
+		"circleBreathingEnabled": circleBreathingEnabled,
+		"circleBreathingSpeed": circleBreathingSpeed,
+		"circleBreathingAmplitude": circleBreathingAmplitude,
+		"circleBreathingWaveform": circleBreathingWaveform,
+		"circleBreathingPhase": circleBreathingPhase,
+		"circleRotationEnabled": circleRotationEnabled,
+		"circleRotationSpeed": circleRotationSpeed,
+		"circleThicknessPulse": circleThicknessPulse,
+		"circleThicknessPulseAmplitude": circleThicknessPulseAmplitude,
 	}
 
 
@@ -488,10 +674,10 @@ func update_crosshair() -> void:
 	for i in range(lines.size()):
 		var LineRef = lines[i]
 		if crosshairLinesVisible:
-			LineRef.visible = !(crosshairTStyle and i == 0)  # i == 0 is TopLine
+			LineRef.visible = !(crosshairTStyle and i == 0)
 		else:
 			LineRef.visible = false
-	if crosshairDynamic or breathingEnabled :
+	if crosshairDynamic or breathingEnabled:
 		crosshairOffset += crosshairStaticOffset
 
 	var offset: float = crosshairHorizontalLinesLength if crosshairHorizontalLinesLength != 0 else crosshairGap
@@ -613,7 +799,6 @@ func update_crosshair() -> void:
 
 
 func _draw() -> void:
-	# draw_set_antialiasing(false)  # <-- ADD THIS
 	# Draw center dot
 	if crosshairDot:
 		draw_center_dot()
@@ -625,8 +810,7 @@ func _draw() -> void:
 
 func draw_center_dot() -> void:
 	var baseDotSize = crosshairThickness
-	# var dotSize = crosshairThickness
-	var dotSize = baseDotSize * dotScale  # <-- Apply scaling here
+	var dotSize = baseDotSize * currentDotScale
 	var halfSize = dotSize / 2
 	
 	match dotShape:
@@ -721,14 +905,17 @@ func draw_rounded_rect(rect: Rect2, color: Color, radius: float) -> void:
 func draw_circle_crosshair() -> void:
 	var finalColor = circleColor if circleColor.a > 0 else crosshairColor
 	var pointCount = 64
+	var activeRadius = currentCircleRadius
+	var activeThickness = currentCircleThickness
+	var activeRotation = currentCircleRotation
 	
 	if splitCircle:
 		var segmentAngle = 360.0 / circleGapCount
 		var gapHalf = deg_to_rad(circleGapSize / 2.0)
 		
 		for i in range(circleGapCount):
-			var segmentStart = deg_to_rad(i * segmentAngle + circleRotationOffset)
-			var segmentEnd = deg_to_rad((i + 1) * segmentAngle + circleRotationOffset)
+			var segmentStart = deg_to_rad(i * segmentAngle + activeRotation)
+			var segmentEnd = deg_to_rad((i + 1) * segmentAngle + activeRotation)
 			var arcStart = segmentStart + gapHalf
 			var arcEnd = segmentEnd - gapHalf
 			
@@ -739,19 +926,19 @@ func draw_circle_crosshair() -> void:
 				for j in range(segmentPoints + 1):
 					var t = float(j) / segmentPoints
 					var angle = lerp(arcStart, arcEnd, t)
-					arcPoints.append(Vector2(cos(angle), sin(angle)) * circleRadius)
+					arcPoints.append(Vector2(cos(angle), sin(angle)) * activeRadius)
 				
 				if circleOutline:
-					draw_polyline(arcPoints, circleOutlineColor, circleThickness + circleOutlineThickness * 2, true)
-				draw_polyline(arcPoints, finalColor, circleThickness, true)
+					draw_polyline(arcPoints, circleOutlineColor, activeThickness + circleOutlineThickness * 2, true)
+				draw_polyline(arcPoints, finalColor, activeThickness, true)
 	else:
 		var circlePoints = PackedVector2Array()
-		var angleOffset = deg_to_rad(circleRotationOffset)
+		var angleOffset = deg_to_rad(activeRotation)
 		
 		for i in range(pointCount + 1):
 			var angle = (TAU * i / pointCount) + angleOffset
-			circlePoints.append(Vector2(cos(angle), sin(angle)) * circleRadius)
+			circlePoints.append(Vector2(cos(angle), sin(angle)) * activeRadius)
 		
 		if circleOutline:
-			draw_polyline(circlePoints, circleOutlineColor, circleThickness + circleOutlineThickness * 2, true)
-		draw_polyline(circlePoints, finalColor, circleThickness, true)
+			draw_polyline(circlePoints, circleOutlineColor, activeThickness + circleOutlineThickness * 2, true)
+		draw_polyline(circlePoints, finalColor, activeThickness, true)
