@@ -32,6 +32,8 @@ func update(delta: float) -> void:
 
 
 func physics_update(delta: float) -> void:
+	if not  _can_stand_up():
+		player.anim_player.play("Crouching")
 	player.move_and_slide()
 
 
@@ -44,6 +46,7 @@ func check_transitions() -> State:
 			return state_machine.get_state("FallingState")
 	return null
 
+	
 
 func _can_stand_up() -> bool:
 	return not head_Cast.is_colliding()
@@ -51,7 +54,7 @@ func _can_stand_up() -> bool:
 
 func climb():
 	var climb_height = climb_hight
-	var climb_forward = -player.global_transform.basis.z * move_speed
+	var climb_forward = -player.global_transform.basis.z * (move_speed + player.current_distance)
 	
 	# Starting position
 	var start_pos = player.global_position

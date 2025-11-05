@@ -26,6 +26,16 @@ var t_bob: float = 0.0
 @export var resurrected_states_on_leaning := ["SprintingState", "SlidingState", "JumpingState", "FallingState" , "ClimbState"]
 @export var resurrected_states_on_using := ["ClimbState"]
 
+# Camera shake variables
+@export var SHAKE_INTENSITY_IDLE: float = 0.05
+@export var SHAKE_FREQUENCY_IDLE: float = 6.0
+@export var SHAKE_FADE_SPEED: float = 5.0
+@export var SHAKE_RANDOMNESS: float = 0.3
+
+var shake_strength: float = 0.0
+var shake_time: float = 0.0
+
+# Current lean/roll state
 var current_roll: float = 0.0
 var current_lean: float = 0.0
 
@@ -103,6 +113,18 @@ func _update_camera(delta: float):
 	_rotation_input = 0.0
 	_tilt_input = 0.0
 
+	# Determine if player is idle (not moving)
+	var is_idle = player.is_on_floor() and player.velocity.length() < 0.1 and player.state_machine.get_current_state_name() == "IdleState"
+
+	var shake_offset = Vector3.ZERO
+	if is_idle:
+		shake_strength = lerp(shake_strength, SHAKE_INTENSITY_IDLE, delta * 3.0)
+		shake_offset = _camera_shake(delta, shake_strength, SHAKE_FREQUENCY_IDLE)
+	else:
+		shake_strength = lerp(shake_strength, 0.0, delta * SHAKE_FADE_SPEED)
+
+	# Apply shake offset
+	CAMERA_CONTROLLER.transform.origin += shake_offset
 
 func _headbob(time: float) -> Vector3:
 	var pos = Vector3.ZERO
@@ -161,3 +183,16 @@ func is_controller_connected() -> bool:
 
 func climbing() -> bool:
 	return player.state_machine.get_current_state_name() in resurrected_states_on_using
+
+func _camera_shake(delta: float, intensity: float, frequency: float) -> Vector3:
+	shake_time += delta * frequency
+
+	# Add randomness for juicy feel
+	var rand_x = (randf() - 0.5) * SHAKE_RANDOMNESS
+	var rand_y = (randf() - 0.5) * SHAKE_RANDOMNESS
+
+	# Perlin-style oscillation with slight randomness
+	var offset_x = sin(shake_time * 1.1 + rand_x) * intensity
+	var offset_y = cos(shake_time * 1.3 + rand_y) * intensity
+
+	return Vector3(offset_x, offset_y, 0.0)

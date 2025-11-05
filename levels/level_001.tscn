@@ -155,7 +155,7 @@ mesh = SubResource("BoxMesh_xc4gq")
 shape = SubResource("ConcavePolygonShape3D_vp4dy")
 
 [node name="crouch2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.25, 0, 0, 0, 4.756, -1, 4.1507735, -4.035)
+transform = Transform3D(1, 0, 0, 0, 0.25, 0, 0, 0, 4.756, -1, 5.234382, -4.035)
 mesh = SubResource("BoxMesh_xc4gq")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="crouch2"]
