@@ -8,16 +8,16 @@ var current_position_y: float = 0.0
 func _ready():
     current_position_y = position.y
 # Called every physics frame
-func _physics_process(delta: float) -> void:
-    # Use a sine wave to smoothly oscillate between -amplitude and +amplitude
-    var offset_y = sin(Time.get_ticks_msec() * 0.001 * scan_speed) * (scan_amplitude) 
+# func _physics_process(delta: float) -> void:
+#     # Use a sine wave to smoothly oscillate between -amplitude and +amplitude
+#     var offset_y = sin(Time.get_ticks_msec() * 0.001 * scan_speed) * (scan_amplitude) 
     
-    # Point the raycast straight down the local -Y or +Y? 
-    # By default, RayCast3D points in -Z. But you want vertical (Y) scan.
-    # So we override cast_to to be along local Y axis with dynamic length.
+#     # Point the raycast straight down the local -Y or +Y? 
+#     # By default, RayCast3D points in -Z. But you want vertical (Y) scan.
+#     # So we override cast_to to be along local Y axis with dynamic length.
     
-    # If you want it to point downward when offset is negative:
-    position = Vector3(0, offset_y +current_position_y  , 0)  
+#     # If you want it to point downward when offset is negative:
+#     position = Vector3(0, offset_y +current_position_y  , 0)  
     
-    # Optional: force update (not usually needed in _physics_process)
-    force_raycast_update()
+#     # Optional: force update (not usually needed in _physics_process)
+#     force_raycast_update()

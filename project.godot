@@ -105,7 +105,9 @@ look_down={
 
 [layer_names]
 
+3d_physics/layer_1="Land"
 3d_physics/layer_2="player"
+3d_physics/layer_12="Edges"
 
 [rendering]
 

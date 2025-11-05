@@ -66,7 +66,7 @@ func can_climb():
 
 
 func ledge_detect():
-	var hit_point1 = h_cast.get_collision_point()
+	var hit_point1 = chest_Cast.get_collision_point(0)
 	var hit_point1_up = h_cast_up.get_collision_point()
 	var raycast2_holder = r_cast.get_parent()
 	var ledge_marker = r_cast.get_child(0)

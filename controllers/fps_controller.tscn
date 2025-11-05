@@ -421,7 +421,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
 player = NodePath("..")
 CAMERA_CONTROLLER = NodePath("Camera3D")
-CONTROLLER_SENSITIVITY = 1.5
+CONTROLLER_SENSITIVITY = 2.03
 LEAN_AMOUNT = 0.75
 lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
 lean_shape_cast_right = NodePath("Raycasters/CameraRightCast")
@@ -526,18 +526,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.3664618, -1.0712972)
 shape = SubResource("BoxShape3D_3og01")
 
 [node name="H_cast" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2069912, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.381, 0)
+visible = false
 target_position = Vector3(0, 0, -2)
 script = ExtResource("15_3og01")
-scan_amplitude = 1.0
-scan_speed = 10.0
 
 [node name="H_cast_up" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7943377, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1025715, 0)
 target_position = Vector3(0, 0, -2)
 script = ExtResource("15_3og01")
-scan_amplitude = 1.0
-scan_speed = 11.0
 
 [node name="R_castController" type="Node3D" parent="Raycasters/ClimbingCasts"]
 

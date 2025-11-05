@@ -4,9 +4,9 @@ extends State
 
 @export var time_to_climb: float = 1.0
 @export var time_to_move: float = 0.5
+@export var move_speed: float = 2.0
 
 var climb_hight: float 
-var move_speed: float
 @export var head_Cast : ShapeCast3D
 @export var chest_Cast: ShapeCast3D
 @export var upperchest_Cast: ShapeCast3D
@@ -17,8 +17,8 @@ var move_speed: float
 var tween: Tween  # store tween reference if needed
 
 func enter() -> void:
-	climb_hight = player.hit_point2.y
-	move_speed = player.hit_point2.z - player.global_transform.origin.z + 1.5
+	climb_hight = player.hit_point2.y + 0.5 - player.global_transform.origin.y
+	# move_speed = player.hit_point2.z - player.global_transform.origin.z + 1.5
 	print("Entering Climb state")
 	climb()  # start climb immediately when entering
 
