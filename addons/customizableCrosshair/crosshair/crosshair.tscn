@@ -18,19 +18,20 @@ crosshairLinesVisible = false
 crosshairLineCap = 1
 crosshairDot = true
 dotShape = 1
+dotScale = 2.3000000000000003
 crosshairTStyle = true
 crosshairHorizontalLinesPosition = 2.185
 crosshairHorizontalLinesThickness = 2.615
-circleRadius = 38.5
+circleMode = true
 circleThickness = 6.3
 circleColor = Color(1, 1, 1, 1)
 circleOutlineThickness = 1.1
-splitCircle = true
 circleGapCount = 6
 crosshairDynamic = true
-sprintMode = true
-sprintExpansion = 50.0
-sprintTransitionSpeed = 10.0
+crosshairMaxDynamicOffset = 16.195
+breathingEnabled = true
+breathingSpeed = 1.2000000000000002
+breathingAmplitude = 1.9
 
 [node name="TopLine" type="Line2D" parent="."]
 visible = false

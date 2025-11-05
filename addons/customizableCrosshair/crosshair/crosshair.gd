@@ -271,23 +271,7 @@ extends CenterContainer
 		breathingAmplitude = value
 
 
-@export_subgroup("Sprint Mode")
-## Enable sprint crosshair (Battlefield-style expanding lines)
-@export var sprintMode: bool = false:
-	set(value):
-		sprintMode = value
-		if Engine.is_editor_hint() or !is_inside_tree():
-			update_crosshair()
 
-## Sprint expansion amount
-@export_range(0.0, 50.0, 1.0) var sprintExpansion: float = 20.0:
-	set(value):
-		sprintExpansion = value
-
-## Sprint transition speed
-@export_range(0.1, 10.0, 0.1) var sprintTransitionSpeed: float = 5.0:
-	set(value):
-		sprintTransitionSpeed = value
 
 
 # Line nodes
@@ -325,10 +309,7 @@ func _process(delta: float) -> void:
 		var breathingOffset = sin(breathingTime * PI) * breathingAmplitude
 		update_static_offset(breathingOffset)
 	
-	# Sprint transition
-	if sprintMode:
-		currentSprintOffset = lerp(currentSprintOffset, targetSprintOffset, delta * sprintTransitionSpeed)
-		update_static_offset(currentSprintOffset)
+	
 
 
 func valid_config(config: Dictionary) -> bool:
@@ -414,9 +395,6 @@ func get_crosshair_settings(config: Dictionary) -> void:
 		breathingEnabled = config["breathingEnabled"]
 		breathingSpeed = config["breathingSpeed"]
 		breathingAmplitude = config["breathingAmplitude"]
-		sprintMode = config["sprintMode"]
-		sprintExpansion = config["sprintExpansion"]
-		sprintTransitionSpeed = config["sprintTransitionSpeed"]
 		update_crosshair()
 	else:
 		push_warning("Invalid config.")
@@ -436,8 +414,7 @@ func update_static_offset(amount: float) -> void:
 	update_crosshair()
 
 
-func set_sprint_active(active: bool) -> void:
-	targetSprintOffset = sprintExpansion if active else 0.0
+
 
 
 func update_line_style(style: int):
@@ -499,9 +476,6 @@ func update_crosshair_config() -> void:
 		"breathingEnabled": breathingEnabled,
 		"breathingSpeed": breathingSpeed,
 		"breathingAmplitude": breathingAmplitude,
-		"sprintMode": sprintMode,
-		"sprintExpansion": sprintExpansion,
-		"sprintTransitionSpeed": sprintTransitionSpeed
 	}
 
 
@@ -517,7 +491,7 @@ func update_crosshair() -> void:
 			LineRef.visible = !(crosshairTStyle and i == 0)  # i == 0 is TopLine
 		else:
 			LineRef.visible = false
-	if crosshairDynamic or breathingEnabled or sprintMode:
+	if crosshairDynamic or breathingEnabled :
 		crosshairOffset += crosshairStaticOffset
 
 	var offset: float = crosshairHorizontalLinesLength if crosshairHorizontalLinesLength != 0 else crosshairGap
