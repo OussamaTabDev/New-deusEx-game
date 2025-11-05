@@ -2,6 +2,7 @@ class_name JumpingState
 extends State
 
 var jump_pressed := true  # Tracks if jump key is still held
+var _jump_buffer := Buffer.new(0.15, 0.15, true)
 
 func enter() -> void:
 	player.velocity.y = player.JUMP_VELOCITY
@@ -15,9 +16,14 @@ func physics_update(delta: float) -> void:
 		if player.velocity.y > 0:  # Only cut if still going up
 			player.velocity.y *= 0.5  # Or set to a max "short hop" cap
 
+	_jump_buffer.update(
+			Input.is_action_just_pressed("jump"),
+			player.can_climb(),
+			delta,
+	)
+
 	# Check for jump
-	if Input.is_action_just_pressed("jump"):
-		if player.can_climb():
+	if _jump_buffer.should_run_action():
 			return state_machine.get_state("CLimbState")
 			
 

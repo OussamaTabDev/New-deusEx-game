@@ -54,8 +54,8 @@ func update(delta: float) -> void:
 
 func physics_update(delta: float) -> void:
     # Apply gravity
-    if not player.is_on_floor():
-        player.velocity.y -= player.gravity * delta
+    # if not player.is_on_floor():
+    #     player.velocity.y -= player.gravity * delta
     
     # Calculate slide velocity with deceleration
     var current_slide_speed = slide_speed - (slide_friction * slide_timer)
@@ -77,8 +77,8 @@ func physics_update(delta: float) -> void:
 
 func check_transitions() -> State:
     # Check for falling (went off edge while sliding)
-    if not player.is_on_floor():
-        return state_machine.get_state("FallingState")
+    # if not player.is_on_floor():
+    #     return state_machine.get_state("FallingState")
     
     # Check if slide should end
     var current_slide_speed = slide_speed - (slide_friction * slide_timer)

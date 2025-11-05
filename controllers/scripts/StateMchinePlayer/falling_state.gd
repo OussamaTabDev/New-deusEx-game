@@ -2,10 +2,21 @@ class_name FallingState
 extends State
 
 @export var air_control_factor: float = 0.3
+var _jump_buffer := Buffer.new(0.15, 0.15, true)
+
 func physics_update(delta: float) -> void:
 	# Apply gravity
 	player.velocity.y -= player.gravity * delta
 	
+	_jump_buffer.update(
+			Input.is_action_just_pressed("jump"),
+			player.can_climb(),
+			delta,
+	)
+	# Check for jump
+	if _jump_buffer.should_run_action():
+			return state_machine.get_state("CLimbState")
+			
 	# Air control
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction = (player.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=28 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://raajygfbuuyd" path="res://controllers/scripts/StateMchinePlayer/crouch_walking_state.gd" id="11_fdopr"]
 [ext_resource type="Script" uid="uid://hn8vcj011s76" path="res://controllers/scripts/StateMchinePlayer/leaning_state.gd" id="12_5b0ob"]
 [ext_resource type="Script" uid="uid://bhp7r288x1giv" path="res://controllers/scripts/StateMchinePlayer/sliding_state.gd" id="13_l8yvu"]
+[ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6tj1"]
 
@@ -83,7 +84,7 @@ tracks/4/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector3(0.99, 1.64, 1), Vector3(0.785, 0.67, 1)]
+"values": [Vector3(0.99, 2, 1), Vector3(0.785, 1.5, 1)]
 }
 tracks/5/type = "value"
 tracks/5/imported = false
@@ -95,7 +96,7 @@ tracks/5/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector3(0, 0, 0), Vector3(0, -0.605, 0)]
+"values": [Vector3(0, 0, 0), Vector3(0, -0.385, 0)]
 }
 tracks/6/type = "value"
 tracks/6/imported = false
@@ -104,10 +105,10 @@ tracks/6/path = NodePath("Raycasters/ClimbingCasts/UpperChestCast:shape:size")
 tracks/6/interp = 2
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0, 1, 1.8),
+"transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector3(1.015, 1.535, 1.255), Vector3(0.89, 1.19, 1.255)]
+"values": [Vector3(0.89, 1.19, 1.255), Vector3(0.89, 1.19, 1.255), Vector3(1.015, 1.535, 1.255)]
 }
 tracks/7/type = "value"
 tracks/7/imported = false
@@ -475,7 +476,6 @@ air_control_factor = 0.85
 
 [node name="ClimbState" type="Node" parent="StateMachine" node_paths=PackedStringArray("head_Cast", "chest_Cast", "upperchest_Cast", "crouchState", "standState")]
 script = ExtResource("10_h7h5r")
-move_speed = 2.0
 time_to_climb = 0.7
 time_to_move = 0.3
 head_Cast = NodePath("../../Raycasters/HeadCast")
@@ -515,11 +515,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
 shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ClimbingCasts" type="Node3D" parent="Raycasters"]
-visible = false
 
 [node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9917719, -0.6089425)
-visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1676488, -0.6089425)
 shape = SubResource("BoxShape3D_5w0k0")
 target_position = Vector3(0, -1.165, 0)
 
@@ -528,12 +526,18 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.3664618, -1.0712972)
 shape = SubResource("BoxShape3D_3og01")
 
 [node name="H_cast" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4899526, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2069912, 0)
 target_position = Vector3(0, 0, -2)
+script = ExtResource("15_3og01")
+scan_amplitude = 1.0
+scan_speed = 10.0
 
 [node name="H_cast_up" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.035036, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7943377, 0)
 target_position = Vector3(0, 0, -2)
+script = ExtResource("15_3og01")
+scan_amplitude = 1.0
+scan_speed = 11.0
 
 [node name="R_castController" type="Node3D" parent="Raycasters/ClimbingCasts"]
 

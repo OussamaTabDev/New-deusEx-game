@@ -1,11 +1,12 @@
 class_name ClimbState
 extends State
 
-@export var move_speed: float = 5.0
+
 @export var time_to_climb: float = 1.0
 @export var time_to_move: float = 0.5
 
 var climb_hight: float 
+var move_speed: float
 @export var head_Cast : ShapeCast3D
 @export var chest_Cast: ShapeCast3D
 @export var upperchest_Cast: ShapeCast3D
@@ -17,6 +18,7 @@ var tween: Tween  # store tween reference if needed
 
 func enter() -> void:
 	climb_hight = player.hit_point2.y
+	move_speed = player.hit_point2.z - player.global_transform.origin.z + 1.5
 	print("Entering Climb state")
 	climb()  # start climb immediately when entering
 
@@ -44,7 +46,7 @@ func check_transitions() -> State:
 
 
 func _can_stand_up() -> bool:
-	return head_Cast.is_colliding()
+	return not head_Cast.is_colliding()
 
 
 func climb():
@@ -72,7 +74,7 @@ func climb():
 	
 	print("Climb animation done!")
 	
-	if state_machine.previous_state.name == "WalkingCrouchState" or not _can_stand_up():
+	if state_machine.previous_state.name == "WalkingCrouchState" or not  _can_stand_up():
 		state_machine.transition_to(crouchState)
-	else:
-		state_machine.transition_to(standState)
+	
+	state_machine.transition_to(standState)
