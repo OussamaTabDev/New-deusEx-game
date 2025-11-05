@@ -377,6 +377,7 @@ _data = {
 }
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_l8yvu"]
+radius = 0.4
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_5w0k0"]
 
@@ -432,6 +433,14 @@ enable_shadows = true
 
 [node name="Crosshair" parent="CameraController/Camera3D" instance=ExtResource("4_5w0k0")]
 
+[node name="Anim" type="Node" parent="CameraController/Camera3D"]
+
+[node name="crossHair anim" type="AnimationPlayer" parent="CameraController/Camera3D/Anim"]
+root_node = NodePath("../..")
+
+[node name="AnimationTree" type="AnimationTree" parent="CameraController/Camera3D/Anim"]
+root_node = NodePath("../..")
+
 [node name="Raycasters" type="Node3D" parent="CameraController"]
 visible = false
 
@@ -466,7 +475,6 @@ air_control_factor = 0.85
 
 [node name="ClimbState" type="Node" parent="StateMachine" node_paths=PackedStringArray("head_Cast", "chest_Cast", "upperchest_Cast", "crouchState", "standState")]
 script = ExtResource("10_h7h5r")
-climb_hight = 2.8
 move_speed = 2.0
 time_to_climb = 0.7
 time_to_move = 0.3
@@ -507,9 +515,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
 shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ClimbingCasts" type="Node3D" parent="Raycasters"]
+visible = false
 
 [node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9917719, -0.6089425)
+visible = false
 shape = SubResource("BoxShape3D_5w0k0")
 target_position = Vector3(0, -1.165, 0)
 
@@ -528,7 +538,7 @@ target_position = Vector3(0, 0, -2)
 [node name="R_castController" type="Node3D" parent="Raycasters/ClimbingCasts"]
 
 [node name="R_Cast" type="RayCast3D" parent="Raycasters/ClimbingCasts/R_castController"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.49277425, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.19817114, 0)
 target_position = Vector3(0, -10, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Raycasters/ClimbingCasts/R_castController/R_Cast"]

@@ -15,6 +15,12 @@ func physics_update(delta: float) -> void:
 		if player.velocity.y > 0:  # Only cut if still going up
 			player.velocity.y *= 0.5  # Or set to a max "short hop" cap
 
+	# Check for jump
+	if Input.is_action_just_pressed("jump"):
+		if player.can_climb():
+			return state_machine.get_state("CLimbState")
+			
+
 	# Apply gravity
 	player.velocity.y -= player.gravity * delta
 	

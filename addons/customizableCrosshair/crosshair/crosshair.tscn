@@ -27,9 +27,10 @@ circleColor = Color(1, 1, 1, 1)
 circleOutlineThickness = 1.1
 splitCircle = true
 circleGapCount = 6
+crosshairDynamic = true
 sprintMode = true
-sprintExpansion = 28.0
-sprintTransitionSpeed = 6.6
+sprintExpansion = 50.0
+sprintTransitionSpeed = 10.0
 
 [node name="TopLine" type="Line2D" parent="."]
 visible = false

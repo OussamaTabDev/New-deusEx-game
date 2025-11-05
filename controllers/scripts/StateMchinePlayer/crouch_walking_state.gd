@@ -35,6 +35,10 @@ func physics_update(delta: float) -> void:
 	if not player.is_on_floor():
 		player.velocity.y -= player.gravity * delta
 	
+	if player.can_climb() and Input.is_action_just_pressed("jump"):
+		return state_machine.get_state("CLimbState")
+		
+
 	# # Get input and move
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction = (player.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
@@ -53,6 +57,13 @@ func check_transitions() -> State:
 	if not player.is_on_floor():
 		return state_machine.get_state("FallingState")
 	
+	# Check for jump
+	if Input.is_action_just_pressed("jump"):
+		if player.can_climb():
+			return state_machine.get_state("CLimbState")
+			
+		# return state_machine.get_state("JumpingState")
+
 	# Check if crouch released and can stand up
 	if ((not Input.is_action_pressed("crouch") and not is_toggle_crouch) or (is_toggle_crouch and Input.is_action_just_pressed("crouch"))):
 		if _can_stand_up():

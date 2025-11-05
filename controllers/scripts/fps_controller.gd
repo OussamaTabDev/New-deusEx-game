@@ -61,8 +61,8 @@ func is_leaning() -> bool:
 	return Input.is_action_pressed("lean_left") or Input.is_action_pressed("lean_right")
 
 func can_climb():
-
-	return not head_Cast.is_colliding() and not upperchest_Cast.is_colliding() and chest_Cast.is_colliding() and hit_point2.distance_to(global_transform.origin) < 3.5
+	print("marker point y: ", hit_point2.y , " player y: " , global_transform.origin.y )
+	return not head_Cast.is_colliding() and not upperchest_Cast.is_colliding()  and hit_point2.y - global_transform.origin.y < 3.0 and hit_point2.y - global_transform.origin.y > 1
 
 
 func ledge_detect():

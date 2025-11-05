@@ -32,7 +32,11 @@ func check_transitions() -> State:
 	
 	# Check for jump
 	if Input.is_action_just_pressed("jump"):
+		if player.can_climb():
+			return state_machine.get_state("CLimbState")
+			
 		return state_machine.get_state("JumpingState")
+
 	
 	# Check for slide (crouch while sprinting)
 	if Input.is_action_just_pressed("crouch"):

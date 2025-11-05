@@ -48,34 +48,30 @@ func _can_stand_up() -> bool:
 
 
 func climb():
-	var vertical_target = player.global_position + Vector3(0, climb_hight, 0)
-	var forward_target = player.global_position  + (-player.global_transform.basis.z * move_speed) + Vector3(0, climb_hight, 0)
-
-	# Step 1 — climb up
+	var climb_height = climb_hight
+	var climb_forward = -player.global_transform.basis.z * move_speed
+	
+	# Starting position
+	var start_pos = player.global_position
+	
+	# Midpoint (higher and slightly back)
+	var mid_pos = start_pos + Vector3(0, climb_height * 0.6, 0) + climb_forward * 0.2
+	
+	# End position (on top and forward)
+	var end_pos = start_pos + Vector3(0, climb_height, 0) + climb_forward
+	
 	tween = create_tween()
-	tween.tween_property(
-		player,
-		"global_position",
-		vertical_target,
-		time_to_climb
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-
 	
-
-	# Step 2 — after climbing, move forward
-	tween.tween_property(
-		player,
-		"global_position",
-		forward_target,
-		time_to_move
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-
+	# Smooth vertical and forward arc — using easing for natural feel
+	tween.tween_property(player, "global_position", mid_pos, time_to_climb * 0.5)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(player, "global_position", end_pos, time_to_climb * 0.5)\
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	
-
-	# Wait for tween to finish, then return to idle/crouch
 	await tween.finished
+	
 	print("Climb animation done!")
-
+	
 	if state_machine.previous_state.name == "WalkingCrouchState" or not _can_stand_up():
 		state_machine.transition_to(crouchState)
 	else:

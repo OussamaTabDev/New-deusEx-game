@@ -59,18 +59,18 @@ func _process(delta: float):
 func _update_camera(delta: float):
 	var yaw_input: float = 0.0
 	var pitch_input: float = 0.0
-
-	# Use mouse if captured (active)
-	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
-		yaw_input = _rotation_input
-		pitch_input = _tilt_input
-	
-	if is_controller_connected():
-		# Use controller (right stick)
-		var look_x = Input.get_axis("look_left", "look_right")
-		var look_y = Input.get_axis("look_up", "look_down")
-		yaw_input = -look_x * CONTROLLER_SENSITIVITY
-		pitch_input = -look_y * CONTROLLER_SENSITIVITY
+	if not climbing():
+		# Use mouse if captured (active)
+		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+			yaw_input = _rotation_input
+			pitch_input = _tilt_input
+		
+		if is_controller_connected():
+			# Use controller (right stick)
+			var look_x = Input.get_axis("look_left", "look_right")
+			var look_y = Input.get_axis("look_up", "look_down")
+			yaw_input = -look_x * CONTROLLER_SENSITIVITY
+			pitch_input = -look_y * CONTROLLER_SENSITIVITY
 
 	# Accumulate rotation over time
 	_mouse_rotation.y += yaw_input * delta
@@ -83,13 +83,12 @@ func _update_camera(delta: float):
 	var player_rotation = Vector3(0.0, _mouse_rotation.y, 0.0)
 	var camera_rotation = Vector3(_mouse_rotation.x, 0.0, 0.0)
 
-	if not player.state_machine.get_current_state_name() in resurrected_states_on_using:
-		player.global_transform.basis = Basis.from_euler(player_rotation)
-		CAMERA_CONTROLLER.transform.basis = Basis.from_euler(camera_rotation)
-		CAMERA_CONTROLLER.rotation.z = 0.0
+	player.global_transform.basis = Basis.from_euler(player_rotation)
+	CAMERA_CONTROLLER.transform.basis = Basis.from_euler(camera_rotation)
+	CAMERA_CONTROLLER.rotation.z = 0.0
 
-		# Head bob
-		t_bob += delta * player.velocity.length() * float(player.is_on_floor())
+	# Head bob
+	t_bob += delta * player.velocity.length() * float(player.is_on_floor())
 	var bob_offset: Vector3 = _headbob(t_bob)
 	
 	# Leaning + strafe tilt
@@ -159,3 +158,6 @@ func set_lean(delta: float, bob_offset: Vector3) -> void:
 
 func is_controller_connected() -> bool:
 	return Input.is_action_pressed("look_left") or Input.is_action_pressed("look_right") or Input.is_action_pressed("look_up") or Input.is_action_pressed("look_down")
+
+func climbing() -> bool:
+	return player.state_machine.get_current_state_name() in resurrected_states_on_using
