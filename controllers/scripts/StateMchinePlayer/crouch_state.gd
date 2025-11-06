@@ -25,13 +25,20 @@ var current_distance: float
 
 func enter() -> void:
 	previous = state_machine.previous_state.name
-	print("Previous State: %s" % previous)
 	current_distance = player.global_transform.origin.distance_to(player.h_cast_up.get_collision_point()) - 1
 	collision.disabled = true
+	print("upperchest_Cast_Idle is colliding:", upperchest_Cast_Idle.is_colliding())
+	print("is colliding with:" , upperchest_Cast_Idle.get_collider(0))
+	print("upperchest_Cast_Crouch is colliding:", upperchest_Cast_Crouch.is_colliding())
+	print("is colliding with:" , upperchest_Cast_Crouch.get_collider(0))
+	## mark where upperchest_Cast_Crouch is colliding 
+	
+
 	if upperchest_Cast_Idle.is_colliding():
 		
 		print("Playing Crouch Animation")
 		will_crouch = true
+
 	else:
 		print("Playing Idle Animation")
 		will_crouch = false
@@ -92,8 +99,8 @@ func climb():
 	# Smooth vertical and forward arc — using easing for natural feel
 	tween.tween_property(player, "global_position", mid_pos, time_to_climb * 0.5)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	# if will_crouch:
-	# player.anim_player.play("Crouching" , -1 , 100.0)
+	if will_crouch:
+		player.anim_player.play("Crouching" , -1 , 10.0)
 	tween.tween_property(player, "global_position", end_pos, time_to_climb * 0.5)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	
@@ -103,6 +110,7 @@ func climb():
 	if previous == "CrouchWalkingState" or _can_stand_up() :
 		collision.disabled = false
 		state_machine.transition_to(crouchState)
-	
+		return
+		
 	collision.disabled = false
 	state_machine.transition_to(standState)

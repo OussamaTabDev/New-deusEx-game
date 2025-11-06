@@ -13,6 +13,7 @@ class_name Player extends CharacterBody3D
 @export var mid_chest_Cast: ShapeCast3D
 @export var upperchestCastNode: Node3D
 @export var upperchest_Cast: ShapeCast3D
+@export var upperchest_Cast_Crouch: ShapeCast3D
 @export var h_cast : RayCast3D
 @export var h_cast_up : RayCast3D
 @export var r_cast : RayCast3D
@@ -90,20 +91,20 @@ func ledge_detect():
 	if chest_Cast.is_colliding():
 		raycast2_holder.global_transform.origin = hit_point1 + offset
 		ledge_marker.global_transform.origin = hit_point2
-		upperchestCastNode.global_transform.origin.y = hit_point2.y
+		upperchestCastNode.global_transform.origin.y = hit_point2.y + 0.2
 		ledge_marker.visible = true
 		r_cast.enabled = true
 	elif mid_chest_Cast.is_colliding():
 		raycast2_holder.global_transform.origin = hit_point3 + offset
 		ledge_marker.global_transform.origin = hit_point2
-		upperchestCastNode.global_transform.origin.y = hit_point2.y
+		upperchestCastNode.global_transform.origin.y = hit_point2.y + 0.2
 		ledge_marker.visible = true
 		r_cast.enabled = true
 
 	elif h_cast_up.is_colliding():
 		raycast2_holder.global_transform.origin = hit_point1_up + offset
 		ledge_marker.global_transform.origin = hit_point2
-		upperchestCastNode.global_transform.origin.y = hit_point2.y
+		upperchestCastNode.global_transform.origin.y = hit_point2.y + 0.2
 
 		ledge_marker.visible = true
 		r_cast.enabled = true

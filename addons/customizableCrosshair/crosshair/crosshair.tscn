@@ -11,9 +11,14 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_nrohy")
-circleRadius = 96.0
-circleThickness = 1.0
-circleOutlineThickness = 3.1
+crosshairOutline = true
+breathingEnabled = true
+breathingSpeed = 0.8
+breathingAmplitude = 1.5
+circleBreathingEnabled = true
+circleBreathingSpeed = 1.5
+circleBreathingAmplitude = 5.0
+circleRotationEnabled = true
 
 [node name="TopLine" type="Line2D" parent="."]
 points = PackedVector2Array(0, -6, 0, -16)
@@ -21,13 +26,10 @@ width = 2.0
 antialiased = true
 
 [node name="topLineOutline" type="Line2D" parent="TopLine"]
-visible = false
 z_index = -1
-points = PackedVector2Array(0, -7.0775003, 0, -19.0575)
-width = 5.085
+points = PackedVector2Array(0, -5, 0, -17)
+width = 4.0
 default_color = Color(0, 0, 0, 1)
-begin_cap_mode = 2
-end_cap_mode = 2
 antialiased = true
 
 [node name="topHorizontalLine" type="Line2D" parent="TopLine"]
@@ -53,13 +55,10 @@ width = 2.0
 antialiased = true
 
 [node name="bottomLineOutline" type="Line2D" parent="BottomLine"]
-visible = false
 z_index = -1
-points = PackedVector2Array(0, 7.0775003, 0, 19.0575)
-width = 5.085
+points = PackedVector2Array(0, 5, 0, 17)
+width = 4.0
 default_color = Color(0, 0, 0, 1)
-begin_cap_mode = 2
-end_cap_mode = 2
 antialiased = true
 
 [node name="bottomHorizontalLine" type="Line2D" parent="BottomLine"]
@@ -85,13 +84,10 @@ width = 2.0
 antialiased = true
 
 [node name="leftLineOutline" type="Line2D" parent="LeftLine"]
-visible = false
 z_index = -1
-points = PackedVector2Array(-7.0775003, 0, -19.0575, 0)
-width = 5.085
+points = PackedVector2Array(-5, 0, -17, 0)
+width = 4.0
 default_color = Color(0, 0, 0, 1)
-begin_cap_mode = 2
-end_cap_mode = 2
 antialiased = true
 
 [node name="leftHorizontalLine" type="Line2D" parent="LeftLine"]
@@ -117,13 +113,10 @@ width = 2.0
 antialiased = true
 
 [node name="rightLineOutline" type="Line2D" parent="RightLine"]
-visible = false
 z_index = -1
-points = PackedVector2Array(7.0775003, 0, 19.0575, 0)
-width = 5.085
+points = PackedVector2Array(5, 0, 17, 0)
+width = 4.0
 default_color = Color(0, 0, 0, 1)
-begin_cap_mode = 2
-end_cap_mode = 2
 antialiased = true
 
 [node name="rightHorizontalLine" type="Line2D" parent="RightLine"]

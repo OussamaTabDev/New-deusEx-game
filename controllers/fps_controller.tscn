@@ -399,7 +399,7 @@ material = SubResource("ORMMaterial3D_5w0k0")
 radius = 0.05
 height = 0.1
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "h_cast", "h_cast_up", "r_cast")]
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast")]
 collision_layer = 2
 script = ExtResource("1_pgc1p")
 WALK_SPEED = 4.0
@@ -412,6 +412,7 @@ chest_Cast = NodePath("Raycasters/ClimbingCasts/ChestCast")
 mid_chest_Cast = NodePath("Raycasters/ClimbingCasts/midChestCast")
 upperchestCastNode = NodePath("Raycasters/ClimbingCasts/upperChestCasts")
 upperchest_Cast = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle")
+upperchest_Cast_Crouch = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastCrouch")
 h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
 h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
 r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
@@ -421,7 +422,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_u6tj1")
 
 [node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
-visible = false
 mesh = SubResource("CapsuleMesh_6tv51")
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
@@ -443,8 +443,6 @@ SHAKE_RANDOMNESS = 0.2
 visible = false
 enable_shadows = true
 
-[node name="Crosshair" parent="CameraController/Camera3D" instance=ExtResource("4_5w0k0")]
-
 [node name="Anim" type="Node" parent="CameraController/Camera3D"]
 
 [node name="crossHair anim" type="AnimationPlayer" parent="CameraController/Camera3D/Anim"]
@@ -458,7 +456,6 @@ root_node = NodePath("../..")
 [node name="CameraTree" type="AnimationTree" parent="CameraController/Camera3D/Anim"]
 
 [node name="Raycasters" type="Node3D" parent="CameraController"]
-visible = false
 
 [node name="CameraLeftCast" type="ShapeCast3D" parent="CameraController/Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 1.1100001, 0)
@@ -536,25 +533,24 @@ shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1676488, -0.6089425)
-visible = false
 shape = SubResource("BoxShape3D_5w0k0")
 target_position = Vector3(0, -1.165, 0)
 
 [node name="midChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.523, -0.609)
-visible = false
 shape = SubResource("BoxShape3D_fyafc")
 target_position = Vector3(0, -1.165, 0)
 
 [node name="upperChestCasts" type="Node3D" parent="Raycasters/ClimbingCasts"]
-transform = Transform3D(1, 0, 0, 0, 1.13, 0, 0, 0, 1, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 0.95, 0, 0, 0, 1, 0, 0, 0)
+visible = false
 
 [node name="UpperChestCastIdle" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0018659, -1.0712972)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0018659, -0.41949177)
 shape = SubResource("BoxShape3D_3og01")
 
 [node name="UpperChestCastCrouch" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7519999, -1.071)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7615201, -0.41919458)
 shape = SubResource("BoxShape3D_tg6sc")
 
 [node name="H_cast" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
@@ -575,3 +571,21 @@ target_position = Vector3(0, -1.5, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Raycasters/ClimbingCasts/R_castController/R_Cast"]
 mesh = SubResource("CapsuleMesh_3og01")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Crosshair" parent="Control" instance=ExtResource("4_5w0k0")]
+layout_mode = 1
+crosshairThickness = 1.5
+crosshairSize = 6.0
+crosshairGap = 3.0
+crosshairDot = true
+breathingEnabled = false
+currentPreset = 1

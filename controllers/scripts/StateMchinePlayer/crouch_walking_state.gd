@@ -35,7 +35,7 @@ func physics_update(delta: float) -> void:
 	if not player.is_on_floor():
 		player.velocity.y -= player.gravity * delta
 	
-	if player.can_climb() and Input.is_action_just_pressed("jump"):
+	if player.can_climb() and (Input.is_action_just_pressed("jump") or Input.is_action_just_pressed("sprint")):
 		return state_machine.get_state("CLimbState")
 		
 
@@ -76,7 +76,9 @@ func check_transitions() -> State:
 				else:
 					return state_machine.get_state("WalkingState")
 			else:
-				return state_machine.get_state("IdleState")
+				if not state_machine.previous_state.name == "ClimbState":
+					return state_machine.get_state("IdleState")
+				
 	
 	return null
 
