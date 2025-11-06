@@ -7,17 +7,38 @@ extends State
 @export var move_speed: float = 2.0
 
 var climb_hight: float 
+var previous: String = ""
 @export var head_Cast : ShapeCast3D
 @export var chest_Cast: ShapeCast3D
-@export var upperchest_Cast: ShapeCast3D
+@export var upperchest_Cast_Idle: ShapeCast3D
+@export var upperchest_Cast_Crouch: ShapeCast3D
 
 @export var crouchState: State
 @export var standState: State
-
+var will_crouch: bool = false
 var tween: Tween  # store tween reference if needed
+var current_distance: float
+@export var collision : CollisionShape3D 
+
+# func _ready():
+# 	collision = player.get_n
 
 func enter() -> void:
-	climb_hight = player.hit_point2.y + 0.5 - player.global_transform.origin.y
+	previous = state_machine.previous_state.name
+	print("Previous State: %s" % previous)
+	current_distance = player.global_transform.origin.distance_to(player.h_cast_up.get_collision_point()) - 1
+	collision.disabled = true
+	if upperchest_Cast_Idle.is_colliding():
+		
+		print("Playing Crouch Animation")
+		will_crouch = true
+	else:
+		print("Playing Idle Animation")
+		will_crouch = false
+
+	climb_hight = player.hit_point2.y  - player.global_transform.origin.y
+	
+	await get_tree().create_timer(.1).timeout
 	# move_speed = player.hit_point2.z - player.global_transform.origin.z + 1.5
 	print("Entering Climb state")
 	climb()  # start climb immediately when entering
@@ -32,8 +53,8 @@ func update(delta: float) -> void:
 
 
 func physics_update(delta: float) -> void:
-	if not  _can_stand_up():
-		player.anim_player.play("Crouching")
+	# if not  _can_stand_up():
+		
 	player.move_and_slide()
 
 
@@ -41,6 +62,7 @@ func check_transitions() -> State:
 	# Manual override if player cancels
 	# Allow cancelling climb by moving downwards
 	if Input.is_action_just_pressed("move_backward"):
+		collision.disabled = false
 		if tween and tween.is_running():
 			tween.kill()
 			return state_machine.get_state("FallingState")
@@ -49,7 +71,7 @@ func check_transitions() -> State:
 	
 
 func _can_stand_up() -> bool:
-	return not head_Cast.is_colliding()
+	return will_crouch
 
 
 func climb():
@@ -70,14 +92,17 @@ func climb():
 	# Smooth vertical and forward arc — using easing for natural feel
 	tween.tween_property(player, "global_position", mid_pos, time_to_climb * 0.5)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	# if will_crouch:
+	# player.anim_player.play("Crouching" , -1 , 100.0)
 	tween.tween_property(player, "global_position", end_pos, time_to_climb * 0.5)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	
 	await tween.finished
-	
 	print("Climb animation done!")
 	
-	if state_machine.previous_state.name == "WalkingCrouchState" or not  _can_stand_up():
+	if previous == "CrouchWalkingState" or _can_stand_up() :
+		collision.disabled = false
 		state_machine.transition_to(crouchState)
 	
+	collision.disabled = false
 	state_machine.transition_to(standState)

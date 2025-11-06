@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=30 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
@@ -72,11 +72,11 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector3(0, 3.089416, 0), Vector3(0, 2.939, 0)]
+"values": [Vector3(0, 3.089416, 0), Vector3(0, 2.609, 0)]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
-tracks/4/enabled = true
+tracks/4/enabled = false
 tracks/4/path = NodePath("Raycasters/ClimbingCasts/ChestCast:shape:size")
 tracks/4/interp = 2
 tracks/4/loop_wrap = true
@@ -88,7 +88,7 @@ tracks/4/keys = {
 }
 tracks/5/type = "value"
 tracks/5/imported = false
-tracks/5/enabled = true
+tracks/5/enabled = false
 tracks/5/path = NodePath("Raycasters/ClimbingCasts:position")
 tracks/5/interp = 2
 tracks/5/loop_wrap = true
@@ -100,8 +100,8 @@ tracks/5/keys = {
 }
 tracks/6/type = "value"
 tracks/6/imported = false
-tracks/6/enabled = true
-tracks/6/path = NodePath("Raycasters/ClimbingCasts/UpperChestCast:shape:size")
+tracks/6/enabled = false
+tracks/6/path = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle:shape:size")
 tracks/6/interp = 2
 tracks/6/loop_wrap = true
 tracks/6/keys = {
@@ -112,7 +112,7 @@ tracks/6/keys = {
 }
 tracks/7/type = "value"
 tracks/7/imported = false
-tracks/7/enabled = true
+tracks/7/enabled = false
 tracks/7/path = NodePath("Raycasters/ClimbingCasts/ChestCast:target_position")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
@@ -260,7 +260,7 @@ tracks/10/keys = {
 tracks/11/type = "value"
 tracks/11/imported = false
 tracks/11/enabled = true
-tracks/11/path = NodePath("Raycasters/ClimbingCasts/UpperChestCast:shape:size")
+tracks/11/path = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle:shape:size")
 tracks/11/interp = 1
 tracks/11/loop_wrap = true
 tracks/11/keys = {
@@ -388,6 +388,9 @@ size = Vector3(0.99, 0.815, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_3og01"]
 size = Vector3(1, 1.535, 1.255)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_tg6sc"]
+size = Vector3(1, 1.5, 1.255)
+
 [sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5w0k0"]
 albedo_color = Color(1, 0.30345234, 0.20271397, 1)
 
@@ -396,7 +399,7 @@ material = SubResource("ORMMaterial3D_5w0k0")
 radius = 0.05
 height = 0.1
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchest_Cast", "h_cast", "h_cast_up", "r_cast")]
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "h_cast", "h_cast_up", "r_cast")]
 collision_layer = 2
 script = ExtResource("1_pgc1p")
 WALK_SPEED = 4.0
@@ -407,7 +410,8 @@ anim_player = NodePath("AnimationPlayer")
 head_Cast = NodePath("Raycasters/HeadCast")
 chest_Cast = NodePath("Raycasters/ClimbingCasts/ChestCast")
 mid_chest_Cast = NodePath("Raycasters/ClimbingCasts/midChestCast")
-upperchest_Cast = NodePath("Raycasters/ClimbingCasts/UpperChestCast")
+upperchestCastNode = NodePath("Raycasters/ClimbingCasts/upperChestCasts")
+upperchest_Cast = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle")
 h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
 h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
 r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
@@ -485,16 +489,18 @@ script = ExtResource("8_tg6sc")
 script = ExtResource("9_yvtcv")
 air_control_factor = 0.85
 
-[node name="ClimbState" type="Node" parent="StateMachine" node_paths=PackedStringArray("head_Cast", "chest_Cast", "upperchest_Cast", "crouchState", "standState")]
+[node name="ClimbState" type="Node" parent="StateMachine" node_paths=PackedStringArray("head_Cast", "chest_Cast", "upperchest_Cast_Idle", "upperchest_Cast_Crouch", "crouchState", "standState", "collision")]
 script = ExtResource("10_h7h5r")
-time_to_climb = 0.7
-time_to_move = 0.3
-move_speed = 0.0
+time_to_climb = 0.5
+time_to_move = 0.2
+move_speed = 1.2
 head_Cast = NodePath("../../Raycasters/HeadCast")
 chest_Cast = NodePath("../../Raycasters/ClimbingCasts/ChestCast")
-upperchest_Cast = NodePath("../../Raycasters/ClimbingCasts/UpperChestCast")
+upperchest_Cast_Idle = NodePath("../../Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle")
+upperchest_Cast_Crouch = NodePath("../../Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastCrouch")
 crouchState = NodePath("../CrouchWalkingState")
 standState = NodePath("../IdleState")
+collision = NodePath("../../CollisionShape3D")
 
 [node name="CrouchWalkingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast")]
 script = ExtResource("11_fdopr")
@@ -530,17 +536,26 @@ shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1676488, -0.6089425)
+visible = false
 shape = SubResource("BoxShape3D_5w0k0")
 target_position = Vector3(0, -1.165, 0)
 
 [node name="midChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.523, -0.609)
+visible = false
 shape = SubResource("BoxShape3D_fyafc")
 target_position = Vector3(0, -1.165, 0)
 
-[node name="UpperChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.158426, -1.0712972)
+[node name="upperChestCasts" type="Node3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1.13, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="UpperChestCastIdle" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0018659, -1.0712972)
 shape = SubResource("BoxShape3D_3og01")
+
+[node name="UpperChestCastCrouch" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7519999, -1.071)
+shape = SubResource("BoxShape3D_tg6sc")
 
 [node name="H_cast" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.381, 0)
@@ -556,7 +571,7 @@ script = ExtResource("15_3og01")
 [node name="R_castController" type="Node3D" parent="Raycasters/ClimbingCasts"]
 
 [node name="R_Cast" type="RayCast3D" parent="Raycasters/ClimbingCasts/R_castController"]
-target_position = Vector3(0, -3, 0)
+target_position = Vector3(0, -1.5, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Raycasters/ClimbingCasts/R_castController/R_Cast"]
 mesh = SubResource("CapsuleMesh_3og01")

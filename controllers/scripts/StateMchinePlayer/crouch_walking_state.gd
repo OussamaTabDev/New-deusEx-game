@@ -14,7 +14,7 @@ func _ready():
 
 func enter() -> void:
 	player.SPEED = walk_crouch_speed
-	if state_machine.previous_state.name == "SlidingState":
+	if state_machine.previous_state.name == "SlidingState" or state_machine.previous_state.name == "ClimbState":
 		pass
 	else:
 		_animate_crouch(true)
@@ -27,7 +27,7 @@ func update(delta: float) -> void:
 	pass
 
 func physics_update(delta: float) -> void:
-	print("crouch walking physics update")
+	# print("crouch walking physics update")
 	# # Smoothly transition speed
 	player.SPEED = lerp(player.SPEED, walk_crouch_speed, 2.5 * delta)
 	
@@ -61,6 +61,8 @@ func check_transitions() -> State:
 	if Input.is_action_just_pressed("jump"):
 		if player.can_climb():
 			return state_machine.get_state("CLimbState")
+		if is_toggle_crouch and _can_stand_up() :
+			return state_machine.get_state("IdleState")
 			
 		# return state_machine.get_state("JumpingState")
 

@@ -11,6 +11,7 @@ class_name Player extends CharacterBody3D
 @export var head_Cast : ShapeCast3D
 @export var chest_Cast: ShapeCast3D
 @export var mid_chest_Cast: ShapeCast3D
+@export var upperchestCastNode: Node3D
 @export var upperchest_Cast: ShapeCast3D
 @export var h_cast : RayCast3D
 @export var h_cast_up : RayCast3D
@@ -32,7 +33,7 @@ func _ready():
 	pass
 
 func _physics_process(delta):
-	if is_ledge_detect():
+	if is_ledge_detect() and state_machine.current_state.name != "ClimbState":
 		ledge_detect()
 	pass
 
@@ -67,10 +68,10 @@ func can_climb():
 	var hit_point = h_cast_up.get_collision_point()
 	var player_pos = global_transform.origin
 	var distance = player_pos.distance_to(hit_point)
-	if distance < 2.4:
-		current_distance = distance
-	print("Hit point:", hit_point, " Player pos:", player_pos, " Distance:", distance)
-	return not head_Cast.is_colliding() and not upperchest_Cast.is_colliding() \
+	# if distance < 2.4:
+	# 	current_distance = distance
+	# print("Hit point:", hit_point, " Player pos:", player_pos, " Distance:", distance)
+	return not head_Cast.is_colliding()  \
 	  and hit_point2.y - global_transform.origin.y < 3.0 and hit_point2.y - global_transform.origin.y > 1 \
 	  and (chest_Cast.is_colliding() or mid_chest_Cast.is_colliding() or (h_cast_up.is_colliding() and distance < 2.4) )
 
@@ -83,24 +84,26 @@ func ledge_detect():
 	var raycast2_holder = r_cast.get_parent()
 	var ledge_marker = r_cast.get_child(0)
 	hit_point2 = r_cast.get_collision_point()
-	var offset = Vector3(0, 1.5, 0)
+	var offset = Vector3(0, .5, 0)
 	
 
 	if chest_Cast.is_colliding():
 		raycast2_holder.global_transform.origin = hit_point1 + offset
 		ledge_marker.global_transform.origin = hit_point2
-
+		upperchestCastNode.global_transform.origin.y = hit_point2.y
 		ledge_marker.visible = true
 		r_cast.enabled = true
 	elif mid_chest_Cast.is_colliding():
 		raycast2_holder.global_transform.origin = hit_point3 + offset
 		ledge_marker.global_transform.origin = hit_point2
+		upperchestCastNode.global_transform.origin.y = hit_point2.y
 		ledge_marker.visible = true
 		r_cast.enabled = true
 
 	elif h_cast_up.is_colliding():
 		raycast2_holder.global_transform.origin = hit_point1_up + offset
 		ledge_marker.global_transform.origin = hit_point2
+		upperchestCastNode.global_transform.origin.y = hit_point2.y
 
 		ledge_marker.visible = true
 		r_cast.enabled = true
