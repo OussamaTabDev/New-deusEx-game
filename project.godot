@@ -111,6 +111,10 @@ look_down={
 3d_physics/layer_2="player"
 3d_physics/layer_12="Edges"
 
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
 [rendering]
 
 textures/default_filters/anisotropic_filtering_level=4

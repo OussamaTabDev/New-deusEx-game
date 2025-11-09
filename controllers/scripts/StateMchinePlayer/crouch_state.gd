@@ -20,10 +20,14 @@ var tween: Tween  # store tween reference if needed
 var current_distance: float
 @export var collision : CollisionShape3D 
 
-# func _ready():
-# 	collision = player.get_n
+
+var h_speed_twin: float = 0.0
+var v_speed_twin: float = 0.0
 
 func enter() -> void:
+	h_speed_twin =  time_to_move /  player.SPEED
+	v_speed_twin =  time_to_climb /  player.SPEED
+	
 	previous = state_machine.previous_state.name
 	current_distance = player.global_transform.origin.distance_to(player.h_cast_up.get_collision_point()) - 1
 	collision.disabled = true
@@ -83,7 +87,8 @@ func _can_stand_up() -> bool:
 
 func climb():
 	var climb_height = climb_hight
-	var climb_forward = -player.global_transform.basis.z * (move_speed + player.current_distance)
+	# var climb_forward = -player.global_transform.basis.z * (move_speed + player.current_distance)
+	var climb_forward = -player.global_transform.basis.z * ( move_speed + player.current_distance)
 	
 	# Starting position
 	var start_pos = player.global_position
@@ -97,11 +102,11 @@ func climb():
 	tween = create_tween()
 	
 	# Smooth vertical and forward arc — using easing for natural feel
-	tween.tween_property(player, "global_position", mid_pos, time_to_climb * 0.5)\
+	tween.tween_property(player, "global_position", mid_pos, v_speed_twin)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	if will_crouch:
 		player.anim_player.play("Crouching" , -1 , 10.0)
-	tween.tween_property(player, "global_position", end_pos, time_to_climb * 0.5)\
+	tween.tween_property(player, "global_position", end_pos, h_speed_twin)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	
 	await tween.finished

@@ -488,8 +488,8 @@ air_control_factor = 0.85
 
 [node name="ClimbState" type="Node" parent="StateMachine" node_paths=PackedStringArray("head_Cast", "chest_Cast", "upperchest_Cast_Idle", "upperchest_Cast_Crouch", "crouchState", "standState", "collision")]
 script = ExtResource("10_h7h5r")
-time_to_climb = 0.5
-time_to_move = 0.2
+time_to_climb = 2.0
+time_to_move = 1.0
 move_speed = 1.2
 head_Cast = NodePath("../../Raycasters/HeadCast")
 chest_Cast = NodePath("../../Raycasters/ClimbingCasts/ChestCast")
@@ -504,9 +504,8 @@ script = ExtResource("11_fdopr")
 walk_crouch_speed = 2.0
 headCast = NodePath("../../Raycasters/HeadCast")
 
-[node name="LeaningState" type="Node" parent="StateMachine"]
+[node name="DashState" type="Node" parent="StateMachine"]
 script = ExtResource("12_5b0ob")
-lean_distance = 0.6
 
 [node name="SlidingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast")]
 script = ExtResource("13_l8yvu")
