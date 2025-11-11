@@ -2,9 +2,8 @@ class_name WalkingState
 extends State
 
 
-
-
 func enter() -> void:
+	player.can_wall_run_bool = true
 	player.SPEED = player.WALK_SPEED
 
 func physics_update(delta: float) -> void:
@@ -41,13 +40,9 @@ func check_transitions() -> State:
 	
 	# Check for crouch
 	if Input.is_action_just_pressed("crouch"):
-		# If moving fast, slide instead of crouch walk
-		# var horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
-		# if horizontal_velocity.length() >= player.WALK_SPEED * 0.8:
-		# 	return state_machine.get_state("SlidingState")
-		# else:
-		return state_machine.get_state("CrouchWalkingState")
 		
+		return state_machine.get_state("CrouchWalkingState")
+	
 	
 	# Check for sprint
 	if Input.is_action_pressed("sprint"):
@@ -58,4 +53,9 @@ func check_transitions() -> State:
 	if input_dir.length() < 0.1:
 		return state_machine.get_state("IdleState")
 	
+	# print(input_dir)
+	# Check for dash
+	if Input.is_action_just_pressed("dash") and input_dir.y > 0 :
+		return state_machine.get_state("DashState")
+
 	return null

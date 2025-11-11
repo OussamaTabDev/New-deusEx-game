@@ -2,6 +2,7 @@ class_name IdleState
 extends State
 
 func enter() -> void:
+	player.can_wall_run_bool = true
 	player.SPEED = player.WALK_SPEED
 
 func physics_update(delta: float) -> void:
@@ -18,6 +19,7 @@ func physics_update(delta: float) -> void:
 func check_transitions() -> State:
 	# Check for falling
 	if not player.is_on_floor():
+		
 		return state_machine.get_state("FallingState")
 	
 	# Check for jump
@@ -30,9 +32,14 @@ func check_transitions() -> State:
 	if Input.is_action_just_pressed("crouch"):
 		print("Crouch pressed")
 		return state_machine.get_state("CrouchWalkingState")
-	
-	# Check for movement
+
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+
+	# Check for dash
+	if Input.is_action_just_pressed("dash"):
+		return state_machine.get_state("DashState")
+
+	# Check for movement
 	if input_dir.length() > 0.1:
 		if Input.is_action_pressed("sprint"):
 			return state_machine.get_state("SprintingState")

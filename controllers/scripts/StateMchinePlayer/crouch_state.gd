@@ -30,11 +30,11 @@ func enter() -> void:
 	
 	previous = state_machine.previous_state.name
 	current_distance = player.global_transform.origin.distance_to(player.h_cast_up.get_collision_point()) - 1
-	collision.disabled = true
-	print("upperchest_Cast_Idle is colliding:", upperchest_Cast_Idle.is_colliding())
-	print("is colliding with:" , upperchest_Cast_Idle.get_collider(0))
-	print("upperchest_Cast_Crouch is colliding:", upperchest_Cast_Crouch.is_colliding())
-	print("is colliding with:" , upperchest_Cast_Crouch.get_collider(0))
+	# collision.disabled = true
+	# print("upperchest_Cast_Idle is collidin/g:", upperchest_Cast_Idle.is_colliding())
+	# print("is colliding with:" , upperchest_Cast_Idle.get_collider(0))
+	# print("upperchest_Cast_Crouch is colliding:", upperchest_Cast_Crouch.is_colliding())
+	# print("is colliding with:" , upperchest_Cast_Crouch.get_collider(0))
 	## mark where upperchest_Cast_Crouch is colliding 
 	
 
@@ -73,7 +73,7 @@ func check_transitions() -> State:
 	# Manual override if player cancels
 	# Allow cancelling climb by moving downwards
 	if Input.is_action_just_pressed("move_backward"):
-		collision.disabled = false
+		# collision.disabled = false
 		if tween and tween.is_running():
 			tween.kill()
 			return state_machine.get_state("FallingState")
@@ -113,9 +113,9 @@ func climb():
 	print("Climb animation done!")
 	
 	if previous == "CrouchWalkingState" or _can_stand_up() :
-		collision.disabled = false
+		# collision.disabled = false
 		state_machine.transition_to(crouchState)
 		return
 		
-	collision.disabled = false
+	# collision.disabled = false
 	state_machine.transition_to(standState)

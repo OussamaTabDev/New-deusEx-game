@@ -1,9 +1,10 @@
-[gd_scene load_steps=15 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=16 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
 [ext_resource type="Texture2D" uid="uid://ivvpsi314b34" path="res://textures/grid.jpg" id="3_yfwkt"]
 [ext_resource type="PackedScene" uid="uid://c3ffql15mo0aj" path="res://controllers/fps_controller.tscn" id="4_liofc"]
+[ext_resource type="Script" uid="uid://m2fvd5j6jd46" path="res://addons/stairs/stairs.gd" id="5_po88e"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -210,6 +211,15 @@ mesh = SubResource("BoxMesh_y34ju")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="too low2/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_vp4dy")
 
+[node name="too low3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.28121865e-14, 1.0927861e-08, 207.89195, 6.705545, -1.0927861e-08, 0, 2.9310868e-07, 0.2500003, -9.087245e-06, -2.1880684, 13.852847, -16.51028)
+mesh = SubResource("BoxMesh_y34ju")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="too low3"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="too low3/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_vp4dy")
+
 [node name="Ramp" type="MeshInstance3D" parent="."]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 5, 0, 0)
 mesh = SubResource("PrismMesh_rutao")
@@ -220,5 +230,29 @@ skeleton = NodePath("../Box")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ramp/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_j6kcl")
 
+[node name="crouch4" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.09904254, 0, -5.0445848, 0, 0.25, 0, 2.6283731, 0, 0.1900904, 16.72781, 12.276115, -15.602755)
+mesh = SubResource("BoxMesh_xc4gq")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="crouch4"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="crouch4/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_vp4dy")
+
+[node name="crouch5" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.11099794, 0, -5.1014442, 0, 0.25, 0, 2.9456432, 0, 0.192233, -5.003134, 12.276115, -15.602755)
+mesh = SubResource("BoxMesh_xc4gq")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="crouch5"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="crouch5/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_vp4dy")
+
 [node name="CharacterBody3D" parent="." instance=ExtResource("4_liofc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9177761, 2.0335073, -3.8971052)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5655313, 13.522764, -14.453327)
+
+[node name="Stairs" type="Node3D" parent="."]
+transform = Transform3D(4.111, 0, 0, 0, 6.16, 0, 0, 0, 6.881, 11.494532, 2.7449293, 8.230251)
+script = ExtResource("5_po88e")
+size = Vector3(1.5004883, 1.510437, 2.2921143)
+metadata/_custom_type_script = "uid://m2fvd5j6jd46"

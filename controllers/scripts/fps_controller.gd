@@ -7,7 +7,6 @@ class_name Player extends CharacterBody3D
 @export var CAMERA_CONTROLLER: CameraController
 @export var state_machine: StateMachine
 @export var anim_player: AnimationPlayer
-
 @export var head_Cast : ShapeCast3D
 @export var chest_Cast: ShapeCast3D
 @export var mid_chest_Cast: ShapeCast3D
@@ -21,6 +20,10 @@ class_name Player extends CharacterBody3D
 # Current speed (modified by states)
 var SPEED: float = 5.0
 
+var dash_direction: Vector3 = Vector3.ZERO
+
+var can_wall_run_bool: bool = true
+
 # Gravity
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
@@ -29,14 +32,16 @@ var hit_point2: Vector3
 var current_distance: float
 # State machine reference
 
+
 func _ready():
 	# The state machine will handle initialization
 	pass
 
 func _physics_process(delta):
+	
 	if is_ledge_detect() and state_machine.current_state.name != "ClimbState":
 		ledge_detect()
-	pass
+
 
 func _process(delta):
 	# State machine handles all updates
@@ -115,3 +120,26 @@ func ledge_detect():
 
 func is_ledge_detect() -> bool:
 	return chest_Cast.is_colliding() or mid_chest_Cast.is_colliding() or h_cast_up.is_colliding()
+
+func can_wall_run() -> bool:
+	return not is_on_floor() and is_on_wall() and can_wall_run_bool
+
+
+func get_input_direction() -> Vector3:
+	var dir = Vector3.ZERO
+	var forward = -global_transform.basis.z
+	var right = global_transform.basis.x
+
+	if Input.is_action_pressed("move_forward"):
+		dir += forward
+	if Input.is_action_pressed("move_backward"):
+		dir -= forward
+	if Input.is_action_pressed("move_right"):
+		dir += right
+	if Input.is_action_pressed("move_left"):
+		dir -= right
+
+	return dir.normalized()
+
+
+

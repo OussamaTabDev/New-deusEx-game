@@ -5,6 +5,9 @@ extends State
 @export var walk_crouch_speed: float = 2.5
 @export var is_toggle_crouch: bool = false
 @export var headCast: ShapeCast3D
+var no_need_to_back: bool = false
+
+var was_crouching_array: Array = ["SlidingState","ClimbState" , "DashState"]
 func _ready():
 	super._ready()
 	headCast.add_exception(player)
@@ -14,13 +17,14 @@ func _ready():
 
 func enter() -> void:
 	player.SPEED = walk_crouch_speed
-	if state_machine.previous_state.name == "SlidingState" or state_machine.previous_state.name == "ClimbState":
+	if state_machine.previous_state.name in was_crouching_array:
 		pass
 	else:
 		_animate_crouch(true)
 
 func exit() -> void:
-	_animate_crouch(false)
+	if no_need_to_back:
+		_animate_crouch(false)
 	
 
 func update(delta: float) -> void:
@@ -37,7 +41,8 @@ func physics_update(delta: float) -> void:
 	
 	if player.can_climb() and (Input.is_action_just_pressed("jump") or Input.is_action_just_pressed("sprint")):
 		return state_machine.get_state("CLimbState")
-		
+	
+	
 
 	# # Get input and move
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
@@ -54,6 +59,7 @@ func physics_update(delta: float) -> void:
 
 func check_transitions() -> State:
 	# Check for falling
+	no_need_to_back = true
 	if not player.is_on_floor():
 		return state_machine.get_state("FallingState")
 	
@@ -65,6 +71,10 @@ func check_transitions() -> State:
 			return state_machine.get_state("IdleState")
 			
 		# return state_machine.get_state("JumpingState")
+	# Check for dash
+	if Input.is_action_just_pressed("dash"):
+		no_need_to_back = false
+		return state_machine.get_state("DashState")
 
 	# Check if crouch released and can stand up
 	if ((not Input.is_action_pressed("crouch") and not is_toggle_crouch) or (is_toggle_crouch and Input.is_action_just_pressed("crouch"))):

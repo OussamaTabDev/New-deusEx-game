@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=31 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://raajygfbuuyd" path="res://controllers/scripts/StateMchinePlayer/crouch_walking_state.gd" id="11_fdopr"]
 [ext_resource type="Script" uid="uid://hn8vcj011s76" path="res://controllers/scripts/StateMchinePlayer/leaning_state.gd" id="12_5b0ob"]
 [ext_resource type="Script" uid="uid://bhp7r288x1giv" path="res://controllers/scripts/StateMchinePlayer/sliding_state.gd" id="13_l8yvu"]
+[ext_resource type="Script" uid="uid://4prbyxtm4pjg" path="res://controllers/scripts/StateMchinePlayer/wall_run_state.gd" id="14_fyafc"]
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6tj1"]
@@ -514,6 +515,10 @@ slide_duration = 2.5
 headCast = NodePath("../../Raycasters/HeadCast")
 crouch_speed = 4.0
 
+[node name="WallRunState" type="Node" parent="StateMachine"]
+script = ExtResource("14_fyafc")
+WALL_RUN_SPEED = 5.0
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 &"": SubResource("AnimationLibrary_5w0k0")
@@ -526,30 +531,33 @@ anim_player = NodePath("../AnimationPlayer")
 
 [node name="HeadCast" type="ShapeCast3D" parent="Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
+visible = false
 shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ClimbingCasts" type="Node3D" parent="Raycasters"]
 
 [node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1676488, -0.6089425)
+visible = false
 shape = SubResource("BoxShape3D_5w0k0")
 target_position = Vector3(0, -1.165, 0)
 
 [node name="midChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.523, -0.609)
+visible = false
 shape = SubResource("BoxShape3D_fyafc")
 target_position = Vector3(0, -1.165, 0)
 
 [node name="upperChestCasts" type="Node3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 0.95, 0, 0, 0, 1, 0, 0, 0)
-visible = false
 
 [node name="UpperChestCastIdle" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0018659, -0.41949177)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7790252, -0.41949177)
 shape = SubResource("BoxShape3D_3og01")
 
 [node name="UpperChestCastCrouch" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7615201, -0.41919458)
+visible = false
 shape = SubResource("BoxShape3D_tg6sc")
 
 [node name="H_cast" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
@@ -569,7 +577,18 @@ script = ExtResource("15_3og01")
 target_position = Vector3(0, -1.5, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Raycasters/ClimbingCasts/R_castController/R_Cast"]
+layers = 8
 mesh = SubResource("CapsuleMesh_3og01")
+
+[node name="StairsCasters" type="Node3D" parent="Raycasters"]
+visible = false
+
+[node name="BelowStairsRayCast" type="RayCast3D" parent="Raycasters/StairsCasters"]
+target_position = Vector3(0, -0.75, 0)
+
+[node name="StairsRayCast" type="RayCast3D" parent="Raycasters/StairsCasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4964732, -0.78194517)
+target_position = Vector3(0, -0.5, 0)
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3

@@ -4,12 +4,14 @@ extends Node
 # Reference to the player
 var player: CharacterBody3D
 var state_machine: StateMachine
+var CAMERA_CONTROLLER: CameraController
 
 func _ready():
 	# Wait for state machine to be ready
 	await owner.ready
 	state_machine = get_parent()
 	player = state_machine.player
+	CAMERA_CONTROLLER = player.CAMERA_CONTROLLER
 
 # Called when entering the state
 func enter() -> void:
