@@ -2,7 +2,7 @@
 class_name CameraController
 extends Node3D
 
-@export var player: CharacterBody3D
+@export var player: CharacterBody3D  
 @export var CAMERA_CONTROLLER: Camera3D
 @export var MOUSE_SENSITIVITY: float = 0.5
 @export var CONTROLLER_SENSITIVITY: float = 1.0
@@ -11,7 +11,9 @@ extends Node3D
 
 # Eye height (player's camera height)
 @export var EYE_HEIGHT: float = 1.6
-
+@export var CROUCHED_EYE_HEIGHT: float = 0.9
+@export var CROUCH_DURATION: float = 1.0  # Time to fully crouch or stand
+var _crouch_duration: float = CROUCH_DURATION
 # Head bob variables
 @export var BOB_FREQ: float = 2.4
 @export var BOB_AMP: float = 0.08
@@ -45,7 +47,7 @@ var t_bob: float = 0.0
 var _fall_timer: float = 0.0
 var _fall_value: float = 0.0
 
-# Damage kick (impulse-based, always resets)
+# Damage kick (impulse-based)
 @export_category("Damage Kick Parameters")
 @export var enable_damage_kick: bool = true
 @export var damage_kick_intensity: float = 0.15
@@ -57,6 +59,18 @@ var _damage_kick_y: float = 0.0
 var _damage_kick_z: float = 0.0
 var _damage_tilt_impulse: float = 0.0
 var _damage_roll_impulse: float = 0.0
+
+# Climb camera effect
+@export_category("Climb Parameters")
+@export var climb_tilt_amount: float = deg_to_rad(8.0)
+@export var climb_tilt_speed: float = 4.0
+
+var _is_climbing: bool = false
+var _current_climb_tilt: float = 0.0
+
+# Crouch blending
+var _target_crouch: bool = false
+var _crouch_blend: float = 0.0  # 0 = standing, 1 = fully crouched
 
 # Camera shake state
 var shake_strength: float = 0.0
@@ -90,15 +104,13 @@ func _input(event):
 
 
 func _process(delta: float):
-	if Input.is_action_just_pressed("test"):
-		add_damage_kick(Vector3(20,2,5))
 	_update_camera(delta)
 
 
 func _update_camera(delta: float):
-	# Decay damage impulses every frame (exponential decay)
+	# Decay damage impulses
 	if enable_damage_kick:
-		var decay = pow(0.01, delta)  # ~99% decay per second; adjust 0.01 to tune duration
+		var decay = pow(0.01, delta)
 		_damage_kick_x *= decay
 		_damage_kick_y *= decay
 		_damage_kick_z *= decay
@@ -126,7 +138,7 @@ func _update_camera(delta: float):
 	t_bob += delta * player.velocity.length() * float(player.is_on_floor())
 	var bob_offset: Vector3 = _headbob(t_bob)
 	
-	# Leaning logic
+	# Leaning
 	var target_lean: float = 0.0
 	var target_roll: float = 0.0
 
@@ -163,19 +175,30 @@ func _update_camera(delta: float):
 		fall_kick_offset.y = -fall_kick_amount * 0.1
 		fall_kick_tilt = -fall_kick_amount
 
+	# Climb camera tilt
+	if _is_climbing:
+		_current_climb_tilt = lerp(_current_climb_tilt, climb_tilt_amount, delta * climb_tilt_speed)
+	else:
+		_current_climb_tilt = lerp(_current_climb_tilt, 0.0, delta * climb_tilt_speed)
+
+	# === Timed crouch blending ===
+	var target_blend = 1.0 if _target_crouch else 0.0
+	var crouch_speed = _crouch_duration  # e.g., 1/0.3 ≈ 3.33 units per second
+	_crouch_blend = move_toward(_crouch_blend, target_blend, crouch_speed * delta)
+	var current_eye_height = lerp(EYE_HEIGHT, CROUCHED_EYE_HEIGHT, _crouch_blend)
+
 	# === Final Camera Placement ===
-	var base_position = player.global_transform.origin + Vector3.UP * EYE_HEIGHT
+	var base_position = player.global_transform.origin + Vector3.UP * current_eye_height
 	var total_local_offset = Vector3(current_lean, 0.0, 0.0) + bob_offset + fall_kick_offset + Vector3(_damage_kick_x, _damage_kick_y, _damage_kick_z)
 	var world_offset = player.global_transform.basis * total_local_offset
 	var final_position = base_position + world_offset
 
 	# Rotation
 	var player_rotation = Vector3(0.0, _mouse_rotation.y, 0.0)
-	var final_camera_pitch = _mouse_rotation.x + fall_kick_tilt + _damage_tilt_impulse
+	var final_camera_pitch = _mouse_rotation.x + fall_kick_tilt + _damage_tilt_impulse - _current_climb_tilt
 	final_camera_pitch = clamp(final_camera_pitch, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
 	var camera_rotation = Vector3(final_camera_pitch, 0.0, 0.0)
 
-	# Apply to player and camera
 	player.global_transform.basis = Basis.from_euler(player_rotation)
 	CAMERA_CONTROLLER.global_transform.origin = final_position
 	CAMERA_CONTROLLER.transform.basis = Basis.from_euler(camera_rotation)
@@ -189,7 +212,7 @@ func _update_camera(delta: float):
 		target_fov += 5.0
 	CAMERA_CONTROLLER.fov = lerp(CAMERA_CONTROLLER.fov, target_fov, delta * 8.0)
 
-	# Camera shake (applied in camera-local space)
+	# Camera shake
 	var is_idle = (
 		player.is_on_floor() and 
 		player.velocity.length() < 0.1 and 
@@ -204,10 +227,9 @@ func _update_camera(delta: float):
 		shake_strength = lerp(shake_strength, 0.0, delta * SHAKE_FADE_SPEED)
 		shake_offset = _camera_shake(delta, shake_strength, 12.0)
 
-	# Add shake in local camera space (X/Y screen space)
 	CAMERA_CONTROLLER.transform.origin += shake_offset
 
-	# Reset mouse accumulators
+	# Reset accumulators
 	_rotation_input = 0.0
 	_tilt_input = 0.0
 
@@ -273,7 +295,7 @@ func add_damage_kick(damage_source: Vector3) -> void:
 	var to_source = damage_source - player.global_transform.origin
 	to_source.y = 0.0
 	if to_source.length() < 0.01:
-		to_source = -player.global_transform.basis.z  # default direction: front
+		to_source = -player.global_transform.basis.z
 	to_source = to_source.normalized()
 
 	var local_dir = player.global_transform.basis.inverse() * to_source
@@ -297,15 +319,29 @@ func add_damage_kick(damage_source: Vector3) -> void:
 			_damage_tilt_impulse = tilt_rad * 0.6
 			_damage_roll_impulse = 0.0
 	else:
-		if local_dir.x > 0:  # right side
+		if local_dir.x > 0:  # right
 			_damage_kick_x = -kick * 0.8
 			_damage_kick_y = kick * 0.4
 			_damage_kick_z = -kick * 0.3
 			_damage_tilt_impulse = tilt_rad * 0.8
 			_damage_roll_impulse = -damage_kick_roll
-		else:  # left side
+		else:  # left
 			_damage_kick_x = kick * 0.8
 			_damage_kick_y = kick * 0.4
 			_damage_kick_z = -kick * 0.3
 			_damage_tilt_impulse = tilt_rad * 0.8
 			_damage_roll_impulse = damage_kick_roll
+
+
+# 🔻 Called by ClimbState
+func set_climb_active(active: bool) -> void:
+	_is_climbing = active
+
+
+# 🔻 Called by Player to set crouch state (true = crouch, false = stand)
+func set_crouching(is_crouching: bool , crouch_duration = 0.0) -> void:
+	_target_crouch = is_crouching
+	if crouch_duration > 0.0:
+		_crouch_duration = crouch_duration
+	else:
+		_crouch_duration = CROUCH_DURATION

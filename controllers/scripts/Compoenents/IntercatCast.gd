@@ -10,11 +10,12 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if is_colliding():
 		var collider = get_collider()
-		print("Colliding with: %s" % collider.name)
+		# print("Colliding with: %s" % collider.name)
 		# if Input.is_action_just_pressed("interact"):
 		# 	if collider.has_method("interact"):
 		# 		collider.interact()
 		# 	else:
 		# 		print("The object does not have an interact method.")
 	else:
-		print("Not colliding with anything.")
+		# print("Not colliding with anything.")
+		pass

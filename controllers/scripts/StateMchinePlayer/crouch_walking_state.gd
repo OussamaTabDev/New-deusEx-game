@@ -20,6 +20,7 @@ func enter() -> void:
 	if state_machine.previous_state.name in was_crouching_array:
 		pass
 	else:
+		
 		_animate_crouch(true)
 
 func exit() -> void:
@@ -94,8 +95,10 @@ func check_transitions() -> State:
 
 func _animate_crouch(is_crouching: bool) -> void:
 	if is_crouching:
+		player.CAMERA_CONTROLLER.set_crouching(true , crouch_speed)
 		player.anim_player.play("Crouching" , -1 , crouch_speed)
 	else:
+		player.CAMERA_CONTROLLER.set_crouching(false , crouch_speed * 0.80)
 		player.anim_player.play("Crouching" , -1 , -crouch_speed * 0.80 , true)
 
 func _can_stand_up() -> bool:

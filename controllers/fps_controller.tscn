@@ -55,7 +55,7 @@ tracks/1/keys = {
 }
 tracks/2/type = "value"
 tracks/2/imported = false
-tracks/2/enabled = true
+tracks/2/enabled = false
 tracks/2/path = NodePath("CameraController:position")
 tracks/2/interp = 2
 tracks/2/loop_wrap = true
@@ -64,66 +64,6 @@ tracks/2/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Vector3(0, 1.5, 0), Vector3(0, 1, 0)]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("Raycasters/HeadCast:position")
-tracks/3/interp = 2
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0, 3.089416, 0), Vector3(0, 2.939, 0)]
-}
-tracks/4/type = "value"
-tracks/4/imported = false
-tracks/4/enabled = false
-tracks/4/path = NodePath("Raycasters/ClimbingCasts/ChestCast:shape:size")
-tracks/4/interp = 2
-tracks/4/loop_wrap = true
-tracks/4/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0.99, 2, 1), Vector3(0.785, 1.5, 1)]
-}
-tracks/5/type = "value"
-tracks/5/imported = false
-tracks/5/enabled = false
-tracks/5/path = NodePath("Raycasters/ClimbingCasts:position")
-tracks/5/interp = 2
-tracks/5/loop_wrap = true
-tracks/5/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0, 0, 0), Vector3(0, -0.385, 0)]
-}
-tracks/6/type = "value"
-tracks/6/imported = false
-tracks/6/enabled = false
-tracks/6/path = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle:shape:size")
-tracks/6/interp = 2
-tracks/6/loop_wrap = true
-tracks/6/keys = {
-"times": PackedFloat32Array(0, 1, 1.8),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 0,
-"values": [Vector3(0.89, 1.19, 1.255), Vector3(0.89, 1.19, 1.255), Vector3(1.015, 1.535, 1.255)]
-}
-tracks/7/type = "value"
-tracks/7/imported = false
-tracks/7/enabled = false
-tracks/7/path = NodePath("Raycasters/ClimbingCasts/ChestCast:target_position")
-tracks/7/interp = 1
-tracks/7/loop_wrap = true
-tracks/7/keys = {
-"times": PackedFloat32Array(0, 1),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector3(0, -1.165, 0), Vector3(0, -1.02, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_5w0k0"]
@@ -215,7 +155,7 @@ tracks/6/keys = {
 tracks/7/type = "value"
 tracks/7/imported = false
 tracks/7/enabled = true
-tracks/7/path = NodePath("CameraController/Camera3D:position")
+tracks/7/path = NodePath("CameraController/CameraBase/CameraOffset/Camera3D:position")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
@@ -227,7 +167,7 @@ tracks/7/keys = {
 tracks/8/type = "value"
 tracks/8/imported = false
 tracks/8/enabled = true
-tracks/8/path = NodePath("CameraController/Camera3D:rotation")
+tracks/8/path = NodePath("CameraController/CameraBase/CameraOffset/Camera3D:rotation")
 tracks/8/interp = 1
 tracks/8/loop_wrap = true
 tracks/8/keys = {
@@ -235,54 +175,6 @@ tracks/8/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector3(0, 0, 0)]
-}
-tracks/9/type = "value"
-tracks/9/imported = false
-tracks/9/enabled = true
-tracks/9/path = NodePath("Raycasters/ClimbingCasts/ChestCast:shape:size")
-tracks/9/interp = 1
-tracks/9/loop_wrap = true
-tracks/9/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(1, 1, 1)]
-}
-tracks/10/type = "value"
-tracks/10/imported = false
-tracks/10/enabled = true
-tracks/10/path = NodePath("Raycasters/ClimbingCasts:position")
-tracks/10/interp = 1
-tracks/10/loop_wrap = true
-tracks/10/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, 0, 0)]
-}
-tracks/11/type = "value"
-tracks/11/imported = false
-tracks/11/enabled = true
-tracks/11/path = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle:shape:size")
-tracks/11/interp = 1
-tracks/11/loop_wrap = true
-tracks/11/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(1, 1.535, 1.255)]
-}
-tracks/12/type = "value"
-tracks/12/imported = false
-tracks/12/enabled = true
-tracks/12/path = NodePath("Raycasters/ClimbingCasts/ChestCast:target_position")
-tracks/12/interp = 1
-tracks/12/loop_wrap = true
-tracks/12/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, -1.165, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_3og01"]
@@ -314,7 +206,7 @@ tracks/1/keys = {
 }
 tracks/2/type = "value"
 tracks/2/imported = false
-tracks/2/enabled = true
+tracks/2/enabled = false
 tracks/2/path = NodePath("CameraController:position")
 tracks/2/interp = 2
 tracks/2/loop_wrap = true
@@ -425,43 +317,46 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_u6tj1")
 
 [node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
+visible = false
 mesh = SubResource("CapsuleMesh_6tv51")
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
 player = NodePath("..")
-CAMERA_CONTROLLER = NodePath("Camera3D")
-CONTROLLER_SENSITIVITY = 2.03
-LEAN_AMOUNT = 0.75
+CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
+EYE_HEIGHT = 2.0
+CROUCHED_EYE_HEIGHT = 1.3
 lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
 lean_shape_cast_right = NodePath("Raycasters/CameraRightCast")
 SHAKE_INTENSITY_IDLE = 0.01
-SHAKE_FREQUENCY_IDLE = 2.55
-SHAKE_RANDOMNESS = 0.2
+SHAKE_FADE_SPEED = 3.0
 
-[node name="Camera3D" type="Camera3D" parent="CameraController"]
+[node name="CameraBase" type="Node3D" parent="CameraController"]
 
-[node name="ReflectionProbe" type="ReflectionProbe" parent="CameraController/Camera3D"]
+[node name="CameraOffset" type="Node3D" parent="CameraController/CameraBase"]
+
+[node name="Camera3D" type="Camera3D" parent="CameraController/CameraBase/CameraOffset"]
+
+[node name="InteractRayCast" type="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+target_position = Vector3(0, 0, -3)
+script = ExtResource("4_yvtcv")
+
+[node name="ReflectionProbe" type="ReflectionProbe" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 visible = false
 enable_shadows = true
 
-[node name="Anim" type="Node" parent="CameraController/Camera3D"]
+[node name="Anim" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 
-[node name="crossHair anim" type="AnimationPlayer" parent="CameraController/Camera3D/Anim"]
+[node name="crossHair anim" type="AnimationPlayer" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
 root_node = NodePath("../..")
 
-[node name="CrossHAirTree" type="AnimationTree" parent="CameraController/Camera3D/Anim"]
+[node name="CrossHAirTree" type="AnimationTree" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
 root_node = NodePath("../..")
 
-[node name="CameraAnim" type="AnimationPlayer" parent="CameraController/Camera3D/Anim"]
+[node name="CameraAnim" type="AnimationPlayer" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
 
-[node name="CameraTree" type="AnimationTree" parent="CameraController/Camera3D/Anim"]
-
-[node name="InteractRayCast" type="RayCast3D" parent="CameraController/Camera3D"]
-visible = false
-target_position = Vector3(0, 0, -3)
-script = ExtResource("4_yvtcv")
+[node name="CameraTree" type="AnimationTree" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
 
 [node name="Raycasters" type="Node3D" parent="CameraController"]
 visible = false
@@ -545,6 +440,7 @@ shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1676488, -0.6089425)
+visible = false
 shape = SubResource("BoxShape3D_5w0k0")
 target_position = Vector3(0, -1.165, 0)
 
@@ -574,10 +470,12 @@ script = ExtResource("15_3og01")
 
 [node name="H_cast_up" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1025715, 0)
+visible = false
 target_position = Vector3(0, 0, -2)
 script = ExtResource("15_3og01")
 
 [node name="R_castController" type="Node3D" parent="Raycasters/ClimbingCasts"]
+visible = false
 
 [node name="R_Cast" type="RayCast3D" parent="Raycasters/ClimbingCasts/R_castController"]
 target_position = Vector3(0, -1.5, 0)

@@ -103,8 +103,10 @@ func _can_stand_up() -> bool:
 
 func _animate_crouch(is_crouching: bool) -> void:
 	if is_crouching:
+		player.CAMERA_CONTROLLER.set_crouching(true , crouch_speed / 10)
 		player.anim_player.play("Sliding", -1, crouch_speed)
 	else:
+		player.CAMERA_CONTROLLER.set_crouching(false , crouch_speed / 4)
 		player.anim_player.play("Crouching", -1, -crouch_speed, true)
 
 

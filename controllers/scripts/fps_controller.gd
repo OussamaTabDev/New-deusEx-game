@@ -140,6 +140,3 @@ func get_input_direction() -> Vector3:
 		dir -= right
 
 	return dir.normalized()
-
-
-
