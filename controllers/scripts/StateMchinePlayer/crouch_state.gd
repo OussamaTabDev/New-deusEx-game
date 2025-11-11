@@ -104,8 +104,11 @@ func climb():
 	# Smooth vertical and forward arc — using easing for natural feel
 	tween.tween_property(player, "global_position", mid_pos, v_speed_twin)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		
 	if will_crouch:
 		player.anim_player.play("Crouching" , -1 , 10.0)
+	
+	
 	tween.tween_property(player, "global_position", end_pos, h_speed_twin)\
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	
@@ -119,3 +122,5 @@ func climb():
 		
 	# collision.disabled = false
 	state_machine.transition_to(standState)
+
+

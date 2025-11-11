@@ -89,6 +89,7 @@ shader_parameter/uv2_scale = Vector3(1, 1, 1)
 shader_parameter/uv2_offset = Vector3(0, 0, 0)
 
 [sub_resource type="BoxMesh" id="BoxMesh_xc4gq"]
+lightmap_size_hint = Vector2i(24, 36)
 material = SubResource("ShaderMaterial_0racc")
 size = Vector3(2, 2, 2)
 
@@ -147,7 +148,7 @@ mesh = SubResource("BoxMesh_xc4gq")
 shape = SubResource("ConcavePolygonShape3D_vp4dy")
 
 [node name="Box3" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.627882, 0.18315887, -5)
+transform = Transform3D(1, 0, 0, 0, 0.89955777, -0.4368018, 0, 0.4368018, 0.89955777, 20, 2, 5)
 mesh = SubResource("BoxMesh_xc4gq")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Box3"]

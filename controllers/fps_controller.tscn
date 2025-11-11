@@ -1,10 +1,11 @@
-[gd_scene load_steps=31 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=33 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
 [ext_resource type="Script" uid="uid://eav1hnyrhu2x" path="res://controllers/scripts/StateMchinePlayer/camera_3d_controller.gd" id="3_uovkr"]
 [ext_resource type="PackedScene" uid="uid://iwlpamd20oko" path="res://addons/customizableCrosshair/crosshair/crosshair.tscn" id="4_5w0k0"]
 [ext_resource type="Script" uid="uid://bdhoyf88f6a32" path="res://controllers/scripts/StateMchinePlayer/state_machine.gd" id="4_l8yvu"]
+[ext_resource type="Script" uid="uid://b1dx8rftvm6id" path="res://controllers/scripts/Compoenents/IntercatCast.gd" id="4_yvtcv"]
 [ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
 [ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
 [ext_resource type="Script" uid="uid://bkbq0qu5e2cnw" path="res://controllers/scripts/StateMchinePlayer/running_state.gd" id="7_fyafc"]
@@ -16,6 +17,7 @@
 [ext_resource type="Script" uid="uid://bhp7r288x1giv" path="res://controllers/scripts/StateMchinePlayer/sliding_state.gd" id="13_l8yvu"]
 [ext_resource type="Script" uid="uid://4prbyxtm4pjg" path="res://controllers/scripts/StateMchinePlayer/wall_run_state.gd" id="14_fyafc"]
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
+[ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6tj1"]
 
@@ -73,7 +75,7 @@ tracks/3/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector3(0, 3.089416, 0), Vector3(0, 2.609, 0)]
+"values": [Vector3(0, 3.089416, 0), Vector3(0, 2.939, 0)]
 }
 tracks/4/type = "value"
 tracks/4/imported = false
@@ -456,7 +458,13 @@ root_node = NodePath("../..")
 
 [node name="CameraTree" type="AnimationTree" parent="CameraController/Camera3D/Anim"]
 
+[node name="InteractRayCast" type="RayCast3D" parent="CameraController/Camera3D"]
+visible = false
+target_position = Vector3(0, 0, -3)
+script = ExtResource("4_yvtcv")
+
 [node name="Raycasters" type="Node3D" parent="CameraController"]
+visible = false
 
 [node name="CameraLeftCast" type="ShapeCast3D" parent="CameraController/Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 1.1100001, 0)
@@ -531,14 +539,12 @@ anim_player = NodePath("../AnimationPlayer")
 
 [node name="HeadCast" type="ShapeCast3D" parent="Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
-visible = false
 shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ClimbingCasts" type="Node3D" parent="Raycasters"]
 
 [node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1676488, -0.6089425)
-visible = false
 shape = SubResource("BoxShape3D_5w0k0")
 target_position = Vector3(0, -1.165, 0)
 
@@ -590,7 +596,7 @@ target_position = Vector3(0, -0.75, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4964732, -0.78194517)
 target_position = Vector3(0, -0.5, 0)
 
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control" parent="." node_paths=PackedStringArray("player", "state_machine")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -598,6 +604,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
+script = ExtResource("16_tg6sc")
+player = NodePath("..")
+state_machine = NodePath("../StateMachine")
 
 [node name="Crosshair" parent="Control" instance=ExtResource("4_5w0k0")]
 layout_mode = 1

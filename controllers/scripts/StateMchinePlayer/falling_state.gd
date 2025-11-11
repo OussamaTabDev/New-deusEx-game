@@ -39,7 +39,7 @@ func check_transitions() -> State:
 		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 		if check_fall_speed():
 			print("fall_ckick")
-			CAMERA_CONTROLLER.add_fall_kick(2.5 )
+			CAMERA_CONTROLLER.add_fall_kick(2.5)
 		# Check for crouch on landing
 		if Input.is_action_just_pressed("crouch"):
 			return state_machine.get_state("CrouchWalkingState")
