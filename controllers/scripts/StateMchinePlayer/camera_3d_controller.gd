@@ -2,18 +2,13 @@
 class_name CameraController
 extends Node3D
 
-@export var player: CharacterBody3D  
+@export var player: CharacterBody3D
 @export var CAMERA_CONTROLLER: Camera3D
 @export var MOUSE_SENSITIVITY: float = 0.5
 @export var CONTROLLER_SENSITIVITY: float = 1.0
 @export var TILT_LOWER_LIMIT := deg_to_rad(-90.0)
 @export var TILT_UPPER_LIMIT := deg_to_rad(90.0)
 
-# Eye height (player's camera height)
-@export var EYE_HEIGHT: float = 1.6
-@export var CROUCHED_EYE_HEIGHT: float = 0.9
-@export var CROUCH_DURATION: float = 1.0  # Time to fully crouch or stand
-var _crouch_duration: float = CROUCH_DURATION
 # Head bob variables
 @export var BOB_FREQ: float = 2.4
 @export var BOB_AMP: float = 0.08
@@ -47,30 +42,43 @@ var t_bob: float = 0.0
 var _fall_timer: float = 0.0
 var _fall_value: float = 0.0
 
-# Damage kick (impulse-based)
+# Damage kick variables
 @export_category("Damage Kick Parameters")
 @export var enable_damage_kick: bool = true
-@export var damage_kick_intensity: float = 0.15
-@export var damage_kick_tilt: float = 6.0
-@export var damage_kick_roll: float = deg_to_rad(8.0)
+@export var damage_kick_intensity: float = 3.0
+@export var damage_kick_duration: float = 0.4
+@export var damage_kick_shake_strength: float = 0.5
+@export var damage_kick_roll_amount: float = deg_to_rad(15.0)  # Roll angle for side hits
 
-var _damage_kick_x: float = 0.0
-var _damage_kick_y: float = 0.0
-var _damage_kick_z: float = 0.0
-var _damage_tilt_impulse: float = 0.0
-var _damage_roll_impulse: float = 0.0
+var _damage_kick_timer: float = 0.0
+var _damage_kick_direction: Vector3 = Vector3.ZERO
+var _damage_kick_strength: float = 0.0
 
-# Climb camera effect
-@export_category("Climb Parameters")
-@export var climb_tilt_amount: float = deg_to_rad(8.0)
-@export var climb_tilt_speed: float = 4.0
+# Climb-specific damage tilt (downward dip on side hits during climb)
+var _climb_damage_tilt: float = 0.0
+var _climb_damage_tilt_timer: float = 0.0
+const CLIMB_DAMAGE_TILT_AMOUNT := deg_to_rad(4.0)
+const CLIMB_DAMAGE_TILT_DURATION := 0.3
+
+# Climb animation variables
+@export_category("Climb Animation Parameters")
+@export var climb_sway_amount: float = 0.15
+@export var climb_bob_speed: float = 1.5
+@export var climb_fov_reduction: float = 5.0
 
 var _is_climbing: bool = false
-var _current_climb_tilt: float = 0.0
+var _is_crouching: bool = false
+var _climb_animation_time: float = 0.0
 
-# Crouch blending
-var _target_crouch: bool = false
-var _crouch_blend: float = 0.0  # 0 = standing, 1 = fully crouched
+# Zoom variables
+@export_category("Zoom Parameters")
+@export var enable_zoom: bool = true
+@export var zoom_fov: float = 40.0
+@export var zoom_speed: float = 10.0
+@export var zoom_sensitivity_multiplier: float = 0.3
+
+var _is_zooming: bool = false
+var _target_fov: float = 75.0
 
 # Camera shake state
 var shake_strength: float = 0.0
@@ -94,29 +102,32 @@ func _ready():
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
-		_rotation_input = -event.relative.x * MOUSE_SENSITIVITY
-		_tilt_input = -event.relative.y * MOUSE_SENSITIVITY
+		var sensitivity_modifier = zoom_sensitivity_multiplier if _is_zooming else 1.0
+		_rotation_input = -event.relative.x * MOUSE_SENSITIVITY * sensitivity_modifier
+		_tilt_input = -event.relative.y * MOUSE_SENSITIVITY * sensitivity_modifier
 
 
 func _input(event):
 	if event.is_action_pressed("exit"):
 		get_tree().quit()
+	
+	# Zoom input
+	if enable_zoom:
+		if event.is_action_pressed("zoom"):
+			_is_zooming = true
+		elif event.is_action_released("zoom"):
+			_is_zooming = false
 
 
 func _process(delta: float):
+	# Test damage kick (bind "test" to a key in InputMap)
+	if Input.is_action_just_pressed("test"):
+		add_damage_kick(Vector3(20, 2, 5), 0.5)
+	
 	_update_camera(delta)
 
 
 func _update_camera(delta: float):
-	# Decay damage impulses
-	if enable_damage_kick:
-		var decay = pow(0.01, delta)
-		_damage_kick_x *= decay
-		_damage_kick_y *= decay
-		_damage_kick_z *= decay
-		_damage_tilt_impulse *= decay
-		_damage_roll_impulse *= decay
-
 	var yaw_input: float = 0.0
 	var pitch_input: float = 0.0
 	if not climbing():
@@ -127,8 +138,9 @@ func _update_camera(delta: float):
 		if is_controller_connected():
 			var look_x = Input.get_axis("look_left", "look_right")
 			var look_y = Input.get_axis("look_up", "look_down")
-			yaw_input = -look_x * CONTROLLER_SENSITIVITY
-			pitch_input = -look_y * CONTROLLER_SENSITIVITY
+			var sensitivity_modifier = zoom_sensitivity_multiplier if _is_zooming else 1.0
+			yaw_input = -look_x * CONTROLLER_SENSITIVITY * sensitivity_modifier
+			pitch_input = -look_y * CONTROLLER_SENSITIVITY * sensitivity_modifier
 
 	_mouse_rotation.y += yaw_input * delta
 	_mouse_rotation.x += pitch_input * delta
@@ -138,81 +150,138 @@ func _update_camera(delta: float):
 	t_bob += delta * player.velocity.length() * float(player.is_on_floor())
 	var bob_offset: Vector3 = _headbob(t_bob)
 	
-	# Leaning
+	# === Leaning & Roll Logic (DISABLED during climb) ===
 	var target_lean: float = 0.0
 	var target_roll: float = 0.0
 
-	if player.state_machine.get_current_state_name() not in resurrected_states_on_leaning:
-		if is_leaning_left():
-			if not lean_shape_cast_left.is_colliding():
-				target_lean = -LEAN_AMOUNT
-			target_roll = LEAN_ROLL_ANGLE
-		elif is_leaning_right():
-			if not lean_shape_cast_right.is_colliding():
-				target_lean = LEAN_AMOUNT
-			target_roll = -LEAN_ROLL_ANGLE
+	if not _is_climbing:
+		if player.state_machine.get_current_state_name() not in resurrected_states_on_leaning:
+			if is_leaning_left():
+				if not lean_shape_cast_left.is_colliding():
+					target_lean = -LEAN_AMOUNT
+				target_roll = LEAN_ROLL_ANGLE
+			elif is_leaning_right():
+				if not lean_shape_cast_right.is_colliding():
+					target_lean = LEAN_AMOUNT
+				target_roll = -LEAN_ROLL_ANGLE
 
-	var is_manually_leaning = is_leaning_left() or is_leaning_right()
-	if player.is_on_floor() and not is_manually_leaning:
-		var move_dir = Input.get_axis("move_left", "move_right")
-		if move_dir != 0.0:
-			target_roll = -move_dir * LEAN_ROLL_ANGLE * 0.7
+		# Auto strafe tilt
+		var is_manually_leaning = is_leaning_left() or is_leaning_right()
+		if player.is_on_floor() and not is_manually_leaning:
+			var move_dir = Input.get_axis("move_left", "move_right")
+			if move_dir != 0.0:
+				target_roll = -move_dir * LEAN_ROLL_ANGLE * 0.7
 
-	if player.state_machine.get_current_state_name() == "DashState":
-		var dash_roll_intensity = deg_to_rad(8.0)
-		target_roll = -sign(player.velocity.x) * dash_roll_intensity
+		# Dash roll
+		if player.state_machine.get_current_state_name() == "DashState":
+			var dash_roll_intensity = deg_to_rad(8.0)
+			target_roll = -sign(player.velocity.x) * dash_roll_intensity
 
+	# Smooth lean/roll (will go to 0 during climb)
 	current_lean = lerp(current_lean, target_lean, delta * LEAN_SPEED)
 	current_roll = lerp(current_roll, target_roll, delta * LEAN_SPEED)
 
-	# Fall kick
+	var lean_offset := Vector3(current_lean, 0.0, 0.0)
+
+	# === Fall Kick Integration ===
 	var fall_kick_offset = Vector3.ZERO
 	var fall_kick_tilt = 0.0
+
 	if enable_fall_kick and _fall_timer > 0.0:
 		_fall_timer -= delta
 		var fall_ratio = _fall_timer / fall_time
 		var fall_kick_amount = fall_ratio * _fall_value
+
 		fall_kick_offset.y = -fall_kick_amount * 0.1
 		fall_kick_tilt = -fall_kick_amount
 
-	# Climb camera tilt
+	# === Damage Kick Integration ===
+	var damage_kick_offset = Vector3.ZERO
+	var damage_kick_rotation = 0.0
+	var damage_kick_roll_amount_local = 0.0
+
+	if enable_damage_kick and _damage_kick_timer > 0.0:
+		_damage_kick_timer -= delta
+		var damage_ratio = _damage_kick_timer / damage_kick_duration
+		var intensity = damage_ratio * _damage_kick_strength
+		
+		damage_kick_offset = _damage_kick_direction * intensity * 0.2
+		damage_kick_rotation = sin(damage_ratio * PI) * intensity * 0.5
+		
+		# Only apply roll if NOT climbing
+		if not _is_climbing:
+			damage_kick_roll_amount_local = sin(damage_ratio * PI) * intensity * damage_kick_roll_amount
+
+		# During climb: side hit → trigger downward tilt (only if not active)
+		if _is_climbing and abs(_damage_kick_direction.x) > 0.5:
+			if _climb_damage_tilt_timer <= 0.0:
+				_climb_damage_tilt = CLIMB_DAMAGE_TILT_AMOUNT
+				_climb_damage_tilt_timer = CLIMB_DAMAGE_TILT_DURATION
+
+	# === Climb-Specific Damage Tilt ===
+	var climb_damage_tilt = 0.0
+	if _climb_damage_tilt_timer > 0.0:
+		_climb_damage_tilt_timer -= delta
+		var tilt_ratio = _climb_damage_tilt_timer / CLIMB_DAMAGE_TILT_DURATION
+		climb_damage_tilt = _climb_damage_tilt * tilt_ratio
+
+	# === Climb Animation ===
+	var climb_offset = Vector3.ZERO
+	var climb_roll_offset = 0.0
+	
 	if _is_climbing:
-		_current_climb_tilt = lerp(_current_climb_tilt, climb_tilt_amount, delta * climb_tilt_speed)
-	else:
-		_current_climb_tilt = lerp(_current_climb_tilt, 0.0, delta * climb_tilt_speed)
+		_climb_animation_time += delta * climb_bob_speed
+		
+		climb_offset.x = sin(_climb_animation_time * 0.8) * climb_sway_amount
+		climb_offset.y = abs(sin(_climb_animation_time * 1.2)) * climb_sway_amount * 0.5
+		climb_roll_offset = sin(_climb_animation_time * 0.6) * deg_to_rad(3.0)
+		
+		if _is_crouching:
+			climb_offset.y -= 0.3
 
-	# === Timed crouch blending ===
-	var target_blend = 1.0 if _target_crouch else 0.0
-	var crouch_speed = _crouch_duration  # e.g., 1/0.3 ≈ 3.33 units per second
-	_crouch_blend = move_toward(_crouch_blend, target_blend, crouch_speed * delta)
-	var current_eye_height = lerp(EYE_HEIGHT, CROUCHED_EYE_HEIGHT, _crouch_blend)
+	# Combine all position offsets
+	var total_offset = lean_offset + bob_offset + fall_kick_offset + damage_kick_offset + climb_offset
 
-	# === Final Camera Placement ===
-	var base_position = player.global_transform.origin + Vector3.UP * current_eye_height
-	var total_local_offset = Vector3(current_lean, 0.0, 0.0) + bob_offset + fall_kick_offset + Vector3(_damage_kick_x, _damage_kick_y, _damage_kick_z)
-	var world_offset = player.global_transform.basis * total_local_offset
-	var final_position = base_position + world_offset
-
-	# Rotation
+	# Apply rotations
 	var player_rotation = Vector3(0.0, _mouse_rotation.y, 0.0)
-	var final_camera_pitch = _mouse_rotation.x + fall_kick_tilt + _damage_tilt_impulse - _current_climb_tilt
+	
+	var final_camera_pitch = (
+		_mouse_rotation.x + 
+		fall_kick_tilt + 
+		damage_kick_rotation - 
+		climb_damage_tilt  # Downward dip during climb side hits
+	)
 	final_camera_pitch = clamp(final_camera_pitch, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
 	var camera_rotation = Vector3(final_camera_pitch, 0.0, 0.0)
 
+	# Set transforms
 	player.global_transform.basis = Basis.from_euler(player_rotation)
-	CAMERA_CONTROLLER.global_transform.origin = final_position
 	CAMERA_CONTROLLER.transform.basis = Basis.from_euler(camera_rotation)
-	CAMERA_CONTROLLER.rotation.z = current_roll + _damage_roll_impulse
 
-	# FOV
+	# Roll: climb uses its own roll; damage/lean roll suppressed during climb
+	var total_roll = current_roll + climb_roll_offset
+	CAMERA_CONTROLLER.rotation.z = total_roll
+
+	# Set camera position
+	CAMERA_CONTROLLER.transform.origin = total_offset
+
+	# === FOV (with Zoom and Climb) ===
 	var is_dashing = player.state_machine.get_current_state_name() == "DashState"
 	var speed = max(0.5, player.velocity.length())
-	var target_fov = BASE_FOV + FOV_CHANGE * clamp(speed, 0.5, player.SPEED * 2)
+	_target_fov = BASE_FOV + FOV_CHANGE * clamp(speed, 0.5, player.SPEED * 2)
+	
 	if is_dashing:
-		target_fov += 5.0
-	CAMERA_CONTROLLER.fov = lerp(CAMERA_CONTROLLER.fov, target_fov, delta * 8.0)
+		_target_fov += 5.0
+	
+	if _is_climbing:
+		_target_fov -= climb_fov_reduction
+	
+	if _is_zooming:
+		_target_fov = zoom_fov
+	
+	CAMERA_CONTROLLER.fov = lerp(CAMERA_CONTROLLER.fov, _target_fov, delta * zoom_speed)
 
-	# Camera shake
+	# === Camera Shake ===
 	var is_idle = (
 		player.is_on_floor() and 
 		player.velocity.length() < 0.1 and 
@@ -283,65 +352,36 @@ func _camera_shake(delta: float, intensity: float, frequency: float) -> Vector3:
 	return Vector3(offset_x, offset_y, 0.0)
 
 
+# === PUBLIC API ===
+
 func add_fall_kick(fall_strength_degrees: float):
 	_fall_value = deg_to_rad(fall_strength_degrees)
 	_fall_timer = fall_time
 
 
-func add_damage_kick(damage_source: Vector3) -> void:
-	if not enable_damage_kick or player == null:
+func add_damage_kick(direction: Vector3, strength: float = 0.5):
+	if not enable_damage_kick:
 		return
+	
+	var local_dir = player.global_transform.basis * direction.normalized()
+	_damage_kick_direction = local_dir
+	_damage_kick_strength = damage_kick_intensity * clamp(strength, 0.0, 2.0)
+	_damage_kick_timer = damage_kick_duration
+	
+	# Add camera shake
+	shake_strength = damage_kick_shake_strength * strength
 
-	var to_source = damage_source - player.global_transform.origin
-	to_source.y = 0.0
-	if to_source.length() < 0.01:
-		to_source = -player.global_transform.basis.z
-	to_source = to_source.normalized()
-
-	var local_dir = player.global_transform.basis.inverse() * to_source
-
-	var abs_x = abs(local_dir.x)
-	var abs_z = abs(local_dir.z)
-	var kick = damage_kick_intensity
-	var tilt_rad = deg_to_rad(damage_kick_tilt)
-
-	if abs_z >= abs_x:
-		if local_dir.z < 0:  # front
-			_damage_kick_x = 0.0
-			_damage_kick_y = kick * 0.5
-			_damage_kick_z = -kick
-			_damage_tilt_impulse = tilt_rad
-			_damage_roll_impulse = 0.0
-		else:  # back
-			_damage_kick_x = 0.0
-			_damage_kick_y = kick * 0.3
-			_damage_kick_z = kick * 0.7
-			_damage_tilt_impulse = tilt_rad * 0.6
-			_damage_roll_impulse = 0.0
-	else:
-		if local_dir.x > 0:  # right
-			_damage_kick_x = -kick * 0.8
-			_damage_kick_y = kick * 0.4
-			_damage_kick_z = -kick * 0.3
-			_damage_tilt_impulse = tilt_rad * 0.8
-			_damage_roll_impulse = -damage_kick_roll
-		else:  # left
-			_damage_kick_x = kick * 0.8
-			_damage_kick_y = kick * 0.4
-			_damage_kick_z = -kick * 0.3
-			_damage_tilt_impulse = tilt_rad * 0.8
-			_damage_roll_impulse = damage_kick_roll
+	# Note: Climb-specific tilt is handled in _update_camera to avoid timing issues
 
 
-# 🔻 Called by ClimbState
-func set_climb_active(active: bool) -> void:
+func set_climb_active(active: bool):
 	_is_climbing = active
+	if active:
+		_climb_animation_time = 0.0
+		# Snap to clean state: no residual roll or lean
+		current_roll = 0.0
+		current_lean = 0.0
 
 
-# 🔻 Called by Player to set crouch state (true = crouch, false = stand)
-func set_crouching(is_crouching: bool , crouch_duration = 0.0) -> void:
-	_target_crouch = is_crouching
-	if crouch_duration > 0.0:
-		_crouch_duration = crouch_duration
-	else:
-		_crouch_duration = CROUCH_DURATION
+func set_crouching(crouching: bool):
+	_is_crouching = crouching

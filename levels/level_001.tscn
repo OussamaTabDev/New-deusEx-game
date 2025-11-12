@@ -250,7 +250,7 @@ mesh = SubResource("BoxMesh_xc4gq")
 shape = SubResource("ConcavePolygonShape3D_vp4dy")
 
 [node name="CharacterBody3D" parent="." instance=ExtResource("4_liofc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5655313, 13.522764, -14.453327)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.290457, 13.522764, -4.7794952)
 
 [node name="Stairs" type="Node3D" parent="."]
 transform = Transform3D(4.111, 0, 0, 0, 6.16, 0, 0, 0, 6.881, 11.494532, 2.7449293, 8.230251)
