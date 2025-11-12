@@ -348,6 +348,8 @@ h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
 h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
 r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
 
+[node name="Components" type="Node3D" parent="."]
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_u6tj1")
@@ -407,6 +409,14 @@ shape = SubResource("SphereShape3D_5w0k0")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 1.1100001, 0)
 shape = SubResource("SphereShape3D_5w0k0")
 
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_5w0k0")
+}
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+anim_player = NodePath("../AnimationPlayer")
+
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "player")]
 script = ExtResource("4_l8yvu")
 initial_state = NodePath("IdleState")
@@ -459,14 +469,6 @@ crouch_speed = 4.0
 [node name="WallRunState" type="Node" parent="StateMachine"]
 script = ExtResource("14_fyafc")
 WALL_RUN_SPEED = 5.0
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_5w0k0")
-}
-
-[node name="AnimationTree" type="AnimationTree" parent="."]
-anim_player = NodePath("../AnimationPlayer")
 
 [node name="Raycasters" type="Node3D" parent="."]
 
