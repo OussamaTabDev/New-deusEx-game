@@ -54,11 +54,15 @@ var is_zoomed: bool = false
 # ============================================================
 @export_category("Camera Shake")
 
-@export_group("Shake Parameters")
+@export_group("Idle Shake")
 @export var SHAKE_INTENSITY_IDLE: float = 0.05
 @export var SHAKE_FREQUENCY_IDLE: float = 6.0
 @export var SHAKE_FADE_SPEED: float = 5.0
 @export var SHAKE_RANDOMNESS: float = 0.3
+
+@export_group("Quake Shake")
+@export var MIN_SCREEN_SHAKE: float = 0.05
+@export var MAX_SCREEN_SHAKE: float = 0.3
 
 # ============================================================
 @export_category("Camera Kick Effects")
@@ -73,7 +77,7 @@ var is_zoomed: bool = false
 @export var DAMAGE_KICK_BACK: float = 0.15
 @export var DAMAGE_KICK_UP: float = 0.1
 @export var DAMAGE_KICK_PITCH: float = 8.0
-@export var DAMAGE_KICK_ROLL: float = 5.0  # New: roll intensity in degrees
+@export var DAMAGE_KICK_ROLL: float = 5.0  # Roll in degrees
 
 # Internal state
 var _fall_timer: float = 0.0
@@ -82,7 +86,11 @@ var _fall_value: float = 0.0
 var _damage_kick_timer: float = 0.0
 var _damage_kick_offset: Vector3 = Vector3.ZERO
 var _damage_kick_tilt: float = 0.0
-var _damage_roll: float = 0.0  # New: store roll separately
+var _damage_roll: float = 0.0
+
+# Quake shake
+var _screen_shake_tween: Tween
+var _current_screen_shake_amount: float = 0.0
 
 # Camera shake state
 var shake_strength: float = 0.0
@@ -92,7 +100,7 @@ var shake_time: float = 0.0
 var current_roll: float = 0.0
 var current_lean: float = 0.0
 
-# Mouse input accumulators (raw scaled by MOUSE_SENSITIVITY)
+# Mouse input accumulators
 var _rotation_input: float = 0.0
 var _tilt_input: float = 0.0
 
@@ -127,9 +135,8 @@ func _process(delta: float):
 		if not zoom_toggle:
 			is_zoomed = false
 
-	if Input.is_action_pressed("test"):
-		add_damage_kick(Vector3(20,2,3))
-		
+	if Input.is_action_just_pressed("test"):
+		add_screen_shake(100 , 3)
 	_update_camera(delta)
 
 
@@ -203,25 +210,30 @@ func _update_camera(delta: float):
 	# === Damage Kick ===
 	var damage_kick_offset = Vector3.ZERO
 	var damage_kick_tilt = 0.0
-	var damage_kick_roll = 0.0  # New: roll component
+	var damage_kick_roll = 0.0
 
 	if _damage_kick_timer > 0.0:
 		_damage_kick_timer -= delta
 		var ratio = _damage_kick_timer / DAMAGE_KICK_DURATION
-		ratio = ratio * ratio  # smooth ease-out
+		ratio = ratio * ratio  # ease-out
 		damage_kick_offset = _damage_kick_offset * ratio
 		damage_kick_tilt = _damage_kick_tilt * ratio
 		damage_kick_roll = _damage_roll * ratio
 
-	# Combine all position offsets
+	# === Combine all position offsets ===
 	var total_offset = lean_offset + bob_offset + fall_kick_offset + damage_kick_offset
+	
+	# Add quake screen shake (if active)
+	if _current_screen_shake_amount > 0.0:
+		var h_offset = randf_range(-_current_screen_shake_amount, _current_screen_shake_amount)
+		var v_offset = randf_range(-_current_screen_shake_amount, _current_screen_shake_amount)
+		total_offset += Vector3(h_offset, v_offset, 0.0)
 
-	# Apply rotations
+	# === Apply rotations ===
 	var player_rotation = Vector3(0.0, _mouse_rotation.y, 0.0)
 	var final_camera_pitch = _mouse_rotation.x + fall_kick_tilt + damage_kick_tilt
 	final_camera_pitch = clamp(final_camera_pitch, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
 
-	# Combine base roll with damage roll
 	var total_roll = current_roll + damage_kick_roll
 
 	# Set transforms
@@ -239,7 +251,7 @@ func _update_camera(delta: float):
 		target_fov += 5.0
 	CAMERA_CONTROLLER.fov = lerp(CAMERA_CONTROLLER.fov, target_fov, delta * 8.0)
 
-	# Camera shake
+	# === Idle Camera Shake (only when not in quake) ===
 	var is_idle = (
 		player.is_on_floor() and 
 		player.velocity.length() < 0.1 and 
@@ -256,14 +268,13 @@ func _update_camera(delta: float):
 
 	CAMERA_CONTROLLER.transform.origin += shake_offset
 
-	# Reset input accumulators
 	_rotation_input = 0.0
 	_tilt_input = 0.0
 
 
 func _headbob(time: float) -> Vector3:
 	var pos = Vector3.ZERO
-	pos.y = sin(time * BOB_FREQ) * BOV_AMP  # Using BOV_AMP as in your code
+	pos.y = sin(time * BOB_FREQ) * BOV_AMP
 	pos.x = cos(time * BOB_FREQ / 2) * BOV_AMP
 	return pos
 
@@ -316,19 +327,15 @@ func add_damage_kick(source_position: Vector3):
 		return
 
 	var hit_dir = (player.global_position - source_position).normalized()
-	var forward = player.global_transform.basis.z  # camera/player forward
-	var right = player.global_transform.basis.x    # camera right
+	var forward = player.global_transform.basis.z
+	var right = player.global_transform.basis.x
 
 	var forward_dot = hit_dir.dot(forward)
 	var right_dot = hit_dir.dot(right)
 
-	# Pitch: positive (up) if hit from front, negative (down) if from behind
 	_damage_kick_tilt = deg_to_rad(DAMAGE_KICK_PITCH) * forward_dot
-
-	# Roll: positive (right roll) if hit from left, negative (left roll) if from right
 	_damage_roll = deg_to_rad(DAMAGE_KICK_ROLL) * right_dot
 
-	# Recoil position: backward + upward
 	var local_back = -DAMAGE_KICK_BACK * Vector3(0, 0, 1)
 	var world_back = player.global_transform.basis * local_back
 	var upward = Vector3(0, DAMAGE_KICK_UP, 0)
@@ -341,3 +348,23 @@ func add_damage_kick(source_position: Vector3):
 func add_fall_kick(fall_strength_degrees: float):
 	_fall_value = deg_to_rad(fall_strength_degrees)
 	_fall_timer = fall_time
+
+
+# Call for earthquake/explosion shake
+func add_screen_shake(amount: float, seconds: float) -> void:
+	# Clamp amount to [0.0, 1.0]
+	amount = clamp(amount, 0.0, 1.0)
+	
+	if _screen_shake_tween:
+		_screen_shake_tween.kill()
+	
+	_screen_shake_tween = create_tween()
+	_screen_shake_tween.tween_method(update_screen_shake.bind(amount), 0.0, 1.0, seconds)\
+		.set_ease(Tween.EASE_OUT)\
+		.finished.connect(func(): _current_screen_shake_amount = 0.0)
+
+
+func update_screen_shake(alpha: float, amount: float) -> void:
+	var current_shake_amount = amount * (1.0 - alpha)  # fade out as alpha → 1.0
+	current_shake_amount = remap(current_shake_amount, 0.0, 1.0, MIN_SCREEN_SHAKE, MAX_SCREEN_SHAKE)
+	_current_screen_shake_amount = current_shake_amount

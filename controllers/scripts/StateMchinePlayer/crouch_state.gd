@@ -4,7 +4,7 @@ extends State
 
 @export var time_to_climb: float = 1.0
 @export var time_to_move: float = 0.5
-@export var move_speed: float = 2.0
+@export var move_speed: float = .5
 
 var climb_hight: float 
 var previous: String = ""
