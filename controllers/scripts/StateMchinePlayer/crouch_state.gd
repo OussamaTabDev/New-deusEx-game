@@ -40,9 +40,9 @@ func enter() -> void:
 
 	climb_hight = player.hit_point2.y - player.global_transform.origin.y
 	
-	# Notify camera: climbing started
-	if player.CAMERA_CONTROLLER:
-		player.CAMERA_CONTROLLER.set_climb_active(true)
+	## Notify camera: climbing started
+	#if player.CAMERA_CONTROLLER:
+		#player.CAMERA_CONTROLLER.set_climb_active(true)
 
 	await get_tree().create_timer(0.1).timeout
 	print("Entering Climb state")
@@ -51,8 +51,8 @@ func enter() -> void:
 
 func exit() -> void:
 	# Notify camera: climbing ended
-	if player.CAMERA_CONTROLLER:
-		player.CAMERA_CONTROLLER.set_climb_active(false)
+	#if player.CAMERA_CONTROLLER:
+		#player.CAMERA_CONTROLLER.set_climb_active(false)
 	print("Exiting Climb state")
 
 
@@ -88,7 +88,7 @@ func climb():
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		
 	if will_crouch:
-		player.CAMERA_CONTROLLER.set_crouching(true)
+		#player.CAMERA_CONTROLLER.set_crouching(true)
 		player.anim_player.play("Crouching", -1, 10.0)
 	
 	tween.tween_property(player, "global_position", end_pos, h_speed_twin)\
