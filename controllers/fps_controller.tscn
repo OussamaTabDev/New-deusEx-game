@@ -366,7 +366,6 @@ lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
 lean_shape_cast_right = NodePath("Raycasters/CameraRightCast")
 SHAKE_FREQUENCY_IDLE = 1.0
 SHAKE_RANDOMNESS = 0.03
-DAMAGE_KICK_DURATION = 0.1
 DAMAGE_KICK_BACK = 0.1
 DAMAGE_KICK_UP = 0.05
 

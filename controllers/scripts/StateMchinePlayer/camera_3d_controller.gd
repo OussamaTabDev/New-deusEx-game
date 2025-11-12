@@ -1,6 +1,7 @@
 # CameraController.gd
 class_name CameraController
 extends Node3D
+
 @export_category("Camera References")
 @export_group("Node References")
 @export var player: CharacterBody3D
@@ -23,7 +24,7 @@ extends Node3D
 
 @export_group("Head Bob")
 @export var BOB_FREQ: float = 2.4
-@export var BOV_AMP: float = 0.08 # Typo preserved intentionally
+@export var BOV_AMP: float = 0.08  # Typo preserved as in your original
 var t_bob: float = 0.0
 
 @export_group("Field of View")
@@ -33,7 +34,7 @@ var t_bob: float = 0.0
 @export_group("Zoom")
 @export var zoom_fov: float = 40.0
 @export var zoom_sensitivity_multiplier: float = 0.4
-@export var zoom_toggle: bool = false # true = toggle, false = hold
+@export var zoom_toggle: bool = false  # true = toggle, false = hold
 var is_zoomed: bool = false
 
 @export_group("Leaning")
@@ -72,14 +73,16 @@ var is_zoomed: bool = false
 @export var DAMAGE_KICK_BACK: float = 0.15
 @export var DAMAGE_KICK_UP: float = 0.1
 @export var DAMAGE_KICK_PITCH: float = 8.0
+@export var DAMAGE_KICK_ROLL: float = 5.0  # New: roll intensity in degrees
 
-
+# Internal state
 var _fall_timer: float = 0.0
 var _fall_value: float = 0.0
 
 var _damage_kick_timer: float = 0.0
 var _damage_kick_offset: Vector3 = Vector3.ZERO
 var _damage_kick_tilt: float = 0.0
+var _damage_roll: float = 0.0  # New: store roll separately
 
 # Camera shake state
 var shake_strength: float = 0.0
@@ -124,6 +127,9 @@ func _process(delta: float):
 		if not zoom_toggle:
 			is_zoomed = false
 
+	if Input.is_action_pressed("test"):
+		add_damage_kick(Vector3(20,2,3))
+		
 	_update_camera(delta)
 
 
@@ -134,13 +140,11 @@ func _update_camera(delta: float):
 
 	if not is_climbing:
 		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
-			# Apply zoom sensitivity multiplier only to mouse
 			var zoom_factor = zoom_sensitivity_multiplier if is_zoomed else 1.0
 			yaw_input = _rotation_input * zoom_factor
 			pitch_input = _tilt_input * zoom_factor
 		
 		if is_controller_connected():
-			# Controller input is added separately (not affected by zoom)
 			var look_x = Input.get_axis("look_left", "look_right")
 			var look_y = Input.get_axis("look_up", "look_down")
 			yaw_input += -look_x * CONTROLLER_SENSITIVITY
@@ -199,12 +203,15 @@ func _update_camera(delta: float):
 	# === Damage Kick ===
 	var damage_kick_offset = Vector3.ZERO
 	var damage_kick_tilt = 0.0
+	var damage_kick_roll = 0.0  # New: roll component
+
 	if _damage_kick_timer > 0.0:
 		_damage_kick_timer -= delta
 		var ratio = _damage_kick_timer / DAMAGE_KICK_DURATION
-		ratio = ratio * ratio  # ease-out
+		ratio = ratio * ratio  # smooth ease-out
 		damage_kick_offset = _damage_kick_offset * ratio
 		damage_kick_tilt = _damage_kick_tilt * ratio
+		damage_kick_roll = _damage_roll * ratio
 
 	# Combine all position offsets
 	var total_offset = lean_offset + bob_offset + fall_kick_offset + damage_kick_offset
@@ -213,13 +220,14 @@ func _update_camera(delta: float):
 	var player_rotation = Vector3(0.0, _mouse_rotation.y, 0.0)
 	var final_camera_pitch = _mouse_rotation.x + fall_kick_tilt + damage_kick_tilt
 	final_camera_pitch = clamp(final_camera_pitch, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
-	var camera_rotation = Vector3(final_camera_pitch, 0.0, 0.0)
 
-	# Set player yaw (only Y rotation)
+	# Combine base roll with damage roll
+	var total_roll = current_roll + damage_kick_roll
+
+	# Set transforms
 	player.global_transform.basis = Basis.from_euler(player_rotation)
-	# Set camera pitch and roll
-	CAMERA_CONTROLLER.transform.basis = Basis.from_euler(camera_rotation)
-	CAMERA_CONTROLLER.rotation.z = current_roll
+	CAMERA_CONTROLLER.transform.basis = Basis.from_euler(Vector3(final_camera_pitch, 0.0, 0.0))
+	CAMERA_CONTROLLER.rotation.z = total_roll
 	CAMERA_CONTROLLER.transform.origin = total_offset
 
 	# FOV with zoom
@@ -255,7 +263,7 @@ func _update_camera(delta: float):
 
 func _headbob(time: float) -> Vector3:
 	var pos = Vector3.ZERO
-	pos.y = sin(time * BOB_FREQ) * BOV_AMP  # Note: using BOV_AMP (typo?) — change to BOB_AMP if needed
+	pos.y = sin(time * BOB_FREQ) * BOV_AMP  # Using BOV_AMP as in your code
 	pos.x = cos(time * BOB_FREQ / 2) * BOV_AMP
 	return pos
 
@@ -308,15 +316,24 @@ func add_damage_kick(source_position: Vector3):
 		return
 
 	var hit_dir = (player.global_position - source_position).normalized()
-	var horizontal_dir = Vector3(hit_dir.x, 0, hit_dir.z).normalized()
-	if horizontal_dir.length() < 0.1:
-		horizontal_dir = -player.global_transform.basis.z
+	var forward = player.global_transform.basis.z  # camera/player forward
+	var right = player.global_transform.basis.x    # camera right
 
+	var forward_dot = hit_dir.dot(forward)
+	var right_dot = hit_dir.dot(right)
+
+	# Pitch: positive (up) if hit from front, negative (down) if from behind
+	_damage_kick_tilt = deg_to_rad(DAMAGE_KICK_PITCH) * forward_dot
+
+	# Roll: positive (right roll) if hit from left, negative (left roll) if from right
+	_damage_roll = deg_to_rad(DAMAGE_KICK_ROLL) * right_dot
+
+	# Recoil position: backward + upward
 	var local_back = -DAMAGE_KICK_BACK * Vector3(0, 0, 1)
 	var world_back = player.global_transform.basis * local_back
+	var upward = Vector3(0, DAMAGE_KICK_UP, 0)
 
-	_damage_kick_offset = world_back + Vector3(0, DAMAGE_KICK_UP, 0)
-	_damage_kick_tilt = deg_to_rad(DAMAGE_KICK_PITCH)
+	_damage_kick_offset = world_back + upward
 	_damage_kick_timer = DAMAGE_KICK_DURATION
 
 
