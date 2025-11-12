@@ -140,3 +140,15 @@ func get_input_direction() -> Vector3:
 		dir -= right
 
 	return dir.normalized()
+
+
+var current_ladder_shape: CollisionShape3D = null
+var current_ladder_up_direction: Vector3 = Vector3.ZERO
+var on_ladder: bool = false  # You may already have this
+
+# Optional: ladder-related method (called by Area3D)
+func set_current_ladder(shape: CollisionShape3D, direction: Vector3) -> void:
+	current_ladder_shape = shape
+	current_ladder_up_direction = direction
+	on_ladder = true
+	print(current_ladder_shape , current_ladder_up_direction , on_ladder )

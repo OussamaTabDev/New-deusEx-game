@@ -1,10 +1,11 @@
-[gd_scene load_steps=16 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=17 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
 [ext_resource type="Texture2D" uid="uid://ivvpsi314b34" path="res://textures/grid.jpg" id="3_yfwkt"]
 [ext_resource type="PackedScene" uid="uid://c3ffql15mo0aj" path="res://controllers/fps_controller.tscn" id="4_liofc"]
 [ext_resource type="Script" uid="uid://m2fvd5j6jd46" path="res://addons/stairs/stairs.gd" id="5_po88e"]
+[ext_resource type="PackedScene" uid="uid://i7fum2jx3ac3" path="res://addons/cogito/PackedScenes/ladder.tscn" id="7_wtxts"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -257,3 +258,6 @@ transform = Transform3D(4.111, 0, 0, 0, 6.16, 0, 0, 0, 6.881, 11.494532, 2.74492
 script = ExtResource("5_po88e")
 size = Vector3(1.5004883, 1.510437, 2.2921143)
 metadata/_custom_type_script = "uid://m2fvd5j6jd46"
+
+[node name="Ladder" parent="." instance=ExtResource("7_wtxts")]
+transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 16.164845, 1.600001, -1.6085801)

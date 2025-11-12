@@ -19,6 +19,11 @@ extends Node3D
 @export var TILT_LOWER_LIMIT := deg_to_rad(-90.0)
 @export var TILT_UPPER_LIMIT := deg_to_rad(90.0)
 
+# 🔑 NEW: Locked rotation limits (used when lock_vertical = true)
+@export_group("Locked Rotation Limits")
+@export var LOCKED_YAW_LIMIT := deg_to_rad(60.0)      # Left/right max
+@export var LOCKED_PITCH_LIMIT := deg_to_rad(30.0)    # Up/down max
+
 # ============================================================
 @export_category("Camera Movement Effects")
 
@@ -47,9 +52,9 @@ var is_zoomed: bool = false
 @export_group("Leaning Restrictions")
 @export var resurrected_states_on_leaning := [
 	"SprintingState", "SlidingState", "JumpingState",
-	"FallingState", "ClimbState", "DashState"
+	"FallingState", "ClimbLadderState", "DashState"
 ]
-@export var resurrected_states_on_using := ["ClimbState"]
+@export var resurrected_states_on_using := ["ClimbLadderState"]
 
 # ============================================================
 @export_category("Camera Shake")
@@ -78,6 +83,9 @@ var is_zoomed: bool = false
 @export var DAMAGE_KICK_UP: float = 0.1
 @export var DAMAGE_KICK_PITCH: float = 8.0
 @export var DAMAGE_KICK_ROLL: float = 5.0  # Roll in degrees
+
+# 🔑 Ladder climbing control
+@export var lock_vertical: bool = false
 
 # Internal state
 var _fall_timer: float = 0.0
@@ -157,9 +165,20 @@ func _update_camera(delta: float):
 			yaw_input += -look_x * CONTROLLER_SENSITIVITY
 			pitch_input += -look_y * CONTROLLER_SENSITIVITY
 
-	_mouse_rotation.y += yaw_input * delta
-	_mouse_rotation.x += pitch_input * delta
-	_mouse_rotation.x = clamp(_mouse_rotation.x, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
+		# Apply rotation input
+		_mouse_rotation.y += yaw_input * delta
+		_mouse_rotation.x += pitch_input * delta
+
+		# Apply rotation limits based on lock_vertical
+		if lock_vertical:
+			_mouse_rotation.y = clamp(_mouse_rotation.y, -LOCKED_YAW_LIMIT, LOCKED_YAW_LIMIT)
+			_mouse_rotation.x = clamp(_mouse_rotation.x, -LOCKED_PITCH_LIMIT, LOCKED_PITCH_LIMIT)
+		else:
+			_mouse_rotation.x = clamp(_mouse_rotation.x, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
+			# Yaw remains unclamped when not locked (free rotation)
+	else:
+		# During climbing: no new input, keep existing rotation
+		pass
 
 	# Head bob (disabled during climb)
 	var bob_speed_scale = float(player.is_on_floor() and not is_climbing)
@@ -231,8 +250,15 @@ func _update_camera(delta: float):
 
 	# === Apply rotations ===
 	var player_rotation = Vector3(0.0, _mouse_rotation.y, 0.0)
-	var final_camera_pitch = _mouse_rotation.x + fall_kick_tilt + damage_kick_tilt
-	final_camera_pitch = clamp(final_camera_pitch, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
+
+	# Respect lock_vertical: apply pitch limits including kick effects
+	var final_camera_pitch = _mouse_rotation.x
+	if lock_vertical:
+		final_camera_pitch += fall_kick_tilt + damage_kick_tilt
+		final_camera_pitch = clamp(final_camera_pitch, -LOCKED_PITCH_LIMIT, LOCKED_PITCH_LIMIT)
+	else:
+		final_camera_pitch += fall_kick_tilt + damage_kick_tilt
+		final_camera_pitch = clamp(final_camera_pitch, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
 
 	var total_roll = current_roll + damage_kick_roll
 
@@ -305,6 +331,7 @@ func is_controller_connected() -> bool:
 	)
 
 
+# 🔑 Updated: Now detects "ClimbLadderState"
 func climbing() -> bool:
 	return player and player.state_machine and (player.state_machine.get_current_state_name() in resurrected_states_on_using)
 

@@ -15,13 +15,27 @@ run/main_scene="res://levels/level_001.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+CogitoGlobals="*res://addons/cogito/cogito_globals.gd"
+CogitoSceneManager="*res://addons/cogito/SceneManagement/cogito_scene_manager.gd"
+CogitoQuestManager="*res://addons/cogito/QuestSystem/cogito_quest_manager.gd"
+MenuTemplateManager="*res://addons/cogito/EasyMenus/Nodes/menu_template_manager.tscn"
+InputHelper="*res://addons/input_helper/input_helper.gd"
+Audio="*res://addons/quick_audio/./Audio.gd"
+
 [display]
 
 window/size/always_on_top=true
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/anim_player_refactor/plugin.cfg", "res://addons/buff_er/plugin.cfg", "res://addons/customizableCrosshair/plugin.cfg", "res://addons/stairs/plugin.cfg")
+enabled=PackedStringArray("res://addons/anim_player_refactor/plugin.cfg", "res://addons/buff_er/plugin.cfg", "res://addons/cogito/plugin.cfg", "res://addons/customizableCrosshair/plugin.cfg", "res://addons/input_helper/plugin.cfg", "res://addons/quick_audio/plugin.cfg", "res://addons/stairs/plugin.cfg")
+
+[global_group]
+
+Player=""
+Enemy=""
 
 [input]
 
@@ -125,6 +139,7 @@ zoom={
 
 3d_physics/layer_1="Land"
 3d_physics/layer_2="player"
+3d_physics/layer_9="Ladders"
 3d_physics/layer_12="Edges"
 
 [physics]
