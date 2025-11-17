@@ -145,7 +145,9 @@ func get_input_direction() -> Vector3:
 var current_ladder_shape: CollisionShape3D = null
 var current_ladder_up_direction: Vector3 = Vector3.ZERO
 var on_ladder: bool = false  # You may already have this
-
+# Add these to your Player class (e.g., Player.gd)
+var is_on_ladder: bool = false
+var ladder_target_yaw: float = 0.0
 # Optional: ladder-related method (called by Area3D)
 func set_current_ladder(shape: CollisionShape3D, direction: Vector3) -> void:
 	current_ladder_shape = shape

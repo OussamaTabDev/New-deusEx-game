@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3 uid="uid://dwy6008sbfjue"]
+
+[ext_resource type="Script" uid="uid://k1jw462bpxxm" path="res://materials/ladders/ladder_logic.gd" id="1_oiut7"]
+[ext_resource type="ArrayMesh" uid="uid://dy37wnlq2uok3" path="res://materials/ladders/b_ladder.obj" id="2_oiut7"]
+[ext_resource type="ArrayMesh" uid="uid://pc8357a84pdt" path="res://materials/ladders/t_ladder.obj" id="3_fb75p"]
+[ext_resource type="ArrayMesh" uid="uid://caeluhbi680qt" path="res://materials/ladders/mid_ladder.obj" id="4_m7ckt"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rj7xk"]
+size = Vector3(0.139, 3.148, 0.8)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_fb75p"]
+points = PackedVector3Array(10, -1, 0.5, 10, -14.000978, 0.5, 10, -1, -2.0001957, -10, -1, 0.5, 9.964762, -14.259984, 0.5, 10, -14.000978, -2.0001957, 8.999609, -5.0001955, -2.5, -10, -1, -2.0001957, -10, -14.000978, 0.5, 9.864918, -14.501175, 0.5, 9.964762, -14.259984, -2.0001957, 8.999609, -7.000979, -2.5, -9.001566, -5.0001955, -2.5, -10, -14.000978, -2.0001957, -9.966719, -14.259984, 0.5, 9.706343, -14.708105, 0.5, 9.864918, -14.501175, -2.0001957, 7.999216, -13.000587, -2.5, -9.001566, -7.000979, -2.5, -9.966719, -14.259984, -2.0001957, -9.866876, -14.501175, 0.5, 9.706343, -14.708105, -2.0001957, 9.498825, -14.867071, 0.5, 9.498825, -14.867071, -2.0001957, 9.258026, -14.967111, -2.0001957, 8.999609, -15, -2.0001957, -8.001175, -13.000587, -2.5, -9.866876, -14.501175, -2.0001957, -9.708301, -14.708105, 0.5, 9.258026, -14.967111, 0.5, 8.999609, -15, 0.5, -9.001566, -15, -2.0001957, -9.259984, -14.967111, -2.0001957, -9.500783, -14.867071, -2.0001957, -9.708301, -14.708105, -2.0001957, -9.500783, -14.867071, 0.5, -9.001566, -15, 0.5, -9.259984, -14.967111, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xagqk"]
+size = Vector3(0.8, 3.03359, 0.1)
+
+[node name="Ladder" type="Area3D" node_paths=PackedStringArray("ladder_collision", "mid_ladder", "t_ladder", "b_ladder")]
+transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 0, 0, 0)
+collision_layer = 256
+collision_mask = 14
+script = ExtResource("1_oiut7")
+ladder_collision = NodePath("ladder")
+mid_ladder = NodePath("ladder/mid_ladder")
+t_ladder = NodePath("ladder/t_ladder")
+b_ladder = NodePath("ladder/b_ladder")
+
+[node name="ladderArea" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 0, 0)
+visible = false
+shape = SubResource("BoxShape3D_rj7xk")
+
+[node name="ladder" type="StaticBody3D" parent="."]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
+
+[node name="b_ladder" type="MeshInstance3D" parent="ladder"]
+transform = Transform3D(0.04, 0, 0, 0, 0.04, 0, 0, 0, 0.04, 0, -1, 0.03)
+mesh = ExtResource("2_oiut7")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="ladder"]
+transform = Transform3D(0.04, 0, 0, 0, 0.04, 0, 0, 0, 0.04, 2.1858484e-09, -0.9906727, 0.029733896)
+shape = SubResource("ConvexPolygonShape3D_fb75p")
+
+[node name="mid_ladder" type="MeshInstance3D" parent="ladder"]
+transform = Transform3D(0.04, 0, 0, 0, 0.04, 0, 0, 0, 0.04, 0, -0.44, 0.03)
+mesh = ExtResource("4_m7ckt")
+skeleton = NodePath("")
+
+[node name="t_ladder" type="MeshInstance3D" parent="ladder"]
+transform = Transform3D(0.04, 0, 0, 0, 0.04, 0, 0, 0, 0.04, 0, 0.1, 0.03)
+mesh = ExtResource("3_fb75p")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ladder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00152588, -0.0832032, 0)
+visible = false
+shape = SubResource("BoxShape3D_xagqk")

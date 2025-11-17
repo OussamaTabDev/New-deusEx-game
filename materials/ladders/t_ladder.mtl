@@ -1,0 +1,6 @@
+# Created by Kenney (www.kenney.nl)
+
+newmtl t_ladder
+Kd 1 1 1
+map_Kd Textures/t_ladder.png
+

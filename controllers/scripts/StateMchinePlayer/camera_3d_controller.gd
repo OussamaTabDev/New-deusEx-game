@@ -86,6 +86,8 @@ var is_zoomed: bool = false
 
 # 🔑 Ladder climbing control
 @export var lock_vertical: bool = false
+# Camera rotation state
+var _mouse_rotation: Vector3 = Vector3.ZERO
 
 # Internal state
 var _fall_timer: float = 0.0
@@ -112,9 +114,9 @@ var current_lean: float = 0.0
 var _rotation_input: float = 0.0
 var _tilt_input: float = 0.0
 
-# Camera rotation state
-var _mouse_rotation: Vector3 = Vector3.ZERO
 
+# Near other internals
+var locked_yaw_center: float = 0.0  # Dynamic center for locked yaw (in radians)
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -171,9 +173,25 @@ func _update_camera(delta: float):
 
 		# Apply rotation limits based on lock_vertical
 		if lock_vertical:
-			_mouse_rotation.y = clamp(_mouse_rotation.y, -LOCKED_YAW_LIMIT, LOCKED_YAW_LIMIT)
+			# Apply pitch clamp as before
 			_mouse_rotation.x = clamp(_mouse_rotation.x, -LOCKED_PITCH_LIMIT, LOCKED_PITCH_LIMIT)
+
+			# 🔑 For yaw: treat _mouse_rotation.y as OFFSET from locked_yaw_center
+			# But we don't want to store offset — we want total yaw = locked_yaw_center + input_offset
+			# So instead: compute desired total yaw, clamp it, then subtract center to store offset
+
+			# Total desired yaw if we applied input
+			var desired_total_yaw = locked_yaw_center + _mouse_rotation.y
+
+			# Clamp total yaw around the center
+			var clamped_total_yaw = clamp(desired_total_yaw, 
+				locked_yaw_center - LOCKED_YAW_LIMIT,
+				locked_yaw_center + LOCKED_YAW_LIMIT)
+
+			# Store the OFFSET back into _mouse_rotation.y
+			_mouse_rotation.y = clamped_total_yaw - locked_yaw_center
 		else:
+		
 			_mouse_rotation.x = clamp(_mouse_rotation.x, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
 			# Yaw remains unclamped when not locked (free rotation)
 	else:
@@ -250,7 +268,7 @@ func _update_camera(delta: float):
 
 	# === Apply rotations ===
 	var player_rotation = Vector3(0.0, _mouse_rotation.y, 0.0)
-
+	# print(player_rotation)
 	# Respect lock_vertical: apply pitch limits including kick effects
 	var final_camera_pitch = _mouse_rotation.x
 	if lock_vertical:
