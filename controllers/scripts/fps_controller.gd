@@ -33,13 +33,14 @@ var hit_point2: Vector3
 var current_distance: float
 
 var _input_dir = Vector2.ZERO
+var previous_velocity : Vector3
 
 func _ready():
 	# The state machine will handle initialization
 	pass
 
 func _physics_process(delta):
-	# _input_dir = 
+	previous_velocity = velocity
 	if is_ledge_detect() and state_machine.current_state.name != "ClimbState":
 		ledge_detect()
 	_input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
@@ -163,7 +164,6 @@ func set_current_ladder(shape: CollisionShape3D, direction: Vector3) -> void:
 func _get_input_direction() -> Vector2:
 	return _input_dir
 
-var previous_velocity : Vector3
 
-func _physics_process(delta: float) -> void:
-	previous_velocity = velocity
+#func _physics_process(delta: float) -> void:
+	

@@ -357,6 +357,7 @@ step_handler = NodePath("Components/StepHandlerComponent")
 [node name="StepHandlerComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
 script = ExtResource("2_fdopr")
 player = NodePath("../..")
+climb_duration = 0.1
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
