@@ -16,6 +16,7 @@ class_name Player extends CharacterBody3D
 @export var h_cast : RayCast3D
 @export var h_cast_up : RayCast3D
 @export var r_cast : RayCast3D
+@export var step_handler : StepHandlerComponent
 
 # Current speed (modified by states)
 var SPEED: float = 5.0
@@ -30,17 +31,20 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 # hitmarker points
 var hit_point2: Vector3
 var current_distance: float
-# State machine reference
 
+var _input_dir = Vector2.ZERO
 
 func _ready():
 	# The state machine will handle initialization
 	pass
 
 func _physics_process(delta):
-	
+	# _input_dir = 
 	if is_ledge_detect() and state_machine.current_state.name != "ClimbState":
 		ledge_detect()
+	_input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	# move_and_slide()
+	
 
 
 func _process(delta):
@@ -129,6 +133,7 @@ func get_input_direction() -> Vector3:
 	var dir = Vector3.ZERO
 	var forward = -global_transform.basis.z
 	var right = global_transform.basis.x
+	
 
 	if Input.is_action_pressed("move_forward"):
 		dir += forward
@@ -154,3 +159,11 @@ func set_current_ladder(shape: CollisionShape3D, direction: Vector3) -> void:
 	current_ladder_up_direction = direction
 	on_ladder = true
 	print(current_ladder_shape , current_ladder_up_direction , on_ladder )
+
+func _get_input_direction() -> Vector2:
+	return _input_dir
+
+var previous_velocity : Vector3
+
+func _physics_process(delta: float) -> void:
+	previous_velocity = velocity

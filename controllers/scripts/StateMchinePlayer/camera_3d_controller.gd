@@ -86,6 +86,17 @@ var is_zoomed: bool = false
 
 # 🔑 Ladder climbing control
 @export var lock_vertical: bool = false
+
+@export_group("Step Smoothing")
+@export var step_speed : float = 8.0
+
+var _target_height : float
+var _step_smoothing : bool = false
+
+var offset_height : float
+
+
+
 # Camera rotation state
 var _mouse_rotation: Vector3 = Vector3.ZERO
 
@@ -117,6 +128,26 @@ var _tilt_input: float = 0.0
 
 # Near other internals
 var locked_yaw_center: float = 0.0  # Dynamic center for locked yaw (in radians)
+
+
+func smooth_step(height_change : float):
+	_target_height -= height_change
+	_step_smoothing = true
+
+# func _ready() -> void:
+# _rotation = player_controller.rotation
+# offset_height = DEFAULT_HEIGHT
+
+# func _process(delta: float) -> void:
+# update_camera_rotation(component_mouse_capture.mouse_input, delta)
+
+# if _step_smoothing:
+# _target_height = lerp(_target_height, 0.0, step_speed * delta)
+# if abs(_target_height) < 0.01:
+# _target_height = 0.0
+# _step_smoothing = false
+
+# position.y = offset_height + _target_height
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

@@ -61,6 +61,15 @@ class_name SecurityCamera
 @export var search_color: Color = Color(1.0, 1.0, 0.0) ## Search/Wait mode color
 @export var disabled_color: Color = Color(0.3, 0.3, 0.3) ## Powered off color
 
+## Target Centering Settings
+@export_group("Target Centering")
+@export var enable_centering_offset: bool = true ## Compensate for vision cone edge detection
+@export_range(-5.0, 5.0, 0.1) var vertical_offset: float = 0.0 ## Manual Y offset adjustment
+@export_range(-2.0, 2.0, 0.1) var horizontal_offset: float = 0.0 ## Manual horizontal offset
+@export var auto_calculate_offset: bool = true ## Auto-calculate offset based on FOV
+@export_range(0.0, 1.0, 0.05) var centering_strength: float = 0.15 ## How strong the centering force is
+@export_range(0.0, 5.0, 0.1) var oscillation_dampening: float = 1.0 ## Prevent up/down oscillation
+
 ## Transition Settings
 @export_group("Smooth Transitions")
 @export_range(0.1, 2.0, 0.1) var transition_smoothing: float = 0.3 ## Rotation smoothing factor
@@ -122,6 +131,9 @@ var current_rotation: Vector2 = Vector2.ZERO
 # Idle timer for boot up
 var idle_timer: float = 0.0
 @export var idle_boot_time: float = 1.0 ## Time to stay in idle before activating
+
+# Centering stabilization
+var last_centered_position: Vector3 = Vector3.ZERO
 
 # ============================================================================
 # INITIALIZATION
@@ -418,35 +430,33 @@ func _next_patrol_point() -> void:
 # ============================================================================
 
 func _on_enter_chase() -> void:
-	pass
+	# Reset centering stabilization when entering chase
+	last_centered_position = Vector3.ZERO
 
 func _process_chase(delta: float) -> void:
 	if detected_player == null:
 		_change_state(CameraState.SEARCH)
 		return
-	var added_var
 
-	# print("---------------------" )
-	# print(last_known_position_head.y , anchor_rotation.global_position.y , anchor_rotation.global_position.y - last_known_position_head.y )
-	# # print(last_known_position_head.y , anchor_rotation.global_position.y , anchor_rotation.global_position.y - last_known_position_head.y )
-	# print(anchor_rotation.global_position.y - last_known_position_head.y )
-	# print("---------------------" )
-	if anchor_rotation.global_position.y - last_known_position_head.y < 0  :
-		added_var = Vector3(0, -2, 0)
-	else:
-		added_var = Vector3(0,0.5, 0)
+	# Keep current vertical rotation (Y-axis unchanged)
+	var current_vertical = current_rotation.y
 
-	# var direction_to_player =  anchor_rotation.global_position - last_known_position_head  added_var
-	var direction_to_player = last_known_position_head + added_var - anchor_rotation.global_position
-	var chase_target = _direction_to_rotation(direction_to_player)
-	
+	# Compute direction to player (use body or head position as before)
+	var direction_to_player = last_known_position_head - anchor_rotation.global_position
+
+	# Get full rotation to player
+	var full_target = _direction_to_rotation(direction_to_player)
+
+	# BUT: only take the horizontal (X) component; keep vertical (Y) as-is
+	var chase_target = Vector2(full_target.x, current_vertical)
+
 	if _is_beyond_rotation_limits(chase_target):
 		_change_state(CameraState.SEARCH)
 		return
-	
+
 	var player_speed = player_velocity.length()
 	var adaptive_speed = max(patrol_speed, player_speed * speed_multiplier)
-	
+
 	current_rotation = _rotate_towards(current_rotation, chase_target, adaptive_speed * delta)
 	target_rotation = current_rotation
 
@@ -488,7 +498,9 @@ func _process_search(delta: float) -> void:
 	var noise_x = search_noise.get_noise_1d(noise_time * 100.0)
 	var noise_y = search_noise.get_noise_1d(noise_time * 100.0 + 500.0)
 	
-	var direction_to_last = last_known_position_head - anchor_rotation.global_position
+	# Use centered position for search as well
+	var centered_last_pos = _calculate_centered_target_position(last_known_position_head)
+	var direction_to_last = centered_last_pos - anchor_rotation.global_position
 	var base_rotation = _direction_to_rotation(direction_to_last)
 	
 	var search_offset = Vector2(
@@ -549,6 +561,113 @@ func _is_beyond_rotation_limits(rotation: Vector2) -> bool:
 	return abs(rotation.x) > max_rotation_y or abs(rotation.y) > max_rotation_x
 
 # ============================================================================
+# TARGET CENTERING UTILITIES
+# ============================================================================
+
+func _calculate_centered_target_position(target_position: Vector3) -> Vector3:
+	"""
+	Calculates an offset target position to center the player in the camera's view.
+	This compensates for Area3D edge detection causing off-center tracking.
+	Includes oscillation dampening to prevent up/down loops.
+	"""
+	if not enable_centering_offset:
+		last_centered_position = target_position
+		return target_position
+	
+	var centered_pos = target_position
+	var direction_to_target = target_position - anchor_rotation.global_position
+	var distance = direction_to_target.length()
+	
+	if distance < 0.1:  # Avoid division by zero
+		last_centered_position = target_position
+		return target_position
+	
+	# Apply manual offsets first
+	centered_pos.y += vertical_offset
+	
+	# Auto-calculate offset based on FOV and distance
+	if auto_calculate_offset:
+		# Get local direction to understand target position relative to camera
+		var local_direction = anchor_rotation.to_local(target_position)
+		
+		# Calculate vertical angle (pitch) - positive = looking down, negative = looking up
+		var horizontal_dist = Vector2(local_direction.x, local_direction.z).length()
+		var vertical_angle = rad_to_deg(atan2(-local_direction.y, horizontal_dist))
+		
+		# Calculate how far off-center horizontally
+		var cone_radius_at_distance = fov_radius * (distance / vision_distance)
+		var lateral_offset_factor = 0.0
+		if cone_radius_at_distance > 0.1:
+			lateral_offset_factor = clamp(horizontal_dist / cone_radius_at_distance, 0.0, 1.0)
+		
+		# Determine relative position more accurately
+		# local_direction.y: negative = above camera, positive = below camera
+		var target_is_above = local_direction.y < -0.3  # Target significantly above
+		var target_is_below = local_direction.y > 0.3   # Target significantly below
+		var target_is_level = abs(local_direction.y) <= 0.3  # Roughly same height
+		
+		# Only apply correction when target is off-center
+		if lateral_offset_factor > 0.5 or not target_is_level:
+			var edge_factor = clamp((lateral_offset_factor - 0.5) / 0.5, 0.0, 1.0)
+			
+			# Reduce correction at extreme angles to prevent oscillation
+			var angle_reduction = 1.0
+			if abs(vertical_angle) > 35.0:
+				angle_reduction = clamp(1.0 - (abs(vertical_angle) - 35.0) / 25.0, 0.2, 1.0)
+			
+			var adjusted_strength = centering_strength * edge_factor * angle_reduction
+			
+			# CRITICAL FIX: When target is ABOVE camera (negative Y in local space)
+			# Camera needs to look DOWN less / UP more to see center of body
+			# So we SUBTRACT from Y to aim lower on the target
+			if target_is_above:
+				# Target above: aim at body center, not head
+				# Subtracting Y makes us look at a lower point on the player
+				var correction = distance * adjusted_strength * 0.4
+				centered_pos.y -= correction  # Look lower on player when they're above
+			
+			# When target is BELOW camera (positive Y in local space)
+			# Camera needs to look UP less / DOWN more to see center
+			# So we ADD to Y to aim higher on the target
+			elif target_is_below:
+				# Target below: aim at body center, not feet
+				# Adding Y makes us look at a higher point on the player
+				var correction = distance * adjusted_strength * 0.4
+				centered_pos.y += correction  # Look higher on player when they're below
+			
+			# Target at same level - minimal adjustment
+			elif lateral_offset_factor > 0.6:
+				var minor_correction = cone_radius_at_distance * adjusted_strength * 0.15
+				# Adjust toward center of cone
+				if local_direction.y < 0:
+					centered_pos.y -= minor_correction
+				else:
+					centered_pos.y += minor_correction
+	
+	# Apply horizontal offset in world space
+	if abs(horizontal_offset) > 0.01:
+		var right_vector = anchor_rotation.global_transform.basis.x
+		centered_pos += right_vector * horizontal_offset
+	
+	# Apply oscillation dampening using velocity smoothing
+	if oscillation_dampening > 0.01 and last_centered_position != Vector3.ZERO:
+		var position_delta = centered_pos - last_centered_position
+		
+		# Dampen rapid changes in Y direction (main source of oscillation)
+		var dampen_factor = clamp(1.0 / (1.0 + oscillation_dampening), 0.1, 0.8)
+		
+		# Heavy dampening on Y axis
+		var smoothed_y_change = lerp(0.0, position_delta.y, dampen_factor)
+		centered_pos.y = last_centered_position.y + smoothed_y_change
+		
+		# Light dampening on horizontal movement
+		centered_pos.x = lerp(last_centered_position.x, centered_pos.x, 0.7)
+		centered_pos.z = lerp(last_centered_position.z, centered_pos.z, 0.7)
+	
+	last_centered_position = centered_pos
+	return centered_pos
+
+# ============================================================================
 # VISUAL FEEDBACK
 # ============================================================================
 
@@ -587,6 +706,29 @@ func set_static_rotation_manual(rotation: Vector2) -> void:
 	if current_state == CameraState.STATIC:
 		current_rotation = rotation
 		target_rotation = rotation
+
+## Offset control for fine-tuning
+func set_vertical_offset(offset: float) -> void:
+	vertical_offset = offset
+
+func set_horizontal_offset(offset: float) -> void:
+	horizontal_offset = offset
+
+func set_centering_offsets(vertical: float, horizontal: float) -> void:
+	vertical_offset = vertical
+	horizontal_offset = horizontal
+
+func toggle_auto_centering(enabled: bool) -> void:
+	auto_calculate_offset = enabled
+
+func toggle_centering_offset(enabled: bool) -> void:
+	enable_centering_offset = enabled
+
+func set_centering_strength(strength: float) -> void:
+	centering_strength = clamp(strength, 0.0, 1.0)
+
+func set_oscillation_dampening(dampen: float) -> void:
+	oscillation_dampening = clamp(dampen, 0.0, 5.0)
 
 ## Detection queries
 func is_player_detected() -> bool:
@@ -630,3 +772,27 @@ func set_patrol_points(points: Array[Vector2]) -> void:
 	current_patrol_index = 0
 	if current_state == CameraState.PATROL:
 		_set_initial_state()
+
+## Switches from patrol (or any active state) to static mode,
+## freezing the camera at its current orientation.
+func freeze_as_static() -> void:
+	if current_state == CameraState.DISABLED:
+		return  # Can't freeze a disabled camera
+	
+	# Capture the current effective rotation
+	# Use `smooth_rotation` if smooth transitions are on, else `current_rotation`
+	var current_rot = smooth_rotation if use_smooth_transitions else current_rotation
+	
+	# Enable static mode and set the rotation
+	static_mode_enabled = true
+	static_rotation = current_rot
+	
+	# Force immediate update of static target
+	if current_state != CameraState.STATIC:
+		_change_state(CameraState.STATIC)
+	else:
+		# If already static, just update the target
+		target_rotation = static_rotation
+		if not use_smooth_transitions:
+			smooth_rotation = static_rotation
+			_apply_rotation(smooth_rotation)

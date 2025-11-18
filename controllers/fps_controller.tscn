@@ -1,6 +1,7 @@
-[gd_scene load_steps=34 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=35 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
+[ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
 [ext_resource type="Script" uid="uid://eav1hnyrhu2x" path="res://controllers/scripts/StateMchinePlayer/camera_3d_controller.gd" id="3_uovkr"]
 [ext_resource type="PackedScene" uid="uid://iwlpamd20oko" path="res://addons/customizableCrosshair/crosshair/crosshair.tscn" id="4_5w0k0"]
@@ -19,11 +20,6 @@
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
 [ext_resource type="Script" uid="uid://clhcimphoqlp5" path="res://controllers/scripts/StateMchinePlayer/ladder_climb_state.gd" id="16_h7h5r"]
 [ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6tj1"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_6tv51"]
-material = ExtResource("2_gldw4")
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -331,8 +327,14 @@ material = SubResource("ORMMaterial3D_5w0k0")
 radius = 0.05
 height = 0.1
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast") groups=["Player"]]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6tj1"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6tv51"]
+material = ExtResource("2_gldw4")
+
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler") groups=["Player"]]
 collision_layer = 2
+collision_mask = 7
 script = ExtResource("1_pgc1p")
 WALK_SPEED = 4.0
 JUMP_VELOCITY = 4.8
@@ -348,16 +350,13 @@ upperchest_Cast_Crouch = NodePath("Raycasters/ClimbingCasts/upperChestCasts/Uppe
 h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
 h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
 r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
+step_handler = NodePath("Components/StepHandlerComponent")
 
 [node name="Components" type="Node3D" parent="."]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-shape = SubResource("CapsuleShape3D_u6tj1")
-
-[node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
-visible = false
-mesh = SubResource("CapsuleMesh_6tv51")
+[node name="StepHandlerComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
+script = ExtResource("2_fdopr")
+player = NodePath("../..")
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
@@ -475,12 +474,14 @@ WALL_RUN_SPEED = 5.0
 script = ExtResource("16_h7h5r")
 
 [node name="Raycasters" type="Node3D" parent="."]
+visible = false
 
 [node name="HeadCast" type="ShapeCast3D" parent="Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
 shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ClimbingCasts" type="Node3D" parent="Raycasters"]
+visible = false
 
 [node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1676488, -0.6089425)
@@ -496,6 +497,7 @@ target_position = Vector3(0, -1.165, 0)
 
 [node name="upperChestCasts" type="Node3D" parent="Raycasters/ClimbingCasts"]
 transform = Transform3D(1, 0, 0, 0, 0.95, 0, 0, 0, 1, 0, 0, 0)
+visible = false
 
 [node name="UpperChestCastIdle" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7790252, -0.41949177)
@@ -532,10 +534,11 @@ mesh = SubResource("CapsuleMesh_3og01")
 visible = false
 
 [node name="BelowStairsRayCast" type="RayCast3D" parent="Raycasters/StairsCasters"]
-target_position = Vector3(0, -0.75, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1920929e-07, 0)
+target_position = Vector3(0, 0, -1)
 
 [node name="StairsRayCast" type="RayCast3D" parent="Raycasters/StairsCasters"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4964732, -0.78194517)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.59379303, -0.79411024)
 target_position = Vector3(0, -0.5, 0)
 
 [node name="Control" type="Control" parent="." node_paths=PackedStringArray("player", "state_machine")]
@@ -558,3 +561,11 @@ crosshairGap = 3.0
 crosshairDot = true
 breathingEnabled = false
 currentPreset = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_u6tj1")
+
+[node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
+visible = false
+mesh = SubResource("CapsuleMesh_6tv51")

@@ -58,6 +58,9 @@ func physics_update(delta: float) -> void:
 	
 	player.move_and_slide()
 
+	if player.is_on_floor():
+		player.step_handler.handle_step_climbing()
+		
 func check_transitions() -> State:
 	# Check for falling
 	no_need_to_back = true

@@ -24,6 +24,9 @@ func physics_update(delta: float) -> void:
 		player.velocity.z = move_toward(player.velocity.z, 0, player.SPEED)
 	
 	player.move_and_slide()
+	
+	if player.is_on_floor():
+		player.step_handler.handle_step_climbing()
 
 func check_transitions() -> State:
 	# Check for falling
