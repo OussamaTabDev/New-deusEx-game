@@ -45,7 +45,11 @@ func enter() -> void:
 
 	player.is_on_ladder = true
 	player.ladder_target_yaw = _target_yaw
-
+	
+	# 🎯 Calculate ladder forward direction for camera
+	# var ladder_forward = Vector3(-sin(_target_yaw), 0.0, -cos(_target_yaw)).normalized()
+	# var ladder_forward = Vector3(-sin(_target_yaw), 0.0, -cos(_target_yaw)).normalized()
+	# CAMERA_CONTROLLER.enter_ladder_mode(ladder_forward)
 	CAMERA_CONTROLLER.lock_vertical = true
 
 
@@ -55,7 +59,10 @@ func exit() -> void:
 	player.current_ladder_up_direction = Vector3.ZERO
 	_is_centering = false
 	player.is_on_ladder = false
+	# When player exits ladder
+	# CAMERA_CONTROLLER.exit_ladder_mode()
 	CAMERA_CONTROLLER.lock_vertical = false
+	# CAMERA_CONTROLLER.lock_vertical = false
 
 
 func physics_update(delta: float) -> void:

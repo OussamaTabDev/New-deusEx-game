@@ -1,11 +1,10 @@
-[gd_scene load_steps=25 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=24 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
 [ext_resource type="Texture2D" uid="uid://ivvpsi314b34" path="res://textures/grid.jpg" id="3_yfwkt"]
 [ext_resource type="PackedScene" uid="uid://c3ffql15mo0aj" path="res://controllers/fps_controller.tscn" id="4_liofc"]
 [ext_resource type="Script" uid="uid://m2fvd5j6jd46" path="res://addons/stairs/stairs.gd" id="5_po88e"]
-[ext_resource type="PackedScene" uid="uid://dwy6008sbfjue" path="res://addons/cogito/PackedScenes/laddertest.tscn" id="7_jrmpr"]
 [ext_resource type="PackedScene" uid="uid://i7fum2jx3ac3" path="res://addons/cogito/PackedScenes/ladder.tscn" id="7_wtxts"]
 [ext_resource type="ArrayMesh" uid="uid://cx3vocju624c7" path="res://levels/vox/room.vox" id="8_jrmpr"]
 [ext_resource type="PackedScene" uid="uid://cthjccyccbg5k" path="res://environment/Scenes/Systems/Cameras/camera.tscn" id="9_3l7at"]
@@ -160,8 +159,14 @@ metadata/_custom_type_script = "uid://m2fvd5j6jd46"
 [node name="Ladder" parent="env" instance=ExtResource("7_wtxts")]
 transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 16.164845, 1.600001, -1.6085801)
 
-[node name="Ladder5" parent="env" instance=ExtResource("7_jrmpr")]
-transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 17.17243, 1.7259173, 0)
+[node name="Ladder2" parent="env" instance=ExtResource("7_wtxts")]
+transform = Transform3D(0.9963691, 0, 0.08513862, 0, 1, 0, -0.08513862, 0, 0.9963691, 21.347267, 1.600001, -1.6085801)
+
+[node name="Ladder3" parent="env" instance=ExtResource("7_wtxts")]
+transform = Transform3D(0.22937033, 0, 0.9733392, 0, 1, 0, -0.9733392, 0, 0.22937033, 21.347267, 1.600001, -10.862814)
+
+[node name="Ladder4" parent="env" instance=ExtResource("7_wtxts")]
+transform = Transform3D(-0.9966574, 0, -0.08169487, 0, 1, 0, 0.08169487, 0, -0.9966574, 16.347242, 1.600001, -10.862814)
 
 [node name="Floor" type="MeshInstance3D" parent="env"]
 transform = Transform3D(3.063698, 0, 0, 0, 1, 0, 0, 0, 2.5398302, 0, -0.25, 0)

@@ -20,6 +20,9 @@ class_name Player extends CharacterBody3D
 
 # Current speed (modified by states)
 var SPEED: float = 5.0
+var previous_velocity : Vector3
+
+
 
 var dash_direction: Vector3 = Vector3.ZERO
 
@@ -33,13 +36,13 @@ var hit_point2: Vector3
 var current_distance: float
 
 var _input_dir = Vector2.ZERO
-var previous_velocity : Vector3
 
 func _ready():
 	# The state machine will handle initialization
 	pass
 
 func _physics_process(delta):
+	# _input_dir = 
 	previous_velocity = velocity
 	if is_ledge_detect() and state_machine.current_state.name != "ClimbState":
 		ledge_detect()
@@ -163,7 +166,3 @@ func set_current_ladder(shape: CollisionShape3D, direction: Vector3) -> void:
 
 func _get_input_direction() -> Vector2:
 	return _input_dir
-
-
-#func _physics_process(delta: float) -> void:
-	
