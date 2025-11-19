@@ -175,6 +175,8 @@ var offset_height: float = 0.0
 var _is_on_ladder: bool = false
 var _ladder_yaw_center: float = 0.0  # Center yaw when entering ladder
 var _ladder_transition_progress: float = 0.0  # 0 = free, 1 = locked
+var _is_centering_to_ladder: bool = false
+var _ladder_center_yaw_target: float = 0.0
 
 # ============================================================
 # INITIALIZATION
@@ -476,10 +478,11 @@ func enter_ladder_mode(ladder_forward_direction: Vector3 = Vector3.ZERO) -> void
     ## ladder_forward_direction: The direction the ladder is facing (world space)
     if not enable_ladder_mode:
         return
-    
+    print(ladder_forward_direction)
     if ladder_forward_direction != Vector3.ZERO:
         # Calculate yaw from ladder direction
         var ladder_angle = atan2(ladder_forward_direction.x, ladder_forward_direction.z)
+        print(ladder_angle)
         _ladder_yaw_center = ladder_angle
     else:
         # Use current player yaw

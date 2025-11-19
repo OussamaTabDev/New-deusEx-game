@@ -24,11 +24,12 @@ func _on_body_shape_entered(_body_rid, body, _body_shape_idx, local_shape_idx):
 			body.state_machine.transition_to(body.state_machine.get_state("LadderClimbState"))
 		
 		if body.state_machine.previous_state.name == "LadderClimbState"  and body.state_machine.current_state.name  != "LadderClimbState":
-			ladder_collision.disabled = true 
-			await get_tree().create_timer(0.1).timeout
-			ladder_collision.disabled = false 
-
-		
+			#ladder_collision
+			#await get_tree().create_timer(0.1).timeout
+			#ladder_collision.disabled = false 
+			if body.state_machine:
+				body.state_machine.transition_to(body.state_machine.get_state("LadderClimbState"))
+				
 		return
 
 func _on_body_exited(body):
