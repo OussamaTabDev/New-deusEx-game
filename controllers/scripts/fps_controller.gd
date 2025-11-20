@@ -37,6 +37,8 @@ var current_distance: float
 
 var _input_dir = Vector2.ZERO
 
+var in_water: bool = false
+var current_water_body:Area3D
 func _ready():
 	# The state machine will handle initialization
 	pass
@@ -166,3 +168,6 @@ func set_current_ladder(shape: CollisionShape3D, direction: Vector3) -> void:
 
 func _get_input_direction() -> Vector2:
 	return _input_dir
+
+func is_in_water():
+	return in_water

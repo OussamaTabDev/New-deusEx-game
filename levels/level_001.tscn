@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=30 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
@@ -11,6 +11,7 @@
 [ext_resource type="ArrayMesh" uid="uid://ddx7ujdxpn7iv" path="res://materials/boxes/version1/box1x1.vox" id="10_n3164"]
 [ext_resource type="PackedScene" uid="uid://dwy6008sbfjue" path="res://addons/cogito/PackedScenes/laddertest.tscn" id="11_a4ax1"]
 [ext_resource type="PackedScene" uid="uid://d3m4ni301eso7" path="res://addons/cogito/PackedScenes/carriable_box.tscn" id="11_ckv7w"]
+[ext_resource type="PackedScene" uid="uid://ca0wevg1lb4rx" path="res://environment/Scenes/Systems/Water/WaterMaker3D.tscn" id="12_a4ax1"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -141,6 +142,36 @@ data = PackedVector3Array(-5.7999997, 0.099999994, 5.5, 5.7, 0.099999994, 5.5, 5
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ckv7w"]
 points = PackedVector3Array(-0.585, 0.47270995, -0.4289876, 0.61662364, 0.255, 0.4431582, -0.45, 0.23947258, 0.6261701, -0.549319, -0.5836006, -0.51, 0.52477384, 0.51, -0.54426515, 0.5491965, -0.5834611, 0.51, 0.5491965, -0.5834611, -0.51, -0.549319, -0.5836006, 0.51, 0.4323443, 0.555, 0.55031693, -0.5503012, 0.555, 0.43234792, -0.41340902, 0.39842707, -0.63, -0.4287914, 0.57, -0.5262659, -0.63, 0.39843816, 0.4133101, 0.525, -0.5396483, 0.56399405, 0.45, 0.23946728, -0.6261565, 0.61734277, 0.3904391, -0.405, 0.4134188, 0.39842707, 0.63, 0.5263635, 0.57, 0.40946597, -0.4287914, 0.57, 0.5262659, -0.5254574, -0.53999996, -0.54485786, 0.5263635, 0.57, -0.40946597, -0.525, -0.53953415, 0.56387365, -0.61661386, 0.255, -0.4238432, 0.5639819, -0.5396427, -0.525, -0.5639721, -0.5396427, -0.525, 0.57, 0.47644034, 0.53060216, -0.41340902, 0.39842707, 0.63, -0.57, 0.4764486, -0.5306113, 0.52534527, -0.53999996, -0.54485786, -0.57, 0.4764486, 0.5306113, -0.5639721, -0.5396427, 0.525, 0.4134188, 0.39842707, -0.63)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_a4ax1"]
+resource_local_to_scene = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_m48vv"]
+resource_local_to_scene = true
+noise = SubResource("FastNoiseLite_a4ax1")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ecv8m"]
+resource_local_to_scene = true
+noise = SubResource("FastNoiseLite_a4ax1")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ywvwd"]
+resource_local_to_scene = true
+transparency = 1
+cull_mode = 2
+depth_draw_mode = 1
+albedo_color = Color(0.30980393, 0.5411765, 0.8666667, 0.3882353)
+roughness = 0.0
+normal_enabled = true
+normal_texture = SubResource("NoiseTexture2D_m48vv")
+refraction_enabled = true
+refraction_texture = SubResource("NoiseTexture2D_ecv8m")
+uv1_scale = Vector3(0.04, 0.04, 0.04)
+uv1_triplanar = true
+uv1_world_triplanar = true
 
 [node name="Node3D" type="Node3D"]
 
@@ -349,3 +380,8 @@ max_pieces = 7
 [node name="Ladder2" parent="." instance=ExtResource("11_a4ax1")]
 transform = Transform3D(-0.10289667, 0, -0.994692, 0, 1, 0, 0.994692, 0, -0.10289667, 19.606441, 1.1633949, -1.0640268)
 max_pieces = 12
+
+[node name="WaterMaker3D" parent="." instance=ExtResource("12_a4ax1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.840263, 6.013521, -10.68911)
+size = Vector3(6.9363403, 14.259949, 11.496338)
+material = SubResource("StandardMaterial3D_ywvwd")

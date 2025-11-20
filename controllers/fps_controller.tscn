@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=38 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -20,6 +20,9 @@
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
 [ext_resource type="Script" uid="uid://clhcimphoqlp5" path="res://controllers/scripts/StateMchinePlayer/ladder_climb_state.gd" id="16_h7h5r"]
 [ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
+[ext_resource type="Script" uid="uid://bjjqmr27j3eg8" path="res://controllers/scripts/StateMchinePlayer/swimming_state.gd" id="17_5b0ob"]
+[ext_resource type="Script" uid="uid://c2ehk8a60pir7" path="res://controllers/scripts/StateMchinePlayer/sprint_swiming_state.gd" id="18_bygp4"]
+[ext_resource type="Script" uid="uid://bn3kmp5jtydid" path="res://controllers/scripts/StateMchinePlayer/surface_swimming_state.gd" id="19_rcx31"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -340,7 +343,7 @@ WALK_SPEED = 4.0
 JUMP_VELOCITY = 4.8
 CAMERA_CONTROLLER = NodePath("CameraController")
 state_machine = NodePath("StateMachine")
-anim_player = NodePath("AnimationPlayer")
+anim_player = NodePath("CameraController/AnimationPlayer")
 head_Cast = NodePath("Raycasters/HeadCast")
 chest_Cast = NodePath("Raycasters/ClimbingCasts/ChestCast")
 mid_chest_Cast = NodePath("Raycasters/ClimbingCasts/midChestCast")
@@ -410,12 +413,14 @@ shape = SubResource("SphereShape3D_5w0k0")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 1.1100001, 0)
 shape = SubResource("SphereShape3D_5w0k0")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CameraController"]
+root_node = NodePath("../..")
 libraries = {
 &"": SubResource("AnimationLibrary_5w0k0")
 }
 
-[node name="AnimationTree" type="AnimationTree" parent="."]
+[node name="AnimationTree" type="AnimationTree" parent="CameraController"]
+root_node = NodePath("../..")
 anim_player = NodePath("../AnimationPlayer")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "player")]
@@ -473,6 +478,15 @@ WALL_RUN_SPEED = 5.0
 
 [node name="LadderClimbState" type="Node" parent="StateMachine"]
 script = ExtResource("16_h7h5r")
+
+[node name="SwimmingState" type="Node" parent="StateMachine"]
+script = ExtResource("17_5b0ob")
+
+[node name="SprintSwimingState" type="Node" parent="StateMachine"]
+script = ExtResource("18_bygp4")
+
+[node name="SurfaceSwimmingState" type="Node" parent="StateMachine"]
+script = ExtResource("19_rcx31")
 
 [node name="Raycasters" type="Node3D" parent="."]
 visible = false
