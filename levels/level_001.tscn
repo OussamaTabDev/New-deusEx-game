@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=25 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
@@ -11,7 +11,6 @@
 [ext_resource type="ArrayMesh" uid="uid://ddx7ujdxpn7iv" path="res://materials/boxes/version1/box1x1.vox" id="10_n3164"]
 [ext_resource type="PackedScene" uid="uid://dwy6008sbfjue" path="res://addons/cogito/PackedScenes/laddertest.tscn" id="11_a4ax1"]
 [ext_resource type="PackedScene" uid="uid://d3m4ni301eso7" path="res://addons/cogito/PackedScenes/carriable_box.tscn" id="11_ckv7w"]
-[ext_resource type="PackedScene" uid="uid://5iufbvn344sr" path="res://addons/cogito/PackedScenes/laddertest2.tscn" id="12_a4ax1"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -344,12 +343,9 @@ shape = SubResource("ConvexPolygonShape3D_ckv7w")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.922946, 4.212637, 19.55983)
 
 [node name="Ladder" parent="." instance=ExtResource("11_a4ax1")]
-transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 18.34639, 1.1938812, -1.4784853)
-max_pieces = 20
+transform = Transform3D(1, 0, 1.3909089e-08, 0, 1, 0, -1.3909089e-08, 0, 1, 14.666445, 1.1633949, 4.8890133)
+max_pieces = 7
 
-[node name="Ladder3" parent="." instance=ExtResource("11_a4ax1")]
-transform = Transform3D(1, 0, 1.3909089e-08, 0, 1, 0, -1.3909089e-08, 0, 1, 14.670126, 1.1938812, 2.222835)
-max_pieces = 10
-
-[node name="Ladder2" parent="." instance=ExtResource("12_a4ax1")]
-transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 19.92558, 1.1633958, -1.4180349)
+[node name="Ladder2" parent="." instance=ExtResource("11_a4ax1")]
+transform = Transform3D(-0.10289667, 0, -0.994692, 0, 1, 0, 0.994692, 0, -0.10289667, 19.606441, 1.1633949, -1.0640268)
+max_pieces = 12

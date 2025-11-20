@@ -5,11 +5,11 @@
 [ext_resource type="ArrayMesh" uid="uid://pc8357a84pdt" path="res://materials/ladders/t_ladder.obj" id="3_fb75p"]
 [ext_resource type="ArrayMesh" uid="uid://caeluhbi680qt" path="res://materials/ladders/mid_ladder.obj" id="4_m7ckt"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_rj7xk"]
-size = Vector3(0.79999995, 4.5233955, 0.11999999)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_fb75p"]
-size = Vector3(0.79999995, 4.071056, 0.11999999)
+size = Vector3(0.79999995, 1.7233958, 0.11999999)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_m7ckt"]
+size = Vector3(0.79999995, 1.5510563, 0.11999999)
 
 [node name="Ladder" type="Area3D" node_paths=PackedStringArray("ladder_collision", "area_collision_shape", "mid_ladder", "t_ladder", "b_ladder")]
 transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 0, 0, 0)
@@ -21,11 +21,11 @@ area_collision_shape = NodePath("ladderArea")
 mid_ladder = NodePath("ladder/mid_ladder")
 t_ladder = NodePath("ladder/t_ladder")
 b_ladder = NodePath("ladder/b_ladder")
-max_pieces = 3
+max_pieces = 1
 
 [node name="ladderArea" type="CollisionShape3D" parent="."]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.1, 0.33999994, -0.009999998)
-shape = SubResource("BoxShape3D_rj7xk")
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.05, -0.30169797, -0.009999998)
+shape = SubResource("BoxShape3D_fb75p")
 
 [node name="ladder" type="StaticBody3D" parent="."]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
@@ -41,60 +41,10 @@ mesh = ExtResource("4_m7ckt")
 skeleton = NodePath("")
 
 [node name="t_ladder" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6799998, 0.03)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55999994, 0.03)
 mesh = ExtResource("3_fb75p")
 skeleton = NodePath("")
 
-[node name="@MeshInstance3D@53515" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55999994, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@53516" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1199999, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@53517" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6799998, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@54974" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55999994, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@54975" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1199999, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@54976" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6799998, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
 [node name="@CollisionShape3D@58424" type="CollisionShape3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.23999995, -0.009999998)
-shape = SubResource("BoxShape3D_fb75p")
-
-[node name="@MeshInstance3D@58428" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55999994, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@58429" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1199999, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@68148" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55999994, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@68149" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1199999, 0.03)
-mesh = ExtResource("4_m7ckt")
-skeleton = NodePath("")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, -0.30169803, -0.009999998)
+shape = SubResource("BoxShape3D_m7ckt")
