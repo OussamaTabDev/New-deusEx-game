@@ -2,6 +2,7 @@ class_name StepHandlerComponent extends Node
 
 @export_category("References")
 @export var player : Player
+@export var enabled: bool = true
 @export_category("Step Settings")
 @export var surface_threshold : float = 0.3
 @export var step_height :float = .8
@@ -23,19 +24,20 @@ var step_status : String:
 
 
 func handle_step_climbing():
-	step_status = "No vertical collision detected"
-	for i in player.get_slide_collision_count():
-		var collision = player.get_slide_collision(i)
-		if _is_vertical_surface(collision):
-			var measured_height = _measure_step_height(collision)
-			if measured_height > MIN_STEP_HEIGHT and measured_height <= step_height and _is_valid_step_direction(collision):
-				player.global_position.y += measured_height
-				player. velocity = player.previous_velocity # Keep player velocity from previous frame; no stopped velocity
-				player.CAMERA_CONTROLLER.smooth_step(measured_height) # Enable camera smoothing
-				step_status = "Step Found! Height: " + str(measured_height)
-			else:
-				step_status = "Step too high: " + str(measured_height)
-			break
+	if enabled:
+		step_status = "No vertical collision detected"
+		for i in player.get_slide_collision_count():
+			var collision = player.get_slide_collision(i)
+			if _is_vertical_surface(collision):
+				var measured_height = _measure_step_height(collision)
+				if measured_height > MIN_STEP_HEIGHT and measured_height <= step_height and _is_valid_step_direction(collision):
+					player.global_position.y += measured_height
+					player. velocity = player.previous_velocity # Keep player velocity from previous frame; no stopped velocity
+					player.CAMERA_CONTROLLER.smooth_step(measured_height) # Enable camera smoothing
+					step_status = "Step Found! Height: " + str(measured_height)
+				else:
+					step_status = "Step too high: " + str(measured_height)
+				break
 
 func _check_collision_normal(collision: KinematicCollision3D):
 	var normal = collision.get_normal()

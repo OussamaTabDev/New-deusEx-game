@@ -357,6 +357,7 @@ step_handler = NodePath("Components/StepHandlerComponent")
 [node name="StepHandlerComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
 script = ExtResource("2_fdopr")
 player = NodePath("../..")
+enabled = false
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "CAMERA_CONTROLLER", "camera_offset", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
@@ -364,6 +365,7 @@ script = ExtResource("3_uovkr")
 player = NodePath("..")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
 camera_offset = NodePath("CameraBase/CameraOffset")
+enable_idle_shake = false
 CONTROLLER_SENSITIVITY = 2.5
 LEAN_AMOUNT = 0.8
 lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")

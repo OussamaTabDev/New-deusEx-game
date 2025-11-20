@@ -66,4 +66,5 @@ skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ladder"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00152588, -0.0832032, 0)
+visible = false
 shape = SubResource("BoxShape3D_xagqk")

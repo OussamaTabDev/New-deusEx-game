@@ -18,6 +18,7 @@ var _yaw_speed: float = 3.0
 
 
 func enter() -> void:
+	print("entered climbState")
 	player.can_wall_run_bool = false
 	player.SPEED = player.WALK_SPEED
 	player.velocity.y = 0
@@ -111,10 +112,13 @@ func physics_update(delta: float) -> void:
 
 
 func check_transitions() -> State:
-	if current_ladder_shape:
+	if current_ladder_shape :
 		var dist_to_ladder = player.global_position.distance_to(current_ladder_shape.global_position)
-		if dist_to_ladder > 2.0:
-			return state_machine.get_state("IdleState")
+		print(dist_to_ladder)
+		# if dist_to_ladder > 2.0:
+		# 	return state_machine.get_state("IdleState")
+		if not player.on_ladder :
+			return state_machine.get_state("FallingState")
 
 	if Input.is_action_just_pressed("jump"):
 		player.velocity.y = player.JUMP_VELOCITY * 0.7
