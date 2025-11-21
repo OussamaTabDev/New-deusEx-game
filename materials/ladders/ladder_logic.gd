@@ -8,7 +8,7 @@ extends Area3D
 @export var t_ladder: MeshInstance3D
 @export var b_ladder: MeshInstance3D
 
-@export_range(1, 20) var max_pieces: int = 3:
+@export_range(1, 50) var max_pieces: int = 3:
 	set(value):
 		max_pieces = value
 		if Engine.is_editor_hint():
@@ -17,6 +17,7 @@ extends Area3D
 var original_process_mode: ProcessMode
 var mid_ladder_instances: Array[MeshInstance3D] = []
 var mid_piece_height: float = 1.0
+var waterStates =["SwimmingState" , "SurfaceSwimmingState" , "SprintSwimmingState"]
 
 func _ready():
 	# CRITICAL: Make all shapes unique when instance loads
@@ -161,24 +162,26 @@ func _update_collisions(total_height: float):
 
 func _on_body_shape_entered(_body_rid, body, _body_shape_idx, local_shape_idx):
 	if body.is_in_group("Player"):
-		var local_shape_owner = shape_find_owner(local_shape_idx)
-		var local_shape_node = shape_owner_get_owner(local_shape_owner) as CollisionShape3D
-		
-		var ladderDir = (local_shape_node.global_position - global_position).normalized()
-		body.set_current_ladder(local_shape_node, ladderDir)
-		
-		if body.state_machine:
-			body.state_machine.transition_to(body.state_machine.get_state("LadderClimbState"))
+		if not body.state_machine.current_state.name in waterStates:
+			var local_shape_owner = shape_find_owner(local_shape_idx)
+			var local_shape_node = shape_owner_get_owner(local_shape_owner) as CollisionShape3D
+			
+			var ladderDir = (local_shape_node.global_position - global_position).normalized()
+			body.set_current_ladder(local_shape_node, ladderDir)
+			
+			if body.state_machine:
+				body.state_machine.transition_to(body.state_machine.get_state("LadderClimbState"))
 
 func _on_body_exited(body):
 	if body.is_in_group("Player"):
-		body.on_ladder = false
-		body.current_ladder_shape = null
-		body.current_ladder_up_direction = Vector3.ZERO
-		if ladder_collision:
-			ladder_collision.process_mode = original_process_mode
-		if body.state_machine and body.state_machine.current_state.name == "LadderClimbState":
-			body.state_machine.transition_to(body.state_machine.get_state("FallingState"))
+		if not body.state_machine.current_state.name in waterStates:
+			body.on_ladder = false
+			body.current_ladder_shape = null
+			body.current_ladder_up_direction = Vector3.ZERO
+			if ladder_collision:
+				ladder_collision.process_mode = original_process_mode
+			if body.state_machine and body.state_machine.current_state.name == "LadderClimbState":
+				body.state_machine.transition_to(body.state_machine.get_state("FallingState"))
 
 func rebuild_ladder():
 	_update_ladder()

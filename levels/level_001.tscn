@@ -379,9 +379,11 @@ max_pieces = 7
 
 [node name="Ladder2" parent="." instance=ExtResource("11_a4ax1")]
 transform = Transform3D(-0.10289667, 0, -0.994692, 0, 1, 0, 0.994692, 0, -0.10289667, 19.606441, 1.1633949, -1.0640268)
-max_pieces = 12
+max_pieces = 50
 
 [node name="WaterMaker3D" parent="." instance=ExtResource("12_a4ax1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.840263, 6.013521, -10.68911)
-size = Vector3(6.9363403, 14.259949, 11.496338)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.840263, 5.253954, -10.68911)
+size = Vector3(6.9363403, 12.740814, 11.496338)
 material = SubResource("StandardMaterial3D_ywvwd")
+depth_resistance_multiplier = null
+min_depth_velocity = null

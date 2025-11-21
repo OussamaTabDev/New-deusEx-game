@@ -7,18 +7,20 @@ extends CSGBox3D
 @export var fog_color := Color(0, 0.04313725605607, 0.15686275064945)
 @export_range(0.0, 250.0) var fog_fade_dist := 5.0
 
+# Depth mechanics
+@export var depth_resistance_multiplier := 0.5  # How much to preserve falling velocity
+@export var min_depth_velocity := -5.0  # Minimum velocity to apply depth mechanics
+
 static var last_frame_drew_underwater_effect : int = -999
 
 func _ready():
-	self.process_priority = 999 # Call _process last to update move after any camera movement
+	self.process_priority = 999
 
-# Track the current camera with an area so we can check if it is inside the water
 func should_draw_camera_underwater_effect():
 	var camera := get_viewport().get_camera_3d() if get_viewport() else null
 	if not camera: return false
 	var aabb = self.global_transform * self.get_aabb().grow(0.025)
 	if not aabb.has_point(camera.global_position): return false
-	# Don't draw multiple overlays at once, incase 2 water bodies overlap
 	if last_frame_drew_underwater_effect == Engine.get_process_frames(): return false
 	
 	%CameraPosShapeCast3D.global_position = camera.global_position
@@ -53,20 +55,28 @@ func _process(delta):
 			%WaterRippleOverlay.visible = false
 			%FogVolume.material.set_shader_parameter("edge_fade", 1.1)
 
-
-
 func _on_swimmable_area_3d_body_shape_entered(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
 	if body.is_in_group("Player"):
 		body.in_water = true
 		body.current_water_body = %SwimmableArea3D
+		
+		# Calculate depth mechanics based on entry velocity
+		var entry_speed = abs(body.velocity.y)
+		var was_falling_fast = body.velocity.y < min_depth_velocity
+		
 		if body.state_machine:
-			body.state_machine.transition_to(body.state_machine.get_state("SwimmingState"))
-	pass # Replace with function body.
-
+			var swimming_state = body.state_machine.get_state("SwimmingState")
+			
+			# If player was falling fast, they'll dive deeper
+			if was_falling_fast and swimming_state:
+				# Preserve some of the falling velocity for realistic depth diving
+				swimming_state.entry_velocity = body.velocity * depth_resistance_multiplier
+				print("Player diving deep! Entry speed: ", entry_speed)
+			
+			body.state_machine.transition_to(swimming_state)
 
 func _on_swimmable_area_3d_body_shape_exited(body_rid: RID, body: Node3D, body_shape_index: int, local_shape_index: int) -> void:
 	if body.is_in_group("Player"):
 		body.in_water = false
 		body.current_water_body = null
-		print("the player exit water")
-	pass # Replace with function body.
+		print("The player exited water")

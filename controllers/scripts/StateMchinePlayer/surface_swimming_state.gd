@@ -7,9 +7,9 @@ extends State
 @export var surface_speed: float = 4.0
 @export var surface_acceleration: float = 10.0
 @export var surface_friction: float = 7.0
-@export var bob_amplitude: float = 0.3  # How much the player bobs up and down
-@export var bob_speed: float = 2.0  # How fast the bobbing motion is
-@export var surface_tolerance: float = 0.5  # How close to surface to stay in this state
+@export var bob_amplitude: float = 0.1  # How much the player bobs up and down
+@export var bob_speed: float = 1.0  # How fast the bobbing motion is
+@export var surface_tolerance: float = 0.3  # How close to surface to stay in this state
 
 var water_surface_y: float = 0.0
 var bob_time: float = 0.0
@@ -101,6 +101,9 @@ func check_transitions() -> State:
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	if Input.is_action_pressed("sprint") and input_dir.length() > 0.1:
 		return state_machine.get_state("SprintSwimmingState")
+
+	if Input.is_action_pressed("jump") and player.can_climb():
+		return state_machine.get_state("CLimbState")
 	
 	return null
 
@@ -114,4 +117,4 @@ func _get_player_half_height() -> float:
 				return shape.size.y / 2.0
 			elif shape is CylinderShape3D:
 				return shape.height / 2.0
-	return 0.9
+	return 0.6

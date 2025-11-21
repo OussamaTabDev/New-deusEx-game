@@ -14,11 +14,15 @@ extends State
 var oxygen: float = 100.0
 var is_underwater: bool = false
 var water_surface_y: float = 0.0
+var entry_velocity: Vector3 = Vector3.ZERO  # Store velocity when entering water
 
 func enter() -> void:
 	player.can_wall_run_bool = false
 	player.SPEED = swim_speed
 	oxygen = oxygen_max
+	
+	# Store the velocity when entering water for momentum-based depth
+	entry_velocity = player.velocity
 	
 	# Get water surface level based on Area3D bounds
 	if player.current_water_body:
@@ -68,8 +72,11 @@ func _calculate_water_surface() -> void:
 		water_surface_y = shape_global_pos.y
 
 func physics_update(delta: float) -> void:
-	# Check if head is underwater
-	is_underwater = player.global_position.y < water_surface_y
+	# Get player's half height (assuming CharacterBody3D with CollisionShape3D)
+	var player_half_height = _get_player_half_height()
+	
+	# Check if head is underwater (player center + half height = head position)
+	is_underwater = (player.global_position.y + player_half_height) < water_surface_y
 	
 	# Handle oxygen
 	if is_underwater:
@@ -108,10 +115,27 @@ func physics_update(delta: float) -> void:
 		player.velocity.y = move_toward(player.velocity.y, buoyancy_force, swim_friction * delta)
 	
 	# Prevent going above water surface too much
-	if player.global_position.y + _get_player_half_height() > water_surface_y:
+	# Allow player to be half-submerged (float at surface naturally)
+	var target_float_position = water_surface_y - player_half_height
+	if player.global_position.y > target_float_position and player.velocity.y > 0:
 		player.velocity.y = min(player.velocity.y, 0)
 	
 	player.move_and_slide()
+
+func _get_player_half_height() -> float:
+	# Try to get player's collision shape height
+	for child in player.get_children():
+		if child is CollisionShape3D:
+			var shape = child.shape
+			if shape is CapsuleShape3D:
+				return (shape.height / 2.0) + shape.radius
+			elif shape is BoxShape3D:
+				return shape.size.y / 2.0
+			elif shape is CylinderShape3D:
+				return shape.height / 2.0
+	
+	# Fallback to a reasonable default (adjust based on your player size)
+	return 0.75  # Assuming ~1.8m tall character
 
 func check_transitions() -> State:
 	# Exit water - transition to appropriate state
@@ -131,20 +155,5 @@ func check_transitions() -> State:
 	var distance_from_surface = abs((player.global_position.y + player_half_height) - water_surface_y)
 	if distance_from_surface < 0.5 and not Input.is_action_pressed("crouch"):
 		return state_machine.get_state("SurfaceSwimmingState")
-	
-	
+		
 	return null
-
-
-
-func _get_player_half_height() -> float:
-	for child in player.get_children():
-		if child is CollisionShape3D:
-			var shape = child.shape
-			if shape is CapsuleShape3D:
-				return (shape.height / 2.0) + shape.radius
-			elif shape is BoxShape3D:
-				return shape.size.y / 2.0
-			elif shape is CylinderShape3D:
-				return shape.height / 2.0
-	return 0.65
