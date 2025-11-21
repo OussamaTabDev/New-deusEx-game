@@ -38,7 +38,8 @@ func check_transitions() -> State:
 	if player.is_on_floor():
 		var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 		if check_fall_speed():
-			print("fall_ckick")
+			
+			player.footstep_player._play_interaction("landing")
 			CAMERA_CONTROLLER.add_fall_kick(2.5)
 		# Check for crouch on landing
 		if Input.is_action_just_pressed("crouch"):

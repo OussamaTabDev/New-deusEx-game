@@ -8,7 +8,7 @@ extends Area3D
 @export var t_ladder: MeshInstance3D
 @export var b_ladder: MeshInstance3D
 
-@export_range(1, 50) var max_pieces: int = 3:
+@export_range(0, 50) var max_pieces: int = 3:
 	set(value):
 		max_pieces = value
 		if Engine.is_editor_hint():
@@ -26,11 +26,35 @@ func _ready():
 	if not Engine.is_editor_hint():
 		body_shape_entered.connect(_on_body_shape_entered)
 		body_exited.connect(_on_body_exited)
+		area_shape_entered.connect(_on_area_shape_entered)
+		area_shape_exited.connect(_on_area_shape_exited)
+		
 		if ladder_collision:
 			original_process_mode = ladder_collision.process_mode
+		
+		# Check for water on startup (after connections are made)
+		call_deferred("_check_initial_water_overlap")
 	
 	_calculate_piece_height()
 	_update_ladder()
+
+# NEW FUNCTION: Check if ladder is in water when game starts
+func _check_initial_water_overlap():
+	# Wait for physics to be fully ready
+	await get_tree().physics_frame
+	
+	# Check all overlapping areas
+	var overlapping_areas = get_overlapping_areas()
+	var is_in_water = false
+	
+	for area in overlapping_areas:
+		if area.is_in_group("water_area"):
+			is_in_water = true
+			print("Ladder detected in water on startup - disabling collision")
+			break
+	
+	if is_in_water and area_collision_shape:
+		area_collision_shape.disabled = true
 
 # NEW FUNCTION: Makes all collision shapes unique for this instance
 func _make_shapes_unique():
@@ -185,3 +209,15 @@ func _on_body_exited(body):
 
 func rebuild_ladder():
 	_update_ladder()
+
+func _on_area_shape_entered(area_rid: RID, area: Area3D, area_shape_index: int, local_shape_index: int) -> void:
+	if area.is_in_group("water_area"):
+		print("Ladder entered water - disabling collision")
+		if area_collision_shape:
+			area_collision_shape.disabled = true
+
+func _on_area_shape_exited(area_rid: RID, area: Area3D, area_shape_index: int, local_shape_index: int) -> void:
+	if area.is_in_group("water_area"):
+		print("Ladder exited water - enabling collision")
+		if area_collision_shape:
+			area_collision_shape.disabled = false

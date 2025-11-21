@@ -163,6 +163,7 @@ func _calculate_csgo_ladder_movement() -> Vector3:
 
 func check_transitions() -> State:
 	# Check if still on ladder
+	
 	if current_ladder_shape:
 		if not player.on_ladder:
 			return state_machine.get_state("FallingState")
@@ -170,6 +171,9 @@ func check_transitions() -> State:
 	# Jump off ladder
 	if Input.is_action_just_pressed("jump"):
 		# Jump in camera direction
+		if player.is_in_water():
+			return state_machine.get_state("SwimmingState")
+
 		if player.CAMERA_CONTROLLER and player.CAMERA_CONTROLLER.CAMERA_CONTROLLER:
 			var camera = player.CAMERA_CONTROLLER.CAMERA_CONTROLLER
 			var jump_dir = -camera.global_transform.basis.z
@@ -184,6 +188,8 @@ func check_transitions() -> State:
 	
 	# Dismount at bottom
 	if player.is_on_floor() and Input.is_action_pressed("move_backward"):
+		if player.is_in_water():
+			return state_machine.get_state("SwimmingState")
 		return state_machine.get_state("WalkingState")
 	
 	# Drop down with crouch

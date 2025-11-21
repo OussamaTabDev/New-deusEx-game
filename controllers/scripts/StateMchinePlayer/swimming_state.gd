@@ -153,7 +153,7 @@ func check_transitions() -> State:
 	# Check if at surface and not diving
 	var player_half_height = _get_player_half_height()
 	var distance_from_surface = abs((player.global_position.y + player_half_height) - water_surface_y)
-	if distance_from_surface < 0.5 and not Input.is_action_pressed("crouch"):
+	if distance_from_surface < 0.5 and not Input.is_action_pressed("crouch") and not player.velocity.y < 0: 
 		return state_machine.get_state("SurfaceSwimmingState")
-		
+
 	return null

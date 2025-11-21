@@ -27,8 +27,10 @@ func physics_update(delta: float) -> void:
 	
 	player.move_and_slide()
 	
+	# player._audio_process("walking")
 	if player.is_on_floor():
 		player.step_handler.handle_step_climbing()
+
 func check_transitions() -> State:
 	# Check for falling
 	if not player.is_on_floor():
@@ -61,3 +63,12 @@ func check_transitions() -> State:
 		return state_machine.get_state("DashState")
 
 	return null
+
+# func _process(delta: float) -> void:
+
+
+
+	
+
+		
+	

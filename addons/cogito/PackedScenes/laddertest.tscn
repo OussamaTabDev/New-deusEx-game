@@ -6,25 +6,25 @@
 [ext_resource type="ArrayMesh" uid="uid://caeluhbi680qt" path="res://materials/ladders/mid_ladder.obj" id="4_m7ckt"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fb75p"]
-size = Vector3(0.79999995, 1.7233958, 0.11999999)
+size = Vector3(0.79999995, 1.1633959, 0.11999999)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_m7ckt"]
-size = Vector3(0.79999995, 1.5510563, 0.11999999)
+size = Vector3(0.79999995, 1.0470563, 0.11999999)
 
 [node name="Ladder" type="Area3D" node_paths=PackedStringArray("ladder_collision", "area_collision_shape", "mid_ladder", "t_ladder", "b_ladder")]
 transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 0, 0, 0)
 collision_layer = 256
-collision_mask = 14
+collision_mask = 782
 script = ExtResource("1_oiut7")
 ladder_collision = NodePath("ladder")
 area_collision_shape = NodePath("ladderArea")
 mid_ladder = NodePath("ladder/mid_ladder")
 t_ladder = NodePath("ladder/t_ladder")
 b_ladder = NodePath("ladder/b_ladder")
-max_pieces = 1
+max_pieces = 0
 
 [node name="ladderArea" type="CollisionShape3D" parent="."]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.05, -0.30169797, -0.009999998)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.05, -0.58169794, -0.009999998)
 shape = SubResource("BoxShape3D_fb75p")
 
 [node name="ladder" type="StaticBody3D" parent="."]
@@ -37,14 +37,18 @@ skeleton = NodePath("")
 
 [node name="mid_ladder" type="MeshInstance3D" parent="ladder"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.03)
+visible = false
 mesh = ExtResource("4_m7ckt")
 skeleton = NodePath("")
 
 [node name="t_ladder" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55999994, 0.03)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.03)
 mesh = ExtResource("3_fb75p")
 skeleton = NodePath("")
 
 [node name="@CollisionShape3D@58424" type="CollisionShape3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, -0.30169803, -0.009999998)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, -0.5816979, -0.009999998)
 shape = SubResource("BoxShape3D_m7ckt")
+
+[connection signal="area_shape_entered" from="." to="." method="_on_area_shape_entered"]
+[connection signal="area_shape_exited" from="." to="." method="_on_area_shape_exited"]

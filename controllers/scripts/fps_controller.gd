@@ -17,11 +17,50 @@ class_name Player extends CharacterBody3D
 @export var h_cast_up : RayCast3D
 @export var r_cast : RayCast3D
 @export var step_handler : StepHandlerComponent
+@export var audio_component: PlayerAudioComponent
+
+@export_group("Audio")
+## AudioStream that gets played when the player jumps.
+@export var jump_sound : AudioStream
+## AudioStream that gets played when the player slides (sprint + crouch).
+@export var slide_sound : AudioStream
+@export_subgroup ("Footstep Audio")
+@export var walk_volume_db : float = -38.0
+@export var sprint_volume_db : float = -30.0
+@export var crouch_volume_db : float = -60.0
+## the time between footstep sounds when walking
+@export var walk_footstep_interval : float = 0.6
+## the time between footstep sounds when sprinting
+@export var sprint_footstep_interval : float = 0.3
+## the speed at which the player must be moving before the footsteps change from walk to sprint.
+@export var footstep_interval_change_velocity : float = 5.2
+
+@export_subgroup ("Landing Audio")
+## Threshold for triggering landing sound
+@export var landing_threshold = -2.0  
+## Defines Maximum velocity (in negative) for the hardest landing sound
+@export var max_landing_velocity = -8
+## Defines Minimum velocity (in negative) for the softest landing sound
+@export var min_landing_velocity = -2
+## Max volume in dB for the landing sound
+@export var max_volume_db = 0
+## Min volume in dB for the landing sound
+@export var min_volume_db = -40
+## Highest pitch for lightest landing sound
+@export var max_pitch = 0.8
+## Lowest pitch for hardest landing sound
+@export var min_pitch = 0.7
+#Setup Dynamic Pitch & Volume for Landing Audio, used to store velocity based results
+var LandingPitch: float = 1.0
+var LandingVolume: float = 0.8
+# Adding carryable position for item control.
+@onready var footstep_player = $FootstepPlayer
+@onready var footstep_surface_detector : FootstepSurfaceDetector = $FootstepPlayer
+
 
 # Current speed (modified by states)
 var SPEED: float = 5.0
 var previous_velocity : Vector3
-
 
 
 var dash_direction: Vector3 = Vector3.ZERO
@@ -171,3 +210,16 @@ func _get_input_direction() -> Vector2:
 
 func is_in_water():
 	return in_water
+
+
+func _audio_process(state):
+	# here need 
+	#dynamic volume for footsteps
+		if state == "walking":
+			footstep_player.volume_db = walk_volume_db
+		elif state == "crouching":
+			footstep_player.volume_db = crouch_volume_db
+		elif state == "sprinting":
+			footstep_player.volume_db = sprint_volume_db
+
+		footstep_player._play_interaction("footstep")

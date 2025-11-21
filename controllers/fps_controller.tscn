@@ -1,13 +1,16 @@
-[gd_scene load_steps=38 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=52 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
 [ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
+[ext_resource type="Script" uid="uid://dxus6jilwiaws" path="res://controllers/scripts/StateMchinePlayer/CameraStateMachine/player_audio_component.gd" id="3_ou6tx"]
 [ext_resource type="Script" uid="uid://eav1hnyrhu2x" path="res://controllers/scripts/StateMchinePlayer/camera_3d_controller.gd" id="3_uovkr"]
 [ext_resource type="PackedScene" uid="uid://iwlpamd20oko" path="res://addons/customizableCrosshair/crosshair/crosshair.tscn" id="4_5w0k0"]
 [ext_resource type="Script" uid="uid://bdhoyf88f6a32" path="res://controllers/scripts/StateMchinePlayer/state_machine.gd" id="4_l8yvu"]
-[ext_resource type="Script" uid="uid://b1dx8rftvm6id" path="res://controllers/scripts/Compoenents/IntercatCast.gd" id="4_yvtcv"]
+[ext_resource type="PackedScene" uid="uid://cbd2ojah4nun6" path="res://addons/cogito/Components/interaction_raycast.tscn" id="4_rcx31"]
+[ext_resource type="AudioStream" uid="uid://ocm2blyfthyq" path="res://addons/cogito/Assets/Audio/Kenney/woosh1.ogg" id="4_stri7"]
 [ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
+[ext_resource type="Script" uid="uid://ua63m2y35w46" path="res://addons/cogito/Scripts/item_drop_shape_cast.gd" id="5_rcx31"]
 [ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
 [ext_resource type="Script" uid="uid://bkbq0qu5e2cnw" path="res://controllers/scripts/StateMchinePlayer/running_state.gd" id="7_fyafc"]
 [ext_resource type="Script" uid="uid://bhr4wvq73b3ov" path="res://controllers/scripts/StateMchinePlayer/jumping_state.gd" id="8_tg6sc"]
@@ -23,6 +26,18 @@
 [ext_resource type="Script" uid="uid://bjjqmr27j3eg8" path="res://controllers/scripts/StateMchinePlayer/swimming_state.gd" id="17_5b0ob"]
 [ext_resource type="Script" uid="uid://c2ehk8a60pir7" path="res://controllers/scripts/StateMchinePlayer/sprint_swiming_state.gd" id="18_bygp4"]
 [ext_resource type="Script" uid="uid://bn3kmp5jtydid" path="res://controllers/scripts/StateMchinePlayer/surface_swimming_state.gd" id="19_rcx31"]
+[ext_resource type="PackedScene" uid="uid://dy3tudla5p2nc" path="res://addons/cogito/Components/PlayerInteractionComponent.tscn" id="25_bjwns"]
+[ext_resource type="AudioStream" uid="uid://up2hfhgq1qx6" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep00.ogg" id="25_qmwy2"]
+[ext_resource type="AudioStream" uid="uid://crj07wq4oocwi" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep01.ogg" id="26_bjwns"]
+[ext_resource type="AudioStream" uid="uid://dewyukd562k37" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep02.ogg" id="27_ou6tx"]
+[ext_resource type="AudioStream" uid="uid://c5kfw4o57foju" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep03.ogg" id="28_stri7"]
+[ext_resource type="AudioStream" uid="uid://b4mt1tuxo2144" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep04.ogg" id="29_adv5w"]
+[ext_resource type="Script" uid="uid://b1qja1tbw5e1j" path="res://addons/cogito/DynamicFootstepSystem/Scripts/footstep_surface_detector.gd" id="30_x2s2x"]
+[ext_resource type="AudioStream" uid="uid://dc03jiw2a6y3j" path="res://addons/cogito/DynamicFootstepSystem/FootstepProfiles/generic_footstep_profile.tres" id="31_12ia1"]
+[ext_resource type="Resource" uid="uid://ca0q2t6w08ubh" path="res://addons/cogito/DynamicFootstepSystem/FootstepMaterialLibrary/sample_footstep_material_library.tres" id="32_uefoi"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
+size = Vector3(0.1, 0.1, 0.1)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -335,9 +350,17 @@ height = 0.1
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_6tv51"]
 material = ExtResource("2_gldw4")
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler") groups=["Player"]]
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_ssunb"]
+streams_count = 5
+stream_0/stream = ExtResource("25_qmwy2")
+stream_1/stream = ExtResource("26_bjwns")
+stream_2/stream = ExtResource("27_ou6tx")
+stream_3/stream = ExtResource("28_stri7")
+stream_4/stream = ExtResource("29_adv5w")
+
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler", "audio_component") groups=["Player"]]
 collision_layer = 2
-collision_mask = 7
+collision_mask = 15
 script = ExtResource("1_pgc1p")
 WALK_SPEED = 4.0
 JUMP_VELOCITY = 4.8
@@ -354,6 +377,7 @@ h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
 h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
 r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
 step_handler = NodePath("Components/StepHandlerComponent")
+audio_component = NodePath("Components/AudioController")
 
 [node name="Components" type="Node3D" parent="."]
 
@@ -361,10 +385,20 @@ step_handler = NodePath("Components/StepHandlerComponent")
 script = ExtResource("2_fdopr")
 player = NodePath("../..")
 
-[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "CAMERA_CONTROLLER", "camera_offset", "lean_shape_cast_left", "lean_shape_cast_right")]
+[node name="AudioController" type="Node" parent="Components" node_paths=PackedStringArray("player", "footstep_player", "footstep_surface_detector", "jump_audio_player", "landing_audio_player")]
+script = ExtResource("3_ou6tx")
+player = NodePath("../..")
+footstep_player = NodePath("../../FootstepPlayer")
+footstep_surface_detector = NodePath("../../FootstepPlayer")
+jump_sound = ExtResource("4_stri7")
+jump_audio_player = NodePath("../../FootstepPlayer")
+landing_audio_player = NodePath("../../FootstepPlayer")
+
+[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "CAMERA_CONTROLLER", "camera_offset", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
 player = NodePath("..")
+audio_component = NodePath("../Components/AudioController")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
 camera_offset = NodePath("CameraBase/CameraOffset")
 enable_idle_shake = false
@@ -380,10 +414,18 @@ ladder_climbing_states = Array[String](["ClimbLadderState", "LadderClimbState"])
 
 [node name="Camera3D" type="Camera3D" parent="CameraController/CameraBase/CameraOffset"]
 
-[node name="InteractRayCast" type="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-visible = false
-target_position = Vector3(0, 0, -3)
-script = ExtResource("4_yvtcv")
+[node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D" instance=ExtResource("4_rcx31")]
+
+[node name="CarryablePosition" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
+
+[node name="ItemDropShapeCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+shape = SubResource("BoxShape3D_57us7")
+target_position = Vector3(0, 0, -2)
+collision_mask = 3
+debug_shape_custom_color = Color(1, 0.368977, 0.687569, 1)
+script = ExtResource("5_rcx31")
 
 [node name="ReflectionProbe" type="ReflectionProbe" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 visible = false
@@ -583,3 +625,21 @@ shape = SubResource("CapsuleShape3D_u6tj1")
 [node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
 visible = false
 mesh = SubResource("CapsuleMesh_6tv51")
+
+[node name="PlayerInteractionComponent" parent="." node_paths=PackedStringArray("interaction_raycast", "carryable_position", "stamina_attribute", "wieldable_container") instance=ExtResource("25_bjwns")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
+interaction_raycast = NodePath("../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
+carryable_position = NodePath("../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
+stamina_attribute = NodePath("")
+wieldable_container = NodePath("")
+
+[node name="FootstepPlayer" type="AudioStreamPlayer3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0005284846, 0)
+stream = SubResource("AudioStreamRandomizer_ssunb")
+volume_db = -38.0
+max_polyphony = 8
+script = ExtResource("30_x2s2x")
+generic_fallback_footstep_profile = ExtResource("31_12ia1")
+footstep_material_library = ExtResource("32_uefoi")
+generic_fallback_landing_profile = ExtResource("31_12ia1")
+landing_material_library = ExtResource("32_uefoi")

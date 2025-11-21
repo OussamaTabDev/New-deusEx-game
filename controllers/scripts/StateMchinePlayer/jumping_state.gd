@@ -6,6 +6,8 @@ var _jump_buffer := Buffer.new(0.15, 0.15, true)
 
 var was_in_air_time: float = 0.0
 func enter() -> void:
+	if player.audio_component:
+		player.audio_component.play_jump_sound()
 	was_in_air_time = 0.0
 	player.velocity.y = player.JUMP_VELOCITY
 	jump_pressed = true

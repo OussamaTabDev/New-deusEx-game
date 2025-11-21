@@ -11,6 +11,7 @@ extends Node3D
 @export_category("Core Setup")
 @export_group("Node References")
 @export var player: CharacterBody3D
+@export var audio_component: PlayerAudioComponent
 @export var CAMERA_CONTROLLER: Camera3D
 @export var camera_offset:Node3D
 # ============================================================
@@ -79,7 +80,7 @@ extends Node3D
 @export_group("Leaning Restrictions")
 @export var resurrected_states_on_leaning := [
     "SprintingState", "SlidingState", "JumpingState",
-    "FallingState", "ClimbLadderState", "DashState"
+    "FallingState", "ClimbLadderState", "DashState","SwimmingState","SprintSwimmingState"
 ]
 @export var resurrected_states_on_using := ["ClimbLadderState"]
 
@@ -278,6 +279,10 @@ func _update_camera(delta: float):
         var bob_speed_scale = float(player.is_on_floor() and not is_climbing)
         t_bob += delta * player.velocity.length() * bob_speed_scale
         total_offset += _calculate_headbob(t_bob)
+
+        if audio_component:
+            # state_name = player.state_machine.get_current_state_name()
+            audio_component.process_footstep_sync(t_bob, BOB_FREQ, BOB_AMP, state_name)
     
     # Leaning
     if enable_leaning:

@@ -178,7 +178,7 @@ uv1_world_triplanar = true
 [node name="WorldEnvironment" parent="." instance=ExtResource("1_db21n")]
 
 [node name="CharacterBody3D" parent="." instance=ExtResource("4_liofc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.909236, 13.688057, 16.479921)
+transform = Transform3D(-0.9455015, 0, -0.3256177, 0, 1, 0, 0.3256177, 0, -0.9455015, 21.235153, 14.814677, -13.964057)
 
 [node name="env" type="Node3D" parent="."]
 
@@ -360,7 +360,7 @@ transform = Transform3D(-0.9997586, 0, -0.021971993, 0, 1, 0, 0.021971993, 0, -0
 shape = SubResource("ConcavePolygonShape3D_jrmpr")
 
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2888632, 3.4627552, 15.782051)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.059925, 16.790958, -10.58529)
 linear_velocity = Vector3(0, 0, 2.085)
 
 [node name="Box1x1" type="MeshInstance3D" parent="RigidBody3D"]
@@ -372,6 +372,10 @@ shape = SubResource("ConvexPolygonShape3D_ckv7w")
 
 [node name="CarriableBox" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.922946, 4.212637, 19.55983)
+
+[node name="CarriableBox2" parent="." instance=ExtResource("11_ckv7w")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.582113, 14.478214, -7.535274)
+collision_layer = 8
 
 [node name="Ladder" parent="." instance=ExtResource("11_a4ax1")]
 transform = Transform3D(1, 0, 1.3909089e-08, 0, 1, 0, -1.3909089e-08, 0, 1, 14.666445, 1.1633949, 4.8890133)
@@ -385,5 +389,3 @@ max_pieces = 50
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.840263, 5.253954, -10.68911)
 size = Vector3(6.9363403, 12.740814, 11.496338)
 material = SubResource("StandardMaterial3D_ywvwd")
-depth_resistance_multiplier = null
-min_depth_velocity = null
