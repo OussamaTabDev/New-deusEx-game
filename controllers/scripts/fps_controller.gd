@@ -212,14 +212,7 @@ func is_in_water():
 	return in_water
 
 
-func _audio_process(state):
-	# here need 
-	#dynamic volume for footsteps
-		if state == "walking":
-			footstep_player.volume_db = walk_volume_db
-		elif state == "crouching":
-			footstep_player.volume_db = crouch_volume_db
-		elif state == "sprinting":
-			footstep_player.volume_db = sprint_volume_db
 
-		footstep_player._play_interaction("footstep")
+
+func get_camera_controller():
+	return CAMERA_CONTROLLER

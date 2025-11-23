@@ -112,6 +112,10 @@ extends Node3D
 @export var MIN_SCREEN_SHAKE: float = 0.05
 @export var MAX_SCREEN_SHAKE: float = 0.3
 
+@export_group("Dash Shake")
+@export var dash_shake_intensity: float = 0.4
+@export var dash_shake_duration: float = 0.2
+
 # ============================================================
 # CAMERA KICK EFFECTS
 # ============================================================
@@ -178,6 +182,10 @@ var _ladder_yaw_center: float = 0.0  # Center yaw when entering ladder
 var _ladder_transition_progress: float = 0.0  # 0 = free, 1 = locked
 var _is_centering_to_ladder: bool = false
 var _ladder_center_yaw_target: float = 0.0
+
+# Dash directional roll
+var _dash_direction_roll: float = 0.0
+var _dash_direction_roll_timer: float = 0.0
 
 # ============================================================
 # INITIALIZATION
@@ -307,6 +315,12 @@ func _update_camera(delta: float):
         total_pitch_modifier += _damage_kick_tilt * ratio
         total_roll += _damage_roll * ratio
     
+    # Dash directional roll (decays over time)
+    if _dash_direction_roll_timer > 0.0:
+        _dash_direction_roll_timer -= delta
+        var roll_ratio = _dash_direction_roll_timer / dash_shake_duration
+        total_roll += _dash_direction_roll * roll_ratio * roll_ratio  # ease-out
+    
     # Screen shake (quake)
     if enable_screen_shake and _current_screen_shake_amount > 0.0:
         var h_offset = randf_range(-_current_screen_shake_amount, _current_screen_shake_amount)
@@ -386,10 +400,6 @@ func _update_leaning(delta: float, state_name: String) -> void:
         var move_dir = Input.get_axis("move_left", "move_right")
         if move_dir != 0.0:
             target_roll = -move_dir * LEAN_ROLL_ANGLE * auto_strafe_intensity
-    
-    # Dash roll
-    if state_name == "DashState":
-        target_roll = -sign(player.velocity.x) * dash_roll_intensity
     
     current_lean = lerp(current_lean, target_lean, delta * LEAN_SPEED)
     current_roll = lerp(current_roll, target_roll, delta * LEAN_SPEED)
@@ -471,6 +481,28 @@ func add_screen_shake(amount: float, seconds: float) -> void:
         0.0, 1.0, seconds
     ).set_ease(Tween.EASE_OUT)
     _screen_shake_tween.finished.connect(func(): _current_screen_shake_amount = 0.0)
+
+func trigger_dash_shake(intensity: float = 0.4, duration: float = 0.2) -> void:
+    """Trigger shake effect for dash - called from DashState"""
+    add_screen_shake(intensity, duration)
+
+func trigger_dash_roll(dash_direction: Vector3) -> void:
+    """
+    Trigger directional camera roll for dash
+    dash_direction: World-space direction vector of the dash
+    """
+    if not player:
+        return
+    
+    # Get player's right vector (local X axis)
+    var player_right = player.global_transform.basis.x
+    
+    # Calculate how much the dash is going left/right relative to player
+    var right_amount = dash_direction.dot(player_right)
+    
+    # Apply roll (negative because rolling right means tilting left)
+    _dash_direction_roll = -right_amount * dash_roll_intensity
+    _dash_direction_roll_timer = dash_shake_duration
 
 func smooth_step(height_change: float) -> void:
     ## Call this when player climbs a step/stair to smooth the camera transition

@@ -139,3 +139,7 @@ func _on_body_exited(body: Node) -> void:
 
 func _exit_tree() -> void:
 	object_exits_tree.emit()
+
+
+func _integrate_forces(state: PhysicsDirectBodyState3D):
+	get_node("FlaotingComponent")._integrate_forces(state)

@@ -59,7 +59,7 @@ func check_transitions() -> State:
 	
 	# print(input_dir)
 	# Check for dash
-	if Input.is_action_just_pressed("dash") and input_dir.y > 0 :
+	if Input.is_action_just_pressed("dash"):
 		return state_machine.get_state("DashState")
 
 	return null

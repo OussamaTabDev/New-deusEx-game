@@ -3,9 +3,9 @@ extends State
 
 # Swimming parameters
 @export var swim_speed: float = 3.0
-@export var swim_acceleration: float = 8.0
+@export var swim_acceleration: float = 6.0
 @export var swim_friction: float = 6.0
-@export var buoyancy_force: float = 2.0
+@export var buoyancy_force: float = .5
 @export var dive_speed: float = 4.0
 @export var surface_speed: float = 5.0
 @export var oxygen_max: float = 100.0
@@ -84,7 +84,7 @@ func physics_update(delta: float) -> void:
 		if oxygen <= 0:
 			oxygen = 0
 			# Take damage or trigger drowning state
-			player.take_damage(5 * delta)  # Adjust damage as needed
+			#player.take_damage(5 * delta)  # Adjust damage as needed
 	else:
 		# Regenerate oxygen when head is above water
 		oxygen = min(oxygen + oxygen_drain_rate * 2 * delta, oxygen_max)
@@ -135,7 +135,7 @@ func _get_player_half_height() -> float:
 				return shape.height / 2.0
 	
 	# Fallback to a reasonable default (adjust based on your player size)
-	return 0.75  # Assuming ~1.8m tall character
+	return 0.85  # Assuming ~1.8m tall character
 
 func check_transitions() -> State:
 	# Exit water - transition to appropriate state
@@ -150,10 +150,16 @@ func check_transitions() -> State:
 	if Input.is_action_pressed("sprint") and input_dir.length() > 0.1:
 		return state_machine.get_state("SprintSwimmingState")  # Optional: create this for faster swimming
 	
-	# Check if at surface and not diving
+	# Only transition to surface swimming if:
+	# - Very close to surface
+	# - NOT holding crouch
+	# - Vertical velocity is low (not diving or falling through)
 	var player_half_height = _get_player_half_height()
-	var distance_from_surface = abs((player.global_position.y + player_half_height) - water_surface_y)
-	if distance_from_surface < 0.5 and not Input.is_action_pressed("crouch") and not player.velocity.y < 0: 
+	var head_y = player.global_position.y + player_half_height
+	var near_surface = (water_surface_y - head_y) < 0.3
+	var is_moving_gently = abs(player.velocity.y) < 0.5
+
+	if near_surface and not Input.is_action_pressed("crouch") and is_moving_gently:
 		return state_machine.get_state("SurfaceSwimmingState")
 
 	return null

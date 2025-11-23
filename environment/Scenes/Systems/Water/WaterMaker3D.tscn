@@ -60,15 +60,24 @@ shader = ExtResource("3_4qkrb")
 process_priority = 999
 material = SubResource("StandardMaterial3D_gdho2")
 script = ExtResource("1_ibmid")
+fog_fade_dist = 2.0
+edge_outline_width = 0.1
+edge_outline_color = Color(0, 5.6250706, 5.690767, 0.8)
+edge_animation_speed = 0.96
+depth_resistance_multiplier = 0.86
+min_depth_velocity = -4.755
 
 [node name="SwimmableArea3D" type="Area3D" parent="." groups=["water_area"]]
 unique_name_in_owner = true
 collision_layer = 512
-collision_mask = 770
+collision_mask = 778
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SwimmableArea3D"]
 unique_name_in_owner = true
 shape = SubResource("BoxShape3D_om5f8")
+
+[node name="Marker3D" type="Marker3D" parent="SwimmableArea3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49467623, 0)
 
 [node name="CameraPosShapeCast3D" type="ShapeCast3D" parent="."]
 unique_name_in_owner = true
@@ -82,6 +91,7 @@ unique_name_in_owner = true
 size = Vector3(1, 1, 1)
 material = SubResource("ShaderMaterial_wrt5a")
 script = ExtResource("2_0c3i1")
+fade_distance = 2.0
 
 [node name="WaterRippleOverlay" type="TextureRect" parent="."]
 unique_name_in_owner = true

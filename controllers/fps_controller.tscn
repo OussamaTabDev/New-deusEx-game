@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=51 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -8,7 +8,6 @@
 [ext_resource type="PackedScene" uid="uid://iwlpamd20oko" path="res://addons/customizableCrosshair/crosshair/crosshair.tscn" id="4_5w0k0"]
 [ext_resource type="Script" uid="uid://bdhoyf88f6a32" path="res://controllers/scripts/StateMchinePlayer/state_machine.gd" id="4_l8yvu"]
 [ext_resource type="PackedScene" uid="uid://cbd2ojah4nun6" path="res://addons/cogito/Components/interaction_raycast.tscn" id="4_rcx31"]
-[ext_resource type="AudioStream" uid="uid://ocm2blyfthyq" path="res://addons/cogito/Assets/Audio/Kenney/woosh1.ogg" id="4_stri7"]
 [ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
 [ext_resource type="Script" uid="uid://ua63m2y35w46" path="res://addons/cogito/Scripts/item_drop_shape_cast.gd" id="5_rcx31"]
 [ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
@@ -390,7 +389,6 @@ script = ExtResource("3_ou6tx")
 player = NodePath("../..")
 footstep_player = NodePath("../../FootstepPlayer")
 footstep_surface_detector = NodePath("../../FootstepPlayer")
-jump_sound = ExtResource("4_stri7")
 jump_audio_player = NodePath("../../FootstepPlayer")
 landing_audio_player = NodePath("../../FootstepPlayer")
 
@@ -505,6 +503,7 @@ headCast = NodePath("../../Raycasters/HeadCast")
 
 [node name="DashState" type="Node" parent="StateMachine"]
 script = ExtResource("12_5b0ob")
+enable_8_direction = true
 
 [node name="SlidingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast")]
 script = ExtResource("13_l8yvu")

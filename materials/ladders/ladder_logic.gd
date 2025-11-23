@@ -211,13 +211,14 @@ func rebuild_ladder():
 	_update_ladder()
 
 func _on_area_shape_entered(area_rid: RID, area: Area3D, area_shape_index: int, local_shape_index: int) -> void:
-	if area.is_in_group("water_area"):
-		print("Ladder entered water - disabling collision")
-		if area_collision_shape:
-			area_collision_shape.disabled = true
-
+	# if area.is_in_group("water_area"):
+		# print("Ladder entered water - disabling collision")
+		# if area_collision_shape:
+		# 	area_collision_shape.disabled = true
+	pass
 func _on_area_shape_exited(area_rid: RID, area: Area3D, area_shape_index: int, local_shape_index: int) -> void:
-	if area.is_in_group("water_area"):
-		print("Ladder exited water - enabling collision")
-		if area_collision_shape:
-			area_collision_shape.disabled = false
+	pass
+# if area.is_in_group("water_area"):
+# 		print("Ladder exited water - enabling collision")
+# 		if area_collision_shape:
+# 			area_collision_shape.disabled = false

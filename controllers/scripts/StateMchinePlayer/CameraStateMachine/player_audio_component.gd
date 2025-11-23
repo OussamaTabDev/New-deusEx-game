@@ -19,11 +19,24 @@ extends Node
 @export var sprint_volume_db: float = -30.0
 @export var crouch_volume_db: float = -60.0
 
-@export_category("Jump & Slide Sounds")
+@export_category("Movement Sounds")
 @export var jump_sound: AudioStream
 @export var slide_sound: AudioStream
+@export var dash_sound: AudioStream
+@export var climb_sound: AudioStream  # Looping climb/ladder sound
+@export var wallrun_sound: AudioStream  # Looping wallrun sound
+@export var swim_sound: AudioStream  # Looping swim sound
+@export var water_splash_enter: AudioStream
+@export var water_splash_exit: AudioStream
+
+@export_subgroup("Audio Players")
 @export var jump_audio_player: AudioStreamPlayer3D
 @export var slide_audio_player: AudioStreamPlayer3D
+@export var dash_audio_player: AudioStreamPlayer3D
+@export var climb_audio_player: AudioStreamPlayer3D
+@export var wallrun_audio_player: AudioStreamPlayer3D
+@export var swim_audio_player: AudioStreamPlayer3D
+@export var water_splash_player: AudioStreamPlayer3D
 
 @export_category("Landing Audio")
 @export var landing_audio_player: AudioStreamPlayer3D
@@ -55,13 +68,23 @@ func _ready():
 	if not player:
 		push_error("PlayerAudioComponent: Player reference not set!")
 	
-	# Auto-find audio players if not set
+	# Auto-find or create audio players if not set
 	if not jump_audio_player:
 		jump_audio_player = _find_or_create_audio_player("JumpAudioPlayer")
 	if not slide_audio_player:
 		slide_audio_player = _find_or_create_audio_player("SlideAudioPlayer")
 	if not landing_audio_player:
 		landing_audio_player = _find_or_create_audio_player("LandingAudioPlayer")
+	if not dash_audio_player:
+		dash_audio_player = _find_or_create_audio_player("DashAudioPlayer")
+	if not climb_audio_player:
+		climb_audio_player = _find_or_create_audio_player("ClimbAudioPlayer")
+	if not wallrun_audio_player:
+		wallrun_audio_player = _find_or_create_audio_player("WallRunAudioPlayer")
+	if not swim_audio_player:
+		swim_audio_player = _find_or_create_audio_player("SwimAudioPlayer")
+	if not water_splash_player:
+		water_splash_player = _find_or_create_audio_player("WaterSplashPlayer")
 
 func _find_or_create_audio_player(node_name: String) -> AudioStreamPlayer3D:
 	var existing = get_node_or_null(node_name)
@@ -105,7 +128,7 @@ func process_footstep_sync(bob_time: float, bob_freq: float, bob_amp: float, sta
 		return
 	
 	# Calculate current phase of bob cycle (0 to 2π)
-	var current_phase = fmod(bob_time * bob_freq, TAU) / 2
+	var current_phase = fmod(bob_time * bob_freq, TAU) / 2 
 	
 	# LEFT FOOT: Trigger at bottom of sine wave (around π)
 	var left_trigger_min = PI * (1.0 - phase_trigger_tolerance)
@@ -160,13 +183,34 @@ func play_footstep(state_name: String) -> void:
 	if not footstep_player:
 		return
 	
+	# States that shouldn't play footsteps
+	var silent_states = [
+		"IdleState",
+		"JumpingState",
+		"FallingState",
+		"ClimbState",
+		"DashState",
+		"SlidingState",
+		"WallRunState",
+		"LadderClimbState",
+		"SwimmingState",
+		"SprintSwimmingState",
+		"SurfaceSwimmingState"
+	]
+	
+	if state_name in silent_states:
+		return
+	
 	# Set volume based on state
 	match state_name:
 		"SprintingState":
 			footstep_player.volume_db = sprint_volume_db
-		"CrouchingState", "CrouchWalkingState":
+		"CrouchWalkingState":
 			footstep_player.volume_db = crouch_volume_db
+		"WalkingState":
+			footstep_player.volume_db = walk_volume_db
 		_:
+			# Default to walk volume for any other walking states
 			footstep_player.volume_db = walk_volume_db
 	
 	# Play the footstep (assuming your FootstepPlayer has this method)
@@ -176,7 +220,7 @@ func play_footstep(state_name: String) -> void:
 		footstep_player.play()
 
 # ============================================================
-# JUMP & SLIDE SOUNDS
+# MOVEMENT SOUNDS
 # ============================================================
 func play_jump_sound() -> void:
 	"""Call this when player jumps"""
@@ -194,6 +238,115 @@ func stop_slide_sound() -> void:
 	"""Call this when player stops sliding"""
 	if slide_audio_player:
 		slide_audio_player.stop()
+
+func play_dash_sound() -> void:
+	"""Call this when player dashes"""
+	if dash_audio_player and dash_sound:
+		dash_audio_player.stream = dash_sound
+		dash_audio_player.play()
+
+func play_climb_sound() -> void:
+	"""Call this when player starts climbing (looping)"""
+	if climb_audio_player and climb_sound:
+		climb_audio_player.stream = climb_sound
+		if not climb_audio_player.playing:
+			climb_audio_player.play()
+
+func stop_climb_sound() -> void:
+	"""Call this when player stops climbing"""
+	if climb_audio_player:
+		climb_audio_player.stop()
+
+func play_wallrun_sound() -> void:
+	"""Call this when player starts wall running (looping)"""
+	if wallrun_audio_player and wallrun_sound:
+		wallrun_audio_player.stream = wallrun_sound
+		if not wallrun_audio_player.playing:
+			wallrun_audio_player.play()
+
+func stop_wallrun_sound() -> void:
+	"""Call this when player stops wall running"""
+	if wallrun_audio_player:
+		wallrun_audio_player.stop()
+
+func play_swim_sound() -> void:
+	"""Call this when player is swimming (looping)"""
+	if swim_audio_player and swim_sound:
+		swim_audio_player.stream = swim_sound
+		if not swim_audio_player.playing:
+			swim_audio_player.play()
+
+func stop_swim_sound() -> void:
+	"""Call this when player stops swimming"""
+	if swim_audio_player:
+		swim_audio_player.stop()
+
+func play_water_splash(entering: bool = true) -> void:
+	"""Call this when player enters/exits water"""
+	if water_splash_player:
+		if entering and water_splash_enter:
+			water_splash_player.stream = water_splash_enter
+			water_splash_player.play()
+		elif not entering and water_splash_exit:
+			water_splash_player.stream = water_splash_exit
+			water_splash_player.play()
+
+# ============================================================
+# STATE-BASED AUDIO MANAGEMENT
+# ============================================================
+func handle_state_audio(state_name: String, is_entering: bool = true) -> void:
+	"""
+	Automatically handles all state-based audio.
+	Call this from your state machine when entering/exiting states.
+	
+	Usage in your State class:
+	func enter(previous_state):
+	    player.audio_component.handle_state_audio(name, true)
+	
+	func exit(next_state):
+	    player.audio_component.handle_state_audio(name, false)
+	"""
+	
+	if is_entering:
+		match state_name:
+			"JumpingState":
+				play_jump_sound()
+			
+			"SlidingState":
+				play_slide_sound()
+			
+			"DashState":
+				play_dash_sound()
+			
+			"ClimbState", "LadderClimbState":
+				play_climb_sound()
+			
+			"WallRunState":
+				play_wallrun_sound()
+			
+			"SwimmingState", "SprintSwimmingState", "SurfaceSwimmingState":
+				play_swim_sound()
+				# Check if just entered water
+				if player and player.has_method("is_in_water"):
+					play_water_splash(true)
+	else:
+		# Exiting state - stop looping sounds
+		match state_name:
+			"SlidingState":
+				stop_slide_sound()
+			
+			"ClimbState", "LadderClimbState":
+				stop_climb_sound()
+			
+			"WallRunState":
+				stop_wallrun_sound()
+			
+			"SwimmingState", "SprintSwimmingState", "SurfaceSwimmingState":
+				stop_swim_sound()
+				# Check if just exited water
+				if player and player.has_method("is_in_water"):
+					if not player.is_in_water():
+						play_water_splash(false)
 
 # ============================================================
 # LANDING DETECTION & SOUND

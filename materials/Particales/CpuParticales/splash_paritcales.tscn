@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://chrrf58gtqram"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_6n7ok"]
+
+[sub_resource type="Curve" id="Curve_6n7ok"]
+_limits = [0.0, 5.1561794, 0.0, 1.0]
+_data = [Vector2(0, 5.1561794), 0.0, 0.0, 0, 0, Vector2(1e-05, 5.1561794), 0.0, 0.0, 0, 0, Vector2(0.18996415, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Curve" id="Curve_5gc8b"]
+_data = [Vector2(0.007168457, 1), 0.0, 0.0, 0, 0, Vector2(0.14336917, 1), 0.0, 0.0, 0, 0, Vector2(0.57706094, 0), 0.0, 0.0, 0, 0, Vector2(0.72401434, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[node name="SplashParitcales" type="CPUParticles3D"]
+amount = 6
+lifetime_randomness = 0.07
+mesh = SubResource("BoxMesh_6n7ok")
+emission_shape = 3
+emission_box_extents = Vector3(1.515, 0.37, 0.445)
+direction = Vector3(0, 1, -1)
+spread = 180.0
+initial_velocity_min = 5.0
+initial_velocity_max = 10.0
+linear_accel_curve = SubResource("Curve_6n7ok")
+radial_accel_max = 46.67
+damping_max = 20.0
+scale_amount_min = 0.0
+scale_amount_max = 0.15
+scale_amount_curve = SubResource("Curve_5gc8b")
+anim_speed_min = 12.8
+anim_speed_max = 36.7
+anim_offset_max = 0.2
