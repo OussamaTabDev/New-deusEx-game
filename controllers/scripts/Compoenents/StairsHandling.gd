@@ -74,8 +74,7 @@ func _is_vertical_surface(collision: KinematicCollision3D) -> bool:
 
 func _get_player_feet_position() -> Vector3:
 	var feet_pos = player.global_position
-	# feet_pos.y -= player.get_node("CollisionShape3D").shape.height / 2
-	# feet_pos.y += FEET_ADJUSTED_HEIGHT # Small buffer
+	feet_pos.y += FEET_ADJUSTED_HEIGHT # Small buffer
 	return feet_pos
 
 func _measure_step_height(collision: KinematicCollision3D) -> float:
