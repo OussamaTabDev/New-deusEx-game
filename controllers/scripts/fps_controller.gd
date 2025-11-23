@@ -126,9 +126,14 @@ func can_climb():
 	# if distance < 2.4:
 	# 	current_distance = distance
 	# print("Hit point:", hit_point, " Player pos:", player_pos, " Distance:", distance)
+	if state_machine.current_state.name == "SurfaceSwimmingState":
+		return not head_Cast.is_colliding()  \
+		and hit_point2.y - global_transform.origin.y < 3.0 and hit_point2.y - global_transform.origin.y > 0.3 \
+		and (chest_Cast.is_colliding() or mid_chest_Cast.is_colliding() or (h_cast_up.is_colliding() and distance < 2.4 ) )
+	
 	return not head_Cast.is_colliding()  \
 	  and hit_point2.y - global_transform.origin.y < 3.0 and hit_point2.y - global_transform.origin.y > 1 \
-	  and (chest_Cast.is_colliding() or mid_chest_Cast.is_colliding() or (h_cast_up.is_colliding() and distance < 2.4) )
+	  and (chest_Cast.is_colliding() or mid_chest_Cast.is_colliding() or (h_cast_up.is_colliding() and distance < 2.4 ) )
 
 
 func ledge_detect():
@@ -211,8 +216,27 @@ func _get_input_direction() -> Vector2:
 func is_in_water():
 	return in_water
 
-
-
-
 func get_camera_controller():
 	return CAMERA_CONTROLLER
+
+
+func _push_away_rigid_bodies():
+	for i in get_slide_collision_count():
+		var c := get_slide_collision(i)
+		if c.get_collider() is RigidBody3D:
+			var push_dir = -c.get_normal()
+			# How much velocity the object needs to increase to match player velocity in the push direction
+			var velocity_diff_in_push_dir = self.velocity.dot(push_dir) - c.get_collider().linear_velocity.dot(push_dir)
+			# Only count velocity towards push dir, away from character
+			velocity_diff_in_push_dir = max(0., velocity_diff_in_push_dir)
+			# Objects with more mass than us should be harder to push. But doesn't really make sense to push faster than we are going
+			const MY_APPROX_MASS_KG = 80.0
+			var mass_ratio = min(1., MY_APPROX_MASS_KG / c.get_collider().mass)
+			# Optional add: Don't push object at all if it's 4x heavier or more
+			if mass_ratio < 0.25:
+				continue
+			# Don't push object from above/below
+			push_dir.y = 0
+			# 5.0 is a magic number, adjust to your needs
+			var push_force = mass_ratio * 1.0
+			c.get_collider().apply_impulse(push_dir * velocity_diff_in_push_dir * push_force, c.get_position() - c.get_collider().global_position)

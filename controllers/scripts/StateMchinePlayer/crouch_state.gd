@@ -16,12 +16,19 @@ var previous: String = ""
 @export var crouchState: State
 @export var standState: State
 var will_crouch: bool = false
-var tween: Tween
 var current_distance: float
 @export var collision : CollisionShape3D 
 
 var h_speed_twin: float = 0.0
 var v_speed_twin: float = 0.0
+
+# Manual animation variables
+var is_climbing: bool = false
+var climb_timer: float = 0.0
+var climb_phase: int = 0  # 0 = vertical, 1 = horizontal
+var start_pos: Vector3
+var mid_pos: Vector3
+var end_pos: Vector3
 
 
 func enter() -> void:
@@ -39,25 +46,20 @@ func enter() -> void:
 		will_crouch = false
 
 	climb_hight = player.hit_point2.y - player.global_transform.origin.y
-	
-	## Notify camera: climbing started
-	#if player.CAMERA_CONTROLLER:
-		#player.CAMERA_CONTROLLER.set_climb_active(true)
 
 	await get_tree().create_timer(0.1).timeout
 	print("Entering Climb state")
-	climb()
+	start_climb()
 
 
 func exit() -> void:
-	# Notify camera: climbing ended
-	#if player.CAMERA_CONTROLLER:
-		#player.CAMERA_CONTROLLER.set_climb_active(false)
+	is_climbing = false
 	print("Exiting Climb state")
 
 
 func update(delta: float) -> void:
-	pass
+	if is_climbing:
+		animate_climb(delta)
 
 
 func physics_update(delta: float) -> void:
@@ -66,8 +68,8 @@ func physics_update(delta: float) -> void:
 
 func check_transitions() -> State:
 	if Input.is_action_just_pressed("move_backward"):
-		if tween and tween.is_running():
-			tween.kill()
+		if is_climbing:
+			is_climbing = false
 			return state_machine.get_state("FallingState")
 	return null
 
@@ -76,25 +78,49 @@ func _can_stand_up() -> bool:
 	return will_crouch
 
 
-func climb():
+func start_climb():
 	var climb_height = climb_hight
 	var climb_forward = -player.global_transform.basis.z * (move_speed + player.current_distance)
-	var start_pos = player.global_position
-	var mid_pos = start_pos + Vector3(0, climb_height * 0.6, 0) + climb_forward * 0.2
-	var end_pos = start_pos + Vector3(0, climb_height, 0) + climb_forward
 	
-	tween = create_tween()
-	tween.tween_property(player, "global_position", mid_pos, v_speed_twin)\
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	start_pos = player.global_position
+	mid_pos = start_pos + Vector3(0, climb_height * 0.6, 0) + climb_forward * 0.2
+	end_pos = start_pos + Vector3(0, climb_height, 0) + climb_forward
+	
+	is_climbing = true
+	climb_timer = 0.0
+	climb_phase = 0
+
+
+func animate_climb(delta: float):
+	climb_timer += delta
+	
+	if climb_phase == 0:  # Vertical phase
+		var progress = min(climb_timer / v_speed_twin, 1.0)
+		# Ease out sine
+		var eased_progress = sin(progress * PI / 2.0)
 		
-	if will_crouch:
-		#player.CAMERA_CONTROLLER.set_crouching(true)
-		player.anim_player.play("Crouching", -1, 10.0)
+		player.global_position = start_pos.lerp(mid_pos, eased_progress)
+		
+		if progress >= 1.0:
+			climb_phase = 1
+			climb_timer = 0.0
+			
+			if will_crouch:
+				player.anim_player.play("Crouching", -1, 10.0)
 	
-	tween.tween_property(player, "global_position", end_pos, h_speed_twin)\
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	
-	await tween.finished
+	elif climb_phase == 1:  # Horizontal phase
+		var progress = min(climb_timer / h_speed_twin, 1.0)
+		# Ease in sine
+		var eased_progress = 1.0 - cos(progress * PI / 2.0)
+		
+		player.global_position = mid_pos.lerp(end_pos, eased_progress)
+		
+		if progress >= 1.0:
+			finish_climb()
+
+
+func finish_climb():
+	is_climbing = false
 	print("Climb animation done!")
 	
 	if previous == "CrouchWalkingState" or _can_stand_up():

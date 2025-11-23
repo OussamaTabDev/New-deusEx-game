@@ -56,6 +56,7 @@ func physics_update(delta: float) -> void:
 		player.velocity.x = move_toward(player.velocity.x, 0, player.SPEED)
 		player.velocity.z = move_toward(player.velocity.z, 0, player.SPEED)
 	
+	player._push_away_rigid_bodies()
 	player.move_and_slide()
 
 	if player.is_on_floor():

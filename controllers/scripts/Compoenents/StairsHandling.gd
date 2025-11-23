@@ -4,8 +4,8 @@ class_name StepHandlerComponent extends Node
 @export var player : Player
 @export var enabled: bool = true
 @export_category("Step Settings")
-@export var surface_threshold : float = 0.3
-@export var step_height :float = .8
+@export var surface_threshold : float = 1.0
+@export var step_height :float = .45
 
 const FEET_ADJUSTED_HEIGHT:float = 0.05
 const MIN_STEP_HEIGHT:float = 0.1
