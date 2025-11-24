@@ -18,6 +18,7 @@ class_name Player extends CharacterBody3D
 @export var r_cast : RayCast3D
 @export var step_handler : StepHandlerComponent
 @export var audio_component: PlayerAudioComponent
+@export var rigidbody_interaction_component: RigidBodyInteractionComponent
 
 @export_group("Audio")
 ## AudioStream that gets played when the player jumps.
@@ -127,11 +128,11 @@ func can_climb():
 	# 	current_distance = distance
 	# print("Hit point:", hit_point, " Player pos:", player_pos, " Distance:", distance)
 	if state_machine.current_state.name == "SurfaceSwimmingState":
-		return not head_Cast.is_colliding()  \
+		return not head_Cast.is_colliding()  and not is_graping()\
 		and hit_point2.y - global_transform.origin.y < 3.0 and hit_point2.y - global_transform.origin.y > 0.3 \
 		and (chest_Cast.is_colliding() or mid_chest_Cast.is_colliding() or (h_cast_up.is_colliding() and distance < 2.4 ) )
 	
-	return not head_Cast.is_colliding()  \
+	return not head_Cast.is_colliding()  and not is_graping() \
 	  and hit_point2.y - global_transform.origin.y < 3.0 and hit_point2.y - global_transform.origin.y > 1 \
 	  and (chest_Cast.is_colliding() or mid_chest_Cast.is_colliding() or (h_cast_up.is_colliding() and distance < 2.4 ) )
 
@@ -240,3 +241,11 @@ func _push_away_rigid_bodies():
 			# 5.0 is a magic number, adjust to your needs
 			var push_force = mass_ratio * 1.0
 			c.get_collider().apply_impulse(push_dir * velocity_diff_in_push_dir * push_force, c.get_position() - c.get_collider().global_position)
+
+func is_graping():
+	return rigidbody_interaction_component.is_holding
+
+func unhold_object():
+	if rigidbody_interaction_component.is_holding:
+			rigidbody_interaction_component.drop_object()
+	

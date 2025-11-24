@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dqo4o88r87cyo"]
+
+[ext_resource type="Script" uid="uid://cm5g8bbxt8mpi" path="res://addons/cogito/Components/FlaotingComponent.gd" id="1_w8irh"]
+
+[node name="FlaotingComponent" type="Node3D" node_paths=PackedStringArray("rigid_body")]
+script = ExtResource("1_w8irh")
+rigid_body = NodePath("")

@@ -32,6 +32,7 @@ var end_pos: Vector3
 
 
 func enter() -> void:
+	player.unhold_object()
 	h_speed_twin = time_to_move / player.SPEED
 	v_speed_twin = time_to_climb / player.SPEED
 	

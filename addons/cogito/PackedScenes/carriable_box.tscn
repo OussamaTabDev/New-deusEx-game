@@ -8,7 +8,7 @@
 [ext_resource type="ArrayMesh" uid="uid://ddx7ujdxpn7iv" path="res://materials/boxes/version1/box1x1.vox" id="5_wdsf7"]
 [ext_resource type="PackedScene" uid="uid://m82ivreg3ugd" path="res://addons/cogito/Components/ImpactSounds.tscn" id="6_51cxg"]
 [ext_resource type="AudioStream" uid="uid://cn4rtt8qbtiti" path="res://addons/cogito/Assets/Audio/Kenney/Impacts/impactPlank_medium_000.ogg" id="7_wdsf7"]
-[ext_resource type="Script" uid="uid://cm5g8bbxt8mpi" path="res://addons/cogito/Components/FlaotingComponent.gd" id="9_ysx8o"]
+[ext_resource type="PackedScene" uid="uid://dqo4o88r87cyo" path="res://materials/Componenents/Scenes/flaoting_component.tscn" id="9_ysx8o"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_2t7p8"]
 size = Vector3(0.9, 0.9, 0.9)
@@ -164,8 +164,7 @@ elemental_properties = 3
 [node name="ImpactSounds" parent="." instance=ExtResource("6_51cxg")]
 impact_sounds = SubResource("AudioStreamRandomizer_ysx8o")
 
-[node name="FlaotingComponent" type="Node3D" parent="." node_paths=PackedStringArray("rigid_body")]
-script = ExtResource("9_ysx8o")
+[node name="FlaotingComponent" parent="." node_paths=PackedStringArray("rigid_body") instance=ExtResource("9_ysx8o")]
 rigid_body = NodePath("..")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -7,6 +7,7 @@ func enter() -> void:
 func physics_update(delta: float) -> void:
 	# Smoothly transition speed
 	player.SPEED = lerp(player.SPEED, player.SPRINT_SPEED, 3.0 * delta)
+	player.unhold_object()
 	
 	# Apply gravity
 	if not player.is_on_floor():

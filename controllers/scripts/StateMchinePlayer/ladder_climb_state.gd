@@ -21,7 +21,7 @@ var _yaw_speed: float = 3.0
 @export var look_threshold: float = 0.0  # How much you need to look in a direction to move
 
 func enter() -> void:
-	print("entered climbState")
+	player.unhold_object()
 	player.can_wall_run_bool = false
 	player.SPEED = player.WALK_SPEED
 	player.velocity = Vector3.ZERO
@@ -74,7 +74,7 @@ func physics_update(delta: float) -> void:
 	if not current_ladder_shape or not current_ladder_shape.is_inside_tree():
 		state_machine.transition_to(state_machine.get_state("IdleState"))
 		return
-	
+	player.unhold_object()
 	if not player.is_on_floor():
 		_was_in_floor = false
 	

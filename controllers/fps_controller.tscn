@@ -358,7 +358,7 @@ stream_2/stream = ExtResource("27_ou6tx")
 stream_3/stream = ExtResource("28_stri7")
 stream_4/stream = ExtResource("29_adv5w")
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler", "audio_component") groups=["Player"]]
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component") groups=["Player"]]
 collision_layer = 2
 collision_mask = 15
 platform_on_leave = 2
@@ -379,6 +379,7 @@ h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
 r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
 step_handler = NodePath("Components/StepHandlerComponent")
 audio_component = NodePath("Components/AudioController")
+rigidbody_interaction_component = NodePath("Components/RigidBodyInteractionComponent")
 
 [node name="Components" type="Node3D" parent="."]
 
