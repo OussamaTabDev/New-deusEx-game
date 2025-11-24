@@ -166,8 +166,10 @@ func check_transitions() -> State:
 	
 	if current_ladder_shape:
 		if not player.on_ladder:
+			if player.is_in_water():
+				return state_machine.get_state("SwimmingState")
 			return state_machine.get_state("FallingState")
-	
+
 	# Jump off ladder
 	if Input.is_action_just_pressed("jump"):
 		# Jump in camera direction
@@ -194,6 +196,8 @@ func check_transitions() -> State:
 	
 	# Drop down with crouch
 	if Input.is_action_just_pressed("crouch"):
+		if player.is_in_water():
+			return state_machine.get_state("SwimmingState")
 		return state_machine.get_state("FallingState")
 	
 	return null

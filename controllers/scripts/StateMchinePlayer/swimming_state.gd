@@ -17,6 +17,9 @@ var water_surface_y: float = 0.0
 var entry_velocity: Vector3 = Vector3.ZERO  # Store velocity when entering water
 
 func enter() -> void:
+	if state_machine.previous_state.name == "SlidingState":
+		player.anim_player.play("Crouching", -1, -10, true)
+		pass
 	player.can_wall_run_bool = false
 	player.SPEED = swim_speed
 	oxygen = oxygen_max

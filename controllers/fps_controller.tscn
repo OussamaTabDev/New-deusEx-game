@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=52 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://iwlpamd20oko" path="res://addons/customizableCrosshair/crosshair/crosshair.tscn" id="4_5w0k0"]
 [ext_resource type="Script" uid="uid://bdhoyf88f6a32" path="res://controllers/scripts/StateMchinePlayer/state_machine.gd" id="4_l8yvu"]
 [ext_resource type="PackedScene" uid="uid://cbd2ojah4nun6" path="res://addons/cogito/Components/interaction_raycast.tscn" id="4_rcx31"]
+[ext_resource type="Script" uid="uid://bodha8k2bc1ht" path="res://controllers/scripts/Compoenents/rigid_body_interaction_component.gd" id="4_stri7"]
 [ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
 [ext_resource type="Script" uid="uid://ua63m2y35w46" path="res://addons/cogito/Scripts/item_drop_shape_cast.gd" id="5_rcx31"]
 [ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
@@ -393,6 +394,13 @@ footstep_surface_detector = NodePath("../../FootstepPlayer")
 jump_audio_player = NodePath("../../FootstepPlayer")
 landing_audio_player = NodePath("../../FootstepPlayer")
 
+[node name="RigidBodyInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("interaction_raycast", "hold_position")]
+script = ExtResource("4_stri7")
+interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
+hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
+throw_force = 20.0
+throw_action = "fire"
+
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "CAMERA_CONTROLLER", "camera_offset", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
@@ -401,6 +409,7 @@ audio_component = NodePath("../Components/AudioController")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
 camera_offset = NodePath("CameraBase/CameraOffset")
 enable_idle_shake = false
+MOUSE_SENSITIVITY = 0.1
 CONTROLLER_SENSITIVITY = 2.5
 LEAN_AMOUNT = 0.8
 lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
@@ -414,6 +423,7 @@ ladder_climbing_states = Array[String](["ClimbLadderState", "LadderClimbState"])
 [node name="Camera3D" type="Camera3D" parent="CameraController/CameraBase/CameraOffset"]
 
 [node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D" instance=ExtResource("4_rcx31")]
+collision_mask = 10
 
 [node name="CarryablePosition" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 unique_name_in_owner = true
