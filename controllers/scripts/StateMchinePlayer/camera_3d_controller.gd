@@ -30,7 +30,7 @@ extends Node3D
 @export var enable_screen_shake: bool = true
 @export var enable_step_smoothing: bool = true
 @export var enable_ladder_mode: bool = true
-
+@export var static_camera_mode: bool = false  
 # ============================================================
 # INPUT SETTINGS
 # ============================================================
@@ -231,6 +231,14 @@ func _update_camera(delta: float):
     if not player or not CAMERA_CONTROLLER or not camera_offset:
         return
     
+     # === STATIC MODE OVERRIDE ===
+    if static_camera_mode:
+        # Reset all dynamic offsets to zero to freeze the camera
+        # CAMERA_CONTROLLER.transform.origin = Vector3.ZERO
+        # CAMERA_CONTROLLER.rotation = Vector3.ZERO
+        # Optionally keep FOV unchanged or reset it too
+        return
+
     var is_climbing = _is_climbing()
     var state_name = player.state_machine.get_current_state_name() if player.state_machine else ""
     

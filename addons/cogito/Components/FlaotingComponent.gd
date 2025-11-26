@@ -9,7 +9,7 @@ extends Node3D
 		if rigid_body:
 			_original_mass = rigid_body.mass
 
-@export var floating_force: float = 10.0  # Scales buoyant force (tune for object weight)
+@export var floating_force: float = 15.0   # Scales buoyant force (tune for object weight)
 @export var water_drag: float = 0.05
 @export var water_angular_drag: float = 0.05
 

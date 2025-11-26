@@ -43,7 +43,9 @@ func check_transitions() -> State:
 		return state_machine.get_state("JumpingState")
 
 	
-	
+	if player.is_in_water():
+		return state_machine.get_state("SprintSwimmingState")
+
 	# Check for slide (crouch while sprinting)
 	if Input.is_action_just_pressed("crouch"):
 		return state_machine.get_state("SlidingState")

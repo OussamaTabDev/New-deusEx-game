@@ -34,6 +34,9 @@ func physics_update(delta: float) -> void:
 
 func check_transitions() -> State:
 	# Check for falling
+	if player.is_in_water():
+		return state_machine.get_state("SwimmingState")
+		
 	if not player.is_on_floor():
 		return state_machine.get_state("FallingState")
 	

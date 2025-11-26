@@ -16,7 +16,7 @@ signal object_thrown(object: RigidBody3D, velocity: Vector3)
 @export_group("Settings")
 @export var max_grab_distance: float = 3.0
 @export var max_pickup_mass: float = 50.0
-@export var throw_force: float = 10.0
+@export var throw_force: float = 50.0
 ## If the object gets stuck behind a wall and you move this far away, it drops.
 @export var break_distance: float = 2.0 
 @export var grab_action: String = "interact"
@@ -71,7 +71,8 @@ func _physics_process(delta: float) -> void:
 		if is_holding:
 			drop_object()
 		else:
-			attempt_grab()
+			if player.state_machine.current_state.name != "SprintingState":
+				attempt_grab()
 	
 	if Input.is_action_just_pressed(throw_action) and is_holding:
 		throw_object()
@@ -111,10 +112,13 @@ func grab_object(rb: RigidBody3D) -> void:
 	held_object.linear_damp = 1.0 # Adds stability
 	held_object.angular_damp = 1.0
 	
-	# 3. Calculate Center Offset (Fixes "not centered" issue)
-	# We find the center of the AABB relative to the pivot
-	var aabb = _get_object_aabb(held_object)
-	hold_offset_center = -aabb.get_center() 
+	# 3. Calculate Center Offset (FIXED FOR BARRELS AND OTHER ASYMMETRICAL OBJECTS)
+	var aabb = held_object.get_aabb()
+	if aabb.size == Vector3.ZERO:
+		hold_offset_center = Vector3.ZERO
+	else:
+		var center_local = aabb.position + aabb.size / 2.0
+		hold_offset_center = -center_local
 	
 	# 4. Prevent Player Collision (Fixes "Flying/Prop Surfing")
 	if player:
@@ -209,35 +213,3 @@ func _apply_hold_forces(delta: float) -> void:
 	
 	# Apply angular velocity
 	held_object.angular_velocity = axis * angle * rotation_power
-
-func _get_object_aabb(object: RigidBody3D) -> AABB:
-	var combined_aabb = AABB()
-	var first = true
-	
-	# Loop through children to find Visuals or Shapes to determine size
-	for child in object.get_children():
-		var sub_aabb: AABB
-		var has_aabb = false
-		
-		if child is VisualInstance3D:
-			sub_aabb = child.get_aabb()
-			has_aabb = true
-		elif child is CollisionShape3D and child.shape:
-			sub_aabb = child.shape.get_debug_mesh().get_aabb()
-			has_aabb = true
-			
-		if has_aabb:
-			# Adjust AABB position by child's local transform
-			sub_aabb.position += child.position
-			
-			if first:
-				combined_aabb = sub_aabb
-				first = false
-			else:
-				combined_aabb = combined_aabb.merge(sub_aabb)
-	
-	# Fallback if object has no shapes/meshes
-	if first:
-		return AABB(Vector3(-0.5,-0.5,-0.5), Vector3(1,1,1))
-		
-	return combined_aabb

@@ -63,7 +63,10 @@ func check_transitions() -> State:
 		if player.can_climb():
 			return state_machine.get_state("CLimbState")
 			
-
+	# Inside FallingState.gd
+	if player.is_on_wall() and Input.is_action_pressed("move_forward"):
+	# Optional: Check if the player is high enough off the ground
+		return state_machine.get_state("WallRunningState")
 	return null
 
 func can_wall_run() -> bool:

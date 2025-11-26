@@ -19,6 +19,7 @@ class_name Player extends CharacterBody3D
 @export var step_handler : StepHandlerComponent
 @export var audio_component: PlayerAudioComponent
 @export var rigidbody_interaction_component: RigidBodyInteractionComponent
+@export var  inventory_handler: InventoryHandlerComponenent
 
 @export_group("Audio")
 ## AudioStream that gets played when the player jumps.
@@ -239,7 +240,7 @@ func _push_away_rigid_bodies():
 			# Don't push object from above/below
 			push_dir.y = 0
 			# 5.0 is a magic number, adjust to your needs
-			var push_force = mass_ratio * 1.0
+			var push_force = mass_ratio * 3.0
 			c.get_collider().apply_impulse(push_dir * velocity_diff_in_push_dir * push_force, c.get_position() - c.get_collider().global_position)
 
 func is_graping():

@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=58 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -10,8 +10,10 @@
 [ext_resource type="PackedScene" uid="uid://cbd2ojah4nun6" path="res://addons/cogito/Components/interaction_raycast.tscn" id="4_rcx31"]
 [ext_resource type="Script" uid="uid://bodha8k2bc1ht" path="res://controllers/scripts/Compoenents/rigid_body_interaction_component.gd" id="4_stri7"]
 [ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
+[ext_resource type="Script" uid="uid://bfb43ifks0aqc" path="res://controllers/scripts/Compoenents/inventory_component.gd" id="5_12ia1"]
 [ext_resource type="Script" uid="uid://ua63m2y35w46" path="res://addons/cogito/Scripts/item_drop_shape_cast.gd" id="5_rcx31"]
 [ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
+[ext_resource type="Script" uid="uid://c5g8japvwt4hb" path="res://controllers/scripts/Compoenents/inventory_handling_component.gd" id="6_uefoi"]
 [ext_resource type="Script" uid="uid://bkbq0qu5e2cnw" path="res://controllers/scripts/StateMchinePlayer/running_state.gd" id="7_fyafc"]
 [ext_resource type="Script" uid="uid://bhr4wvq73b3ov" path="res://controllers/scripts/StateMchinePlayer/jumping_state.gd" id="8_tg6sc"]
 [ext_resource type="Script" uid="uid://cxxvkcg48u2d" path="res://controllers/scripts/StateMchinePlayer/falling_state.gd" id="9_yvtcv"]
@@ -28,6 +30,7 @@
 [ext_resource type="Script" uid="uid://bn3kmp5jtydid" path="res://controllers/scripts/StateMchinePlayer/surface_swimming_state.gd" id="19_rcx31"]
 [ext_resource type="PackedScene" uid="uid://dy3tudla5p2nc" path="res://addons/cogito/Components/PlayerInteractionComponent.tscn" id="25_bjwns"]
 [ext_resource type="AudioStream" uid="uid://up2hfhgq1qx6" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep00.ogg" id="25_qmwy2"]
+[ext_resource type="Script" uid="uid://bp6772kuop4lm" path="res://controllers/scripts/StateMchinePlayer/static_state.gd" id="25_uefoi"]
 [ext_resource type="AudioStream" uid="uid://crj07wq4oocwi" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep01.ogg" id="26_bjwns"]
 [ext_resource type="AudioStream" uid="uid://dewyukd562k37" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep02.ogg" id="27_ou6tx"]
 [ext_resource type="AudioStream" uid="uid://c5kfw4o57foju" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep03.ogg" id="28_stri7"]
@@ -35,6 +38,7 @@
 [ext_resource type="Script" uid="uid://b1qja1tbw5e1j" path="res://addons/cogito/DynamicFootstepSystem/Scripts/footstep_surface_detector.gd" id="30_x2s2x"]
 [ext_resource type="AudioStream" uid="uid://dc03jiw2a6y3j" path="res://addons/cogito/DynamicFootstepSystem/FootstepProfiles/generic_footstep_profile.tres" id="31_12ia1"]
 [ext_resource type="Resource" uid="uid://ca0q2t6w08ubh" path="res://addons/cogito/DynamicFootstepSystem/FootstepMaterialLibrary/sample_footstep_material_library.tres" id="32_uefoi"]
+[ext_resource type="Script" uid="uid://bo1fqanmhpe82" path="res://controllers/scripts/InventorySystem/inventory_ui.gd" id="38_ssunb"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
 size = Vector3(0.1, 0.1, 0.1)
@@ -91,6 +95,81 @@ tracks/3/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Vector3(0, 0, 0), Vector3(0, -0.5, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Raycasters/HeadCast:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 3.089416, 0), Vector3(0, 2.5, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_12ia1"]
+resource_name = "Pronning"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CollisionShape3D:shape:height")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.99),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.5, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.99),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0.75, 0), Vector3(0, 0.5, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = false
+tracks/2/path = NodePath("CameraController:position")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.99),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1, 0), Vector3(0, 1, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("CameraController/CameraBase/CameraOffset:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.99),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, -0.5, 0), Vector3(0, -0.75, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Raycasters/HeadCast:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 2.5, 0)]
 }
 
 [sub_resource type="Animation" id="Animation_5w0k0"]
@@ -319,9 +398,13 @@ tracks/7/keys = {
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_5w0k0"]
 _data = {
 &"Crouching": SubResource("Animation_l8yvu"),
+&"Pronning": SubResource("Animation_12ia1"),
 &"RESET": SubResource("Animation_5w0k0"),
 &"Sliding": SubResource("Animation_3og01")
 }
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_12ia1"]
+size = Vector3(1, 0.25, 1)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_l8yvu"]
 radius = 0.4
@@ -358,9 +441,9 @@ stream_2/stream = ExtResource("27_ou6tx")
 stream_3/stream = ExtResource("28_stri7")
 stream_4/stream = ExtResource("29_adv5w")
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component") groups=["Player"]]
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler") groups=["Player"]]
 collision_layer = 2
-collision_mask = 15
+collision_mask = 271
 platform_on_leave = 2
 script = ExtResource("1_pgc1p")
 WALK_SPEED = 4.0
@@ -380,6 +463,7 @@ r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
 step_handler = NodePath("Components/StepHandlerComponent")
 audio_component = NodePath("Components/AudioController")
 rigidbody_interaction_component = NodePath("Components/RigidBodyInteractionComponent")
+inventory_handler = NodePath("Components/InventoryHandlingComponent")
 
 [node name="Components" type="Node3D" parent="."]
 
@@ -399,8 +483,17 @@ landing_audio_player = NodePath("../../FootstepPlayer")
 script = ExtResource("4_stri7")
 interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
 hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
-throw_force = 20.0
 throw_action = "fire"
+
+[node name="InventoryComponent" type="Node" parent="Components"]
+script = ExtResource("5_12ia1")
+
+[node name="InventoryHandlingComponent" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "inventory_ui", "camera_controller", "state_machine")]
+script = ExtResource("6_uefoi")
+inventory_component = NodePath("../InventoryComponent")
+inventory_ui = NodePath("../../Control/InventoryUI")
+camera_controller = NodePath("../../CameraController")
+state_machine = NodePath("../../StateMachine")
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "CAMERA_CONTROLLER", "camera_offset", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
@@ -508,10 +601,11 @@ crouchState = NodePath("../CrouchWalkingState")
 standState = NodePath("../IdleState")
 collision = NodePath("../../CollisionShape3D")
 
-[node name="CrouchWalkingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast")]
+[node name="CrouchWalkingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast", "proneCast")]
 script = ExtResource("11_fdopr")
 walk_crouch_speed = 2.0
 headCast = NodePath("../../Raycasters/HeadCast")
+proneCast = NodePath("../../Raycasters/ProneCast")
 
 [node name="DashState" type="Node" parent="StateMachine"]
 script = ExtResource("12_5b0ob")
@@ -526,7 +620,6 @@ crouch_speed = 4.0
 
 [node name="WallRunState" type="Node" parent="StateMachine"]
 script = ExtResource("14_fyafc")
-WALL_RUN_SPEED = 5.0
 
 [node name="LadderClimbState" type="Node" parent="StateMachine"]
 script = ExtResource("16_h7h5r")
@@ -540,8 +633,15 @@ script = ExtResource("18_bygp4")
 [node name="SurfaceSwimmingState" type="Node" parent="StateMachine"]
 script = ExtResource("19_rcx31")
 
+[node name="StaticState" type="Node" parent="StateMachine"]
+script = ExtResource("25_uefoi")
+
 [node name="Raycasters" type="Node3D" parent="."]
-visible = false
+
+[node name="ProneCast" type="ShapeCast3D" parent="Raycasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1397371, 0)
+shape = SubResource("BoxShape3D_12ia1")
+debug_shape_custom_color = Color(0.9763817, 0.49272287, 0, 1)
 
 [node name="HeadCast" type="ShapeCast3D" parent="Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
@@ -635,6 +735,234 @@ crosshairDot = true
 breathingEnabled = false
 currentPreset = 1
 
+[node name="InventoryUI" type="Control" parent="Control" node_paths=PackedStringArray("inventory_component")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("38_ssunb")
+inventory_component = NodePath("../../Components/InventoryComponent")
+
+[node name="Background" type="ColorRect" parent="Control/InventoryUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.31260636, 0.21576644, 0.022595169, 0.14509805)
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/InventoryUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/InventoryUI/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="PlayerPanel" type="PanelContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer/PlayerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="Label" parent="Control/InventoryUI/MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Inventory"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WeightLabel" type="Label" parent="Control/InventoryUI/MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Weight: 0.0 / 100.0"
+horizontal_alignment = 1
+
+[node name="PlayerGrid" type="Control" parent="Control/InventoryUI/MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer"]
+custom_minimum_size = Vector2(512, 500)
+layout_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="AutoOrganizeButton" type="Button" parent="Control/InventoryUI/MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer/Actions"]
+layout_mode = 2
+text = "Auto Organize"
+
+[node name="CloseButton" type="Button" parent="Control/InventoryUI/MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer/Actions"]
+layout_mode = 2
+text = "Close [ESC]"
+
+[node name="EquipmentPanel" type="PanelContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Header" type="Label" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+layout_mode = 2
+text = "Equipment"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="head" type="Panel" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Head Slot"
+
+[node name="body" type="Panel" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Body Slot"
+
+[node name="hands" type="Panel" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Hands Slot"
+
+[node name="HSplitContainer" type="HSplitContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="primary_weapon" type="Panel" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Primary Weapon"
+
+[node name="secondary_weapon" type="Panel" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Secondary Weapon"
+
+[node name="melee" type="Panel" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Melee Weapon"
+
+[node name="HSplitContainer2" type="HSplitContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="belt_1" type="Panel" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Belt Slot 1"
+
+[node name="belt_2" type="Panel" parent="Control/InventoryUI/MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Belt Slot 2"
+
+[node name="ContainerPanel" type="PanelContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer/ContainerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Header" type="Label" parent="Control/InventoryUI/MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer"]
+layout_mode = 2
+text = "Container"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContainerGrid" type="Control" parent="Control/InventoryUI/MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="Control/InventoryUI/MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="LootAllButton" type="Button" parent="Control/InventoryUI/MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer/Actions"]
+layout_mode = 2
+text = "Take All"
+
+[node name="CloseContainerButton" type="Button" parent="Control/InventoryUI/MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer/Actions"]
+layout_mode = 2
+text = "Close Containe"
+
+[node name="BottomPanel" type="MarginContainer" parent="Control/InventoryUI"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="PanelContainer" type="PanelContainer" parent="Control/InventoryUI/BottomPanel"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/InventoryUI/BottomPanel/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="Control/InventoryUI/BottomPanel/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Hotbar [1-8]"
+horizontal_alignment = 1
+
+[node name="Hotbar" type="HBoxContainer" parent="Control/InventoryUI/BottomPanel/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="Tooltip" type="PanelContainer" parent="Control/InventoryUI"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/InventoryUI/Tooltip"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/InventoryUI/Tooltip/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="ItemName" type="Label" parent="Control/InventoryUI/Tooltip/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+
+[node name="ItemDescription" type="Label" parent="Control/InventoryUI/Tooltip/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="ItemStats" type="Label" parent="Control/InventoryUI/Tooltip/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="ContextMenu" type="PopupMenu" parent="Control/InventoryUI"]
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_u6tj1")
@@ -645,11 +973,13 @@ mesh = SubResource("CapsuleMesh_6tv51")
 
 [node name="PlayerInteractionComponent" parent="." node_paths=PackedStringArray("interaction_raycast", "carryable_position") instance=ExtResource("25_bjwns")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
+visible = false
 interaction_raycast = NodePath("../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
 carryable_position = NodePath("../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
 
 [node name="FootstepPlayer" type="AudioStreamPlayer3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0005284846, 0)
+visible = false
 stream = SubResource("AudioStreamRandomizer_ssunb")
 volume_db = -38.0
 max_polyphony = 8

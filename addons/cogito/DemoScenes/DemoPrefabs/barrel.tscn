@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=4 uid="uid://co1opmwyvl27"]
+[gd_scene load_steps=20 format=4 uid="uid://co1opmwyvl27"]
 
 [ext_resource type="Script" uid="uid://dmeh01c5ccjqc" path="res://addons/cogito/CogitoObjects/cogito_object.gd" id="1_p1u1m"]
 [ext_resource type="PackedScene" uid="uid://k28yrbg3k3pw" path="res://addons/cogito/Components/HitboxComponent.tscn" id="2_lxpj6"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://cj0yaeh3yg7tu" path="res://addons/cogito/Components/Properties/CogitoProperties.tscn" id="8_x2mti"]
 [ext_resource type="PackedScene" uid="uid://m82ivreg3ugd" path="res://addons/cogito/Components/ImpactSounds.tscn" id="11_q2obl"]
 [ext_resource type="AudioStream" uid="uid://ct431lxvh2cyy" path="res://addons/cogito/Assets/Audio/Kenney/Impacts/impactSoft_heavy_000.ogg" id="12_lny03"]
+[ext_resource type="PackedScene" uid="uid://dqo4o88r87cyo" path="res://materials/Componenents/Scenes/flaoting_component.tscn" id="13_lny03"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i1tv7"]
 resource_name = "cloth"
@@ -88,20 +89,27 @@ streams_count = 1
 stream_0/stream = ExtResource("12_lny03")
 
 [node name="barrel" type="RigidBody3D"]
-collision_layer = 3
-mass = 10.0
+collision_layer = 8
+collision_mask = 777
+mass = 20.0
 continuous_cd = true
 contact_monitor = true
 max_contacts_reported = 10
 script = ExtResource("1_p1u1m")
 cogito_name = ""
 
+[node name="CarryableComponent" parent="." instance=ExtResource("5_vqdq1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05015427, 0)
+pick_up_sound = ExtResource("6_wc6qr")
+drop_sound = ExtResource("7_efwiw")
+
 [node name="barrel" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.43, 0, 0, 0, 0.43, 0, 0, 0, 0.43, 0, -0.5, 0)
+transform = Transform3D(0.505, 0, 0, 0, 0.505, 0, 0, 0, 0.505, 0, -0.5, 0)
 mesh = SubResource("ArrayMesh_2cvk5")
 skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0.12201643, 0)
 shape = SubResource("CylinderShape3D_d5f8h")
 
 [node name="HitboxComponent" parent="." node_paths=PackedStringArray("health_attribute") instance=ExtResource("2_lxpj6")]
@@ -114,17 +122,15 @@ spawn_on_death = Array[PackedScene]([ExtResource("4_y2b0x"), ExtResource("5_w4sy
 value_max = 3.0
 value_start = 3.0
 
-[node name="CarryableComponent" parent="." instance=ExtResource("5_vqdq1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-pick_up_sound = ExtResource("6_wc6qr")
-drop_sound = ExtResource("7_efwiw")
-
 [node name="CogitoProperties" parent="." instance=ExtResource("8_x2mti")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.512641, 0)
 elemental_properties = 2
 
 [node name="ImpactSounds" parent="." instance=ExtResource("11_q2obl")]
 impact_sounds = SubResource("AudioStreamRandomizer_lpphm")
+
+[node name="FlaotingComponent" parent="." node_paths=PackedStringArray("rigid_body") instance=ExtResource("13_lny03")]
+rigid_body = NodePath("..")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

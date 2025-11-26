@@ -42,7 +42,7 @@ stream_4/stream = ExtResource("7_wdsf7")
 [node name="CarriableBox" type="RigidBody3D"]
 collision_layer = 8
 collision_mask = 777
-mass = 4.0
+mass = 10.0
 contact_monitor = true
 max_contacts_reported = 10
 script = ExtResource("1_2lkyl")
@@ -155,11 +155,13 @@ surface_material_override/0 = SubResource("StandardMaterial3D_nwuli")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025390625, 0)
+visible = false
 shape = SubResource("BoxShape3D_mtcvq")
 
 [node name="CogitoProperties" parent="." instance=ExtResource("5_vvdy3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.355716, 0)
 elemental_properties = 3
+electric_on_ready = true
 
 [node name="ImpactSounds" parent="." instance=ExtResource("6_51cxg")]
 impact_sounds = SubResource("AudioStreamRandomizer_ysx8o")

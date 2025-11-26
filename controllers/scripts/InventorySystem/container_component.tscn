@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bk1fqqvi85i18"]
+
+[ext_resource type="Script" uid="uid://cpa26bpshdsfa" path="res://controllers/scripts/InventorySystem/container_component.gd" id="1_gjct4"]
+
+[node name="ContainerComponent" type="Node3D"]
+script = ExtResource("1_gjct4")
+grid_columns = 3
+grid_rows = 2
