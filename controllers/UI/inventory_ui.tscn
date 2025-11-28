@@ -1,0 +1,232 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxsf0qmy824bd"]
+
+[ext_resource type="Script" uid="uid://bo1fqanmhpe82" path="res://controllers/scripts/InventorySystem/inventory_ui.gd" id="1_ibnhq"]
+
+[node name="InventoryUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ibnhq")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.3137255, 0.21568628, 0.023529412, 0.5254902)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 200
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="PlayerPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(600, 700)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/PlayerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="Label" parent="MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Inventory"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WeightLabel" type="Label" parent="MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Weight: 0.0 / 100.0"
+horizontal_alignment = 1
+
+[node name="PlayerGrid" type="Control" parent="MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer"]
+custom_minimum_size = Vector2(512, 640)
+layout_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="AutoOrganizeButton" type="Button" parent="MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer/Actions"]
+layout_mode = 2
+text = "Auto Organize"
+
+[node name="CloseButton" type="Button" parent="MarginContainer/HBoxContainer/PlayerPanel/VBoxContainer/Actions"]
+layout_mode = 2
+text = "Close [ESC]"
+
+[node name="EquipmentPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/EquipmentPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Header" type="Label" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+layout_mode = 2
+text = "Equipment"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="head" type="Panel" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Head Slot"
+
+[node name="body" type="Panel" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Body Slot"
+
+[node name="hands" type="Panel" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Hands Slot"
+
+[node name="HSplitContainer" type="HSplitContainer" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="primary_weapon" type="Panel" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Primary Weapon"
+
+[node name="secondary_weapon" type="Panel" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Secondary Weapon"
+
+[node name="melee" type="Panel" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Melee Weapon"
+
+[node name="HSplitContainer2" type="HSplitContainer" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="belt_1" type="Panel" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Belt Slot 1"
+
+[node name="belt_2" type="Panel" parent="MarginContainer/HBoxContainer/EquipmentPanel/VBoxContainer"]
+custom_minimum_size = Vector2(64, 62)
+layout_mode = 2
+tooltip_text = "Belt Slot 2"
+
+[node name="ContainerPanel" type="PanelContainer" parent="MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/ContainerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Header" type="Label" parent="MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer"]
+layout_mode = 2
+text = "Container"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContainerGrid" type="Control" parent="MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="LootAllButton" type="Button" parent="MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer/Actions"]
+layout_mode = 2
+text = "Take All"
+
+[node name="CloseContainerButton" type="Button" parent="MarginContainer/HBoxContainer/ContainerPanel/VBoxContainer/Actions"]
+layout_mode = 2
+text = "Close Containe"
+
+[node name="BottomPanel" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 450
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 450
+theme_override_constants/margin_bottom = 30
+
+[node name="PanelContainer" type="PanelContainer" parent="BottomPanel"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BottomPanel/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="BottomPanel/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Hotbar [1-8]"
+horizontal_alignment = 1
+
+[node name="Hotbar" type="HBoxContainer" parent="BottomPanel/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="Tooltip" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Tooltip"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Tooltip/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="ItemName" type="Label" parent="Tooltip/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+
+[node name="ItemDescription" type="Label" parent="Tooltip/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+
+[node name="ItemStats" type="Label" parent="Tooltip/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="ContextMenu" type="PopupMenu" parent="."]

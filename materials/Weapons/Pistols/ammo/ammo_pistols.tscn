@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://jaxyv821npli"]
+
+[ext_resource type="Texture2D" uid="uid://b12bl7rm3d5ec" path="res://materials/Weapons/Pistols/ammo/ammo_pistols.png" id="1_047tk"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lbso2"]
+albedo_texture = ExtResource("1_047tk")
+
+[sub_resource type="BoxMesh" id="BoxMesh_jrhah"]
+material = SubResource("StandardMaterial3D_lbso2")
+size = Vector3(0.25, 0.15, 0.15)
+
+[node name="AmmoPistol" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_jrhah")

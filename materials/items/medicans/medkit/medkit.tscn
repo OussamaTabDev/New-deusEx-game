@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://bq5n1u2nn5bka"]
+
+[ext_resource type="Texture2D" uid="uid://cli6p25rja2wd" path="res://materials/items/medicans/medkit/Medkit.png" id="1_3qvqd"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uxo6f"]
+albedo_texture = ExtResource("1_3qvqd")
+metallic = 0.2
+roughness = 0.73
+
+[sub_resource type="BoxMesh" id="BoxMesh_863pi"]
+material = SubResource("StandardMaterial3D_uxo6f")
+size = Vector3(0.8, 0.6, 0.3)
+
+[node name="Medkit" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_863pi")

@@ -108,8 +108,14 @@ func create_item(item_id: String, count: int = 1) -> InventoryItem:
 	
 	var template = items[item_id]
 	var item = template.duplicate()
-	item.stack_count = count
-	
+	if count < item.max_stack:
+		item.stack_count = count
+	else:
+
+		item.stack_count = item.max_stack
+		count = count - item.max_stack
+		var still_item = create_item(item_id , count)
+		
 	return item
 
 ## Get item template (don't modify!)
@@ -134,98 +140,98 @@ func get_items_by_type(type: String) -> Array[InventoryItem]:
 	
 	return result
 
-## Create example items JSON (for setup)
-static func create_example_items_json() -> String:
-	var examples = [
-		{
-			"id": "pistol_9mm",
-			"display_name": "9mm Pistol",
-			"description": "A reliable sidearm.",
-			"icon_path": "res://icons/pistol.png",
-			"width": 2,
-			"height": 1,
-			"stackable": false,
-			"weight": 1.5,
-			"type": "weapon",
-			"equip_slot": "secondary_weapon",
-			"attributes": {
-				"ammo_type": "9mm",
-				"damage": 15,
-				"mag_size": 12,
-				"fire_rate": 0.2
-			}
-		},
-		{
-			"id": "ammo_9mm",
-			"display_name": "9mm Rounds",
-			"description": "Standard 9mm ammunition.",
-			"icon_path": "res://icons/9mm.png",
-			"width": 1,
-			"height": 1,
-			"stackable": true,
-			"max_stack": 50,
-			"weight": 0.02,
-			"type": "ammo",
-			"attributes": {
-				"ammo_type": "9mm"
-			}
-		},
-		{
-			"id": "medkit",
-			"display_name": "Medical Kit",
-			"description": "Restores 50 health.",
-			"icon_path": "res://icons/medkit.png",
-			"width": 1,
-			"height": 1,
-			"stackable": true,
-			"max_stack": 5,
-			"weight": 0.5,
-			"type": "consumable",
-			"attributes": {
-				"heal_amount": 50
-			}
-		},
-		{
-			"id": "energy_bar",
-			"display_name": "Energy Bar",
-			"description": "Restores 25 stamina.",
-			"icon_path": "res://icons/energy_bar.png",
-			"width": 1,
-			"height": 1,
-			"stackable": true,
-			"max_stack": 10,
-			"weight": 0.1,
-			"type": "consumable",
-			"attributes": {
-				"stamina_amount": 25
-			}
-		},
-		{
-			"id": "keycard_red",
-			"display_name": "Red Keycard",
-			"description": "Opens red doors.",
-			"icon_path": "res://icons/keycard_red.png",
-			"width": 1,
-			"height": 1,
-			"stackable": false,
-			"weight": 0.1,
-			"type": "key"
-		},
-		{
-			"id": "armor_vest",
-			"display_name": "Ballistic Vest",
-			"description": "Reduces damage by 30%.",
-			"icon_path": "res://icons/vest.png",
-			"width": 2,
-			"height": 2,
-			"stackable": false,
-			"weight": 3.0,
-			"type": "armor",
-			"equip_slot": "body",
-			"attributes": {
-				"armor_value": 30
-			}
-		}
-	]
+# ## Create example items JSON (for setup)
+# static func create_example_items_json() -> String:
+# 	var examples = [
+# 		{
+# 			"id": "pistol_9mm",
+# 			"display_name": "9mm Pistol",
+# 			"description": "A reliable sidearm.",
+# 			"icon_path": "res://icons/pistol.png",
+# 			"width": 2,
+# 			"height": 1,
+# 			"stackable": false,
+# 			"weight": 1.5,
+# 			"type": "weapon",
+# 			"equip_slot": "secondary_weapon",
+# 			"attributes": {
+# 				"ammo_type": "9mm",
+# 				"damage": 15,
+# 				"mag_size": 12,
+# 				"fire_rate": 0.2
+# 			}
+# 		},
+# 		{
+# 			"id": "ammo_9mm",
+# 			"display_name": "9mm Rounds",
+# 			"description": "Standard 9mm ammunition.",
+# 			"icon_path": "res://icons/9mm.png",
+# 			"width": 1,
+# 			"height": 1,
+# 			"stackable": true,
+# 			"max_stack": 50,
+# 			"weight": 0.02,
+# 			"type": "ammo",
+# 			"attributes": {
+# 				"ammo_type": "9mm"
+# 			}
+# 		},
+# 		{
+# 			"id": "medkit",
+# 			"display_name": "Medical Kit",
+# 			"description": "Restores 50 health.",
+# 			"icon_path": "res://icons/medkit.png",
+# 			"width": 1,
+# 			"height": 1,
+# 			"stackable": true,
+# 			"max_stack": 5,
+# 			"weight": 0.5,
+# 			"type": "consumable",
+# 			"attributes": {
+# 				"heal_amount": 50
+# 			}
+# 		},
+# 		{
+# 			"id": "energy_bar",
+# 			"display_name": "Energy Bar",
+# 			"description": "Restores 25 stamina.",
+# 			"icon_path": "res://icons/energy_bar.png",
+# 			"width": 1,
+# 			"height": 1,
+# 			"stackable": true,
+# 			"max_stack": 10,
+# 			"weight": 0.1,
+# 			"type": "consumable",
+# 			"attributes": {
+# 				"stamina_amount": 25
+# 			}
+# 		},
+# 		{
+# 			"id": "keycard_red",
+# 			"display_name": "Red Keycard",
+# 			"description": "Opens red doors.",
+# 			"icon_path": "res://icons/keycard_red.png",
+# 			"width": 1,
+# 			"height": 1,
+# 			"stackable": false,
+# 			"weight": 0.1,
+# 			"type": "key"
+# 		},
+# 		{
+# 			"id": "armor_vest",
+# 			"display_name": "Ballistic Vest",
+# 			"description": "Reduces damage by 30%.",
+# 			"icon_path": "res://icons/vest.png",
+# 			"width": 2,
+# 			"height": 2,
+# 			"stackable": false,
+# 			"weight": 3.0,
+# 			"type": "armor",
+# 			"equip_slot": "body",
+# 			"attributes": {
+# 				"armor_value": 30
+# 			}
+# 		}
+# 	]
 	
-	return JSON.stringify(examples, "\t")
+# 	return JSON.stringify(examples, "\t")

@@ -4,7 +4,7 @@ extends Control
 # References
 @export var player: CharacterBody3D
 @export var state_machine: StateMachine
-
+@export var enable_debug: bool = false
 # UI Elements
 var left_panel: PanelContainer
 var left_label: RichTextLabel
@@ -50,6 +50,8 @@ var panel_names = {
 }
 
 func _ready():
+	if not  enable_debug:
+		return 
 	_create_left_panel()
 	_create_right_panel()
 	
@@ -191,7 +193,7 @@ func _create_right_panel():
 
 func _input(event):
 	# Toggle debug UI with F3
-	if event.is_action_pressed("ui_text_completion_replace"):
+	if event.is_action_pressed("ui_text_completion_replace") and enable_debug:
 		is_visible = !is_visible
 		left_panel.visible = is_visible
 		right_panel.visible = is_visible

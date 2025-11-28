@@ -1,0 +1,57 @@
+[
+  {
+    "id": "item_1764169325431",
+    "display_name": "PistolCop",
+    "description": "Handy PistolCop",
+    "icon_path": "res://materials/Weapons/Pistols/pistolCop/pistol_cop.png",
+    "scene_path": "res://materials/Weapons/Pistols/pistolCop/pistol_cop.tscn",
+    "width": 3,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 5.5,
+    "type": "weapon",
+    "equip_slot": "hands",
+    "attributes": {}
+  },
+  {
+    "id": "ammo_1764360991992",
+    "display_name": "9mm Rounds",
+    "description": "",
+    "icon_path": "res://materials/Weapons/Pistols/ammo/ammo_pistols.png",
+    "scene_path": "res://materials/Weapons/Pistols/ammo/ammo_pistols.tscn",
+    "width": 2,
+    "height": 1,
+    "can_rotate": true,
+    "stackable": true,
+    "max_stack": 50,
+    "stack_count": 1,
+    "weight": 0.02,
+    "type": "ammo",
+    "equip_slot": "",
+    "attributes": {
+      "ammo_type": "9mm"
+    }
+  },
+  {
+    "id": "medkit_1764361004645",
+    "display_name": "Medical Kit",
+    "description": "",
+    "icon_path": "res://materials/items/medicans/medkit/Medkit.png",
+    "scene_path": "res://materials/items/medicans/medkit/medkit.tscn",
+    "width": 2,
+    "height": 1,
+    "can_rotate": true,
+    "stackable": true,
+    "max_stack": 3,
+    "stack_count": 1,
+    "weight": 0.5,
+    "type": "consumable",
+    "equip_slot": "",
+    "attributes": {
+      "heal_amount": 50
+    }
+  }
+]

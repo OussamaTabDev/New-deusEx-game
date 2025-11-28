@@ -71,7 +71,8 @@ func can_place_item(item: InventoryItem, x: int, y: int, ignore_item: InventoryI
 			var key = _grid_key(x + ix, y + iy)
 			if grid.has(key):
 				var cell = grid[key]
-				if cell.item != ignore_item:
+				# Fix: Ensure we are comparing objects correctly
+				if cell.item != item and cell.item != ignore_item:
 					return false
 	
 	return true

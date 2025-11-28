@@ -14,6 +14,23 @@ func _ready():
 	# Auto-resolve nodes if not assigned
 	if not inventory_component:
 		inventory_component = get_node_or_null("InventoryComponent")
+		
+	var item =  ItemDatabase.create_item("item_1764169325431")
+	var item2 =  ItemDatabase.create_item("ammo_1764360991992" , 75)
+	var item3 =  ItemDatabase.create_item("medkit_1764361004645" , 6)
+	var item4 =  ItemDatabase.create_item("medkit_1764361004645")
+	var item5 =  ItemDatabase.create_item("medkit_1764361004645")
+	var item6 =  ItemDatabase.create_item("medkit_1764361004645")
+	var item7 =  ItemDatabase.create_item("medkit_1764361004645")
+	var item8 =  ItemDatabase.create_item("medkit_1764361004645")
+	inventory_component.add_item(item)
+	inventory_component.add_item(item2)
+	inventory_component.add_item(item3)
+	inventory_component.add_item(item4)
+	inventory_component.add_item(item5)
+	inventory_component.add_item(item6)
+	inventory_component.add_item(item7)
+	inventory_component.add_item(item8)
 	
 	if not inventory_ui:
 		inventory_ui = get_node_or_null("InventoryUI")
@@ -59,25 +76,28 @@ func open_inventory():
 
 	if state_machine:
 		state_machine.transition_to(state_machine.get_state("StaticState"))  # or dedicated InventoryState
-
+	# Pause the game
 	if camera_controller:
 		camera_controller.set_process_input(false)
 
+	#get_tree().paused = true
+	#inventory_ui.pause_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func close_inventory():
 	if not inventory_ui:
 		return
 
-	inventory_open = false
+	#inventory_open = false
 	inventory_ui.close_inventory()
-	
+
 	if state_machine:
 		state_machine.revert_to_previous_state()
 
 	if camera_controller:
 		camera_controller.set_process_input(true)
 
+	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _on_inventory_closed():
@@ -168,7 +188,7 @@ func fire_equipped_weapon():
 
 func interact_with_container(container: ContainerComponent):
 	if container.try_open(get_parent()):  # assumes Player is parent
-		inventory_ui.open_container(container.inventory)
+		inventory_ui.open_container(container)
 		open_inventory()
 
 # Save/Load
