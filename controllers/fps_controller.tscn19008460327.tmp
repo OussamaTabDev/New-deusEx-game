@@ -507,13 +507,14 @@ interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/C
 hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
 throw_action = "fire"
 
-[node name="InventoryComponent" type="Node" parent="Components" node_paths=PackedStringArray("player", "drop_marker")]
+[node name="InventoryComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
 script = ExtResource("5_12ia1")
 player = NodePath("../..")
 grid_columns = 15
 grid_rows = 6
+max_weight = null
 hotbar_slots = 10
-drop_marker = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
+enable_weight_limit = null
 
 [node name="InventoryHandlingComponent" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "inventory_ui", "camera_controller", "state_machine")]
 script = ExtResource("6_uefoi")
@@ -816,9 +817,7 @@ alignment = 1
 
 [node name="InventoryUI" parent="Control" instance=ExtResource("29_thp3d")]
 layout_mode = 1
-cell_size = null
 CELL_SPACING = 4
-hotbar_always_visible = null
 
 [node name="PauseMenu" type="Control" parent="Control"]
 visible = false
