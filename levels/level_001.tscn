@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=34 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://co1opmwyvl27" path="res://addons/cogito/DemoScenes/DemoPrefabs/barrel.tscn" id="13_m48vv"]
 [ext_resource type="ArrayMesh" uid="uid://haxkoju43w4s" path="res://materials/Weapons/SMgs/smgMil/smglight.vox" id="14_ecv8m"]
 [ext_resource type="PackedScene" uid="uid://bq5n1u2nn5bka" path="res://materials/items/medicans/medkit/medkit.tscn" id="14_ywvwd"]
+[ext_resource type="PackedScene" uid="uid://da1urtyq070gb" path="res://addons/cogito/PackedScenes/laddertest_3.tscn" id="16_5d8v6"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -183,7 +184,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.744994, 0, 0)
+uv1_offset = Vector3(0.1380001, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -412,3 +413,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.089888, 2.9980724, 12.836
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.243313, 2.0091481, -7.0238724)
 mesh = ExtResource("14_ecv8m")
+
+[node name="Ladder3" parent="." instance=ExtResource("16_5d8v6")]
+transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, -5.662465, 0.19539583, 16.695753)

@@ -20,15 +20,15 @@ points = PackedVector3Array(-0.3900952, -0.29415873, -0.14999999, 0.37790474, 0.
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("1_863pi")
-shader_parameter/opacity = 0.1150000054625
-shader_parameter/core_colour = Color(0.44711637, 0.19296384, 0.024996802, 1)
+shader_parameter/opacity = 0.35
+shader_parameter/core_colour = Color(1, 1, 1, 1)
 shader_parameter/fresnel_strength = 0.8
-shader_parameter/fresnel_colour = Color(0.40621406, 0.0019106945, 0.69584733, 1)
+shader_parameter/fresnel_colour = Color(1, 1, 1, 1)
 shader_parameter/enable_scan_lines = true
-shader_parameter/scan_speed = 2.60000011324912
-shader_parameter/scan_colour = Color(0.58095115, 0.8754867, 0.99999994, 0.039215688)
-shader_parameter/scan_opacity = 0.5
-shader_parameter/line_density = 29.0
+shader_parameter/scan_speed = 1.4000000953676803
+shader_parameter/scan_colour = Color(0, 1, 0, 1)
+shader_parameter/scan_opacity = 1.0
+shader_parameter/line_density = 100.0
 
 [node name="Medkit" type="RigidBody3D"]
 collision_layer = 128

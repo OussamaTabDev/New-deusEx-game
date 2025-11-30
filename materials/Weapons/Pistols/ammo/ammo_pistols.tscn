@@ -1,6 +1,5 @@
-[gd_scene load_steps=9 format=3 uid="uid://jaxyv821npli"]
+[gd_scene load_steps=8 format=3 uid="uid://jaxyv821npli"]
 
-[ext_resource type="Material" uid="uid://b3ys0b2j1n6g8" path="res://controllers/UI/shaders/templates/hologramEffect.tres" id="1_3tcr8"]
 [ext_resource type="Texture2D" uid="uid://b12bl7rm3d5ec" path="res://materials/Weapons/Pistols/ammo/ammo_pistols.png" id="1_047tk"]
 [ext_resource type="PackedScene" uid="uid://b20kvf66jy2oo" path="res://controllers/scripts/Compoenents/item_pickup.tscn" id="3_jydji"]
 [ext_resource type="Shader" uid="uid://cl81v83p6nddy" path="res://shaders/uis/hologramEffect.gdshader" id="4_dmd6b"]
@@ -26,6 +25,7 @@ shader_parameter/fresnel_colour = Color(1, 1, 1, 1)
 shader_parameter/enable_scan_lines = true
 shader_parameter/scan_speed = 1.0
 shader_parameter/scan_colour = Color(0, 1, 0, 1)
+shader_parameter/scan_opacity = 0.5
 shader_parameter/line_density = 100.0
 
 [node name="AmmoPistol" type="RigidBody3D"]
@@ -33,7 +33,6 @@ collision_layer = 128
 collision_mask = 137
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("1_3tcr8")
 mesh = SubResource("BoxMesh_jrhah")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

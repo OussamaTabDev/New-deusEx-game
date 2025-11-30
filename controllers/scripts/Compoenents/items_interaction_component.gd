@@ -118,30 +118,39 @@ func _find_container(node: Node) -> ContainerComponent:
 	return null
 
 func _set_target(target: Node) -> void:
-	_clear_target()
-	
+	_clear_target()  # This will unhighlight previous target
+
 	current_target = target
-	
+
 	if target is PickupableItem:
 		is_item = true
 		item_detected.emit(target)
+		
+		# ✅ HIGHLIGHT THE ITEM
+		target.set_highlighted(true)
+
 		var item_name = target.item_data.display_name
 		var count = target.stack_count
-		
-		# Show count if stackable and > 1
+
 		if target.item_data.stackable and count > 1:
 			_update_ui("%s" % item_name)
 		else:
 			_update_ui(item_name)
+
 	elif target is ContainerComponent:
 		is_container = true
 		container_detected.emit(target)
 		_update_ui(target.container_name)
 
+
 func _clear_target() -> void:
+	# ✅ UNHIGHLIGHT CURRENT ITEM IF IT'S A PICKUP
+	if current_target is PickupableItem:
+		current_target.set_highlighted(false)
+
 	if current_target:
 		item_lost.emit()
-	
+
 	current_target = null
 	is_item = false
 	is_container = false
