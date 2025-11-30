@@ -15,13 +15,12 @@
 [ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
 [ext_resource type="Script" uid="uid://c5g8japvwt4hb" path="res://controllers/scripts/Compoenents/inventory_handling_component.gd" id="6_uefoi"]
 [ext_resource type="Script" uid="uid://bkbq0qu5e2cnw" path="res://controllers/scripts/StateMchinePlayer/running_state.gd" id="7_fyafc"]
+[ext_resource type="Script" uid="uid://xpvs6y0bnisd" path="res://controllers/scripts/Compoenents/items_interaction_component.gd" id="8_kaa6b"]
 [ext_resource type="Script" uid="uid://bhr4wvq73b3ov" path="res://controllers/scripts/StateMchinePlayer/jumping_state.gd" id="8_tg6sc"]
 [ext_resource type="Script" uid="uid://cxxvkcg48u2d" path="res://controllers/scripts/StateMchinePlayer/falling_state.gd" id="9_yvtcv"]
 [ext_resource type="Script" uid="uid://4thtivtrpy4n" path="res://controllers/scripts/StateMchinePlayer/crouch_state.gd" id="10_h7h5r"]
-[ext_resource type="PackedScene" uid="uid://brcgwmypj6akr" path="res://materials/Weapons/Pistols/pistolCop/pistol_cop.tscn" id="10_ssunb"]
 [ext_resource type="Script" uid="uid://raajygfbuuyd" path="res://controllers/scripts/StateMchinePlayer/crouch_walking_state.gd" id="11_fdopr"]
 [ext_resource type="Script" uid="uid://hn8vcj011s76" path="res://controllers/scripts/StateMchinePlayer/leaning_state.gd" id="12_5b0ob"]
-[ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="13_b6iva"]
 [ext_resource type="Script" uid="uid://bhp7r288x1giv" path="res://controllers/scripts/StateMchinePlayer/sliding_state.gd" id="13_l8yvu"]
 [ext_resource type="Script" uid="uid://4prbyxtm4pjg" path="res://controllers/scripts/StateMchinePlayer/wall_run_state.gd" id="14_fyafc"]
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
@@ -46,6 +45,10 @@
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
 size = Vector3(0.1, 0.1, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xno33"]
+margin = 1.034
+size = Vector3(1, 0.65, 1.2)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -485,7 +488,7 @@ r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
 step_handler = NodePath("Components/StepHandlerComponent")
 audio_component = NodePath("Components/AudioController")
 rigidbody_interaction_component = NodePath("Components/RigidBodyInteractionComponent")
-inventory_handler = NodePath("Components/InventoryHandlingComponent")
+inventory_handler = NodePath("Components/InventoryComponent/InventoryHandlingComponent")
 
 [node name="Components" type="Node3D" parent="."]
 
@@ -513,14 +516,31 @@ player = NodePath("../..")
 grid_columns = 15
 grid_rows = 6
 hotbar_slots = 10
-drop_marker = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
+drop_marker = NodePath("../ItemsInteractionComponent/DropMarker")
 
-[node name="InventoryHandlingComponent" type="Node" parent="Components" node_paths=PackedStringArray("inventory_component", "inventory_ui", "camera_controller", "state_machine")]
+[node name="InventoryHandlingComponent" type="Node" parent="Components/InventoryComponent" node_paths=PackedStringArray("inventory_component", "inventory_ui", "camera_controller", "state_machine", "pickup_interaction")]
 script = ExtResource("6_uefoi")
-inventory_component = NodePath("../InventoryComponent")
-inventory_ui = NodePath("../../Control/InventoryUI")
+inventory_component = NodePath("..")
+inventory_ui = NodePath("../../../Control/InventoryUI")
+camera_controller = NodePath("../../../CameraController")
+state_machine = NodePath("../../../StateMachine")
+pickup_interaction = NodePath("../../ItemsInteractionComponent")
+
+[node name="PlayerInteractionComponent" parent="Components" node_paths=PackedStringArray("interaction_raycast", "carryable_position") instance=ExtResource("25_bjwns")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
+interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
+carryable_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
+
+[node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("shape_cast", "inventory_handler", "camera_controller", "pickup_label")]
+script = ExtResource("8_kaa6b")
+shape_cast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/ItemsIntectionCast")
+inventory_handler = NodePath("../InventoryComponent/InventoryHandlingComponent")
 camera_controller = NodePath("../../CameraController")
-state_machine = NodePath("../../StateMachine")
+pickup_label = NodePath("../../Control/UI/PickUpControl/Panel/PromptLabel")
+
+[node name="DropMarker" type="Marker3D" parent="Components/ItemsInteractionComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5589099, -1.4331703)
+visible = false
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "CAMERA_CONTROLLER", "camera_offset", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
@@ -545,13 +565,16 @@ ladder_climbing_states = Array[String](["ClimbLadderState", "LadderClimbState"])
 physics_interpolation_mode = 1
 
 [node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D" instance=ExtResource("4_rcx31")]
+visible = false
 collision_mask = 10
 
 [node name="CarryablePosition" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
+visible = false
 
 [node name="ItemDropShapeCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+visible = false
 shape = SubResource("BoxShape3D_57us7")
 target_position = Vector3(0, 0, -2)
 collision_mask = 3
@@ -574,16 +597,12 @@ root_node = NodePath("../..")
 
 [node name="CameraTree" type="AnimationTree" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
 
-[node name="WeaponsManager" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-
-[node name="PistolCop" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponsManager" instance=ExtResource("10_ssunb")]
-transform = Transform3D(0.9769435, -0.18977425, -0.09781085, 0.17101005, 0.9698462, -0.17364816, 0.12781544, 0.15291782, 0.9799383, 0.912, -0.64, -1.534)
-visible = false
-
-[node name="PhantomCameraHost" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-process_priority = 300
-process_physics_priority = 300
-script = ExtResource("13_b6iva")
+[node name="ItemsIntectionCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025275946, -1.1798408)
+shape = SubResource("BoxShape3D_xno33")
+exclude_parent = false
+target_position = Vector3(0, 0, 0)
+collision_mask = 128
 
 [node name="Raycasters" type="Node3D" parent="CameraController"]
 visible = false
@@ -676,6 +695,7 @@ script = ExtResource("19_rcx31")
 script = ExtResource("25_uefoi")
 
 [node name="Raycasters" type="Node3D" parent="."]
+visible = false
 
 [node name="ProneCast" type="ShapeCast3D" parent="Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1397371, 0)
@@ -735,6 +755,7 @@ script = ExtResource("15_3og01")
 [node name="R_castController" type="Node3D" parent="Raycasters/ClimbingCasts"]
 
 [node name="R_Cast" type="RayCast3D" parent="Raycasters/ClimbingCasts/R_castController"]
+visible = false
 target_position = Vector3(0, -1.5, 0)
 collision_mask = 9
 
@@ -747,10 +768,12 @@ visible = false
 
 [node name="BelowStairsRayCast" type="RayCast3D" parent="Raycasters/StairsCasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1920929e-07, 0)
+visible = false
 target_position = Vector3(0, 0, -1)
 
 [node name="StairsRayCast" type="RayCast3D" parent="Raycasters/StairsCasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.59379303, -0.79411024)
+visible = false
 target_position = Vector3(0, -0.5, 0)
 
 [node name="Control" type="Control" parent="." node_paths=PackedStringArray("player", "state_machine")]
@@ -814,10 +837,42 @@ layout_mode = 2
 theme_override_constants/separation = 5
 alignment = 1
 
+[node name="PickUpControl" type="Control" parent="Control/UI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Panel" type="Panel" parent="Control/UI/PickUpControl"]
+layout_mode = 0
+offset_left = 998.0
+offset_top = 566.0
+offset_right = 1184.0
+offset_bottom = 623.0
+
+[node name="PromptLabel" type="Label" parent="Control/UI/PickUpControl/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -67.5
+offset_top = -11.5
+offset_right = 67.5
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 20
+text = "Press E to Pick up"
+
 [node name="InventoryUI" parent="Control" instance=ExtResource("29_thp3d")]
+visible = false
 layout_mode = 1
 cell_size = null
-CELL_SPACING = 4
 hotbar_always_visible = null
 
 [node name="PauseMenu" type="Control" parent="Control"]
@@ -844,17 +899,12 @@ texture = ExtResource("32_xno33")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+visible = false
 shape = SubResource("CapsuleShape3D_u6tj1")
 
 [node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
 visible = false
 mesh = SubResource("CapsuleMesh_6tv51")
-
-[node name="PlayerInteractionComponent" parent="." node_paths=PackedStringArray("interaction_raycast", "carryable_position") instance=ExtResource("25_bjwns")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
-visible = false
-interaction_raycast = NodePath("../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
-carryable_position = NodePath("../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
 
 [node name="FootstepPlayer" type="AudioStreamPlayer3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0005284846, 0)

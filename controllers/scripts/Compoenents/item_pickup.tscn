@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://b20kvf66jy2oo"]
+
+[ext_resource type="Script" uid="uid://bsxrd75wcv3e8" path="res://Scripts/Components/item_pickup.gd" id="1_pxa35"]
+[ext_resource type="Material" uid="uid://b3ys0b2j1n6g8" path="res://controllers/UI/shaders/templates/hologramEffect.tres" id="2_ehu2d"]
+
+[node name="ItemPickup" type="Node3D"]
+script = ExtResource("1_pxa35")
+highlight_material = ExtResource("2_ehu2d")

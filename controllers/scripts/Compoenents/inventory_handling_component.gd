@@ -1,12 +1,14 @@
-# A component to manage inventory logic for the player
-
 class_name InventoryHandlerComponenent
 extends Node
 
+## Component to manage inventory logic for the player
+## Now integrated with PickupInteractionComponent
+
 @export var inventory_component: InventoryComponent
 @export var inventory_ui: InventoryUI
-@export var camera_controller: Node  # Reference to the camera controller
-@export var state_machine: Node      # Reference to the player state machine
+@export var camera_controller: Node
+@export var state_machine: Node
+@export var pickup_interaction: PickupInteractionComponent ## NEW
 
 var inventory_open: bool = false
 
@@ -14,15 +16,34 @@ func _ready():
 	# Auto-resolve nodes if not assigned
 	if not inventory_component:
 		inventory_component = get_node_or_null("InventoryComponent")
-		
+	
+	# TEST ITEMS (remove in production)
+	_add_test_items()
+	
+	if not inventory_ui:
+		inventory_ui = get_node_or_null("InventoryUI")
+	
+	if inventory_ui:
+		inventory_ui.inventory_component = inventory_component
+		inventory_ui.ui_closed.connect(_on_inventory_closed)
+	
+	# Connect to pickup system
+	if pickup_interaction:
+		pickup_interaction.item_detected.connect(_on_item_detected)
+		pickup_interaction.item_lost.connect(_on_item_lost)
+		pickup_interaction.pickup_failed.connect(_on_pickup_failed)
+
+func _add_test_items() -> void:
+	"""Add test items (remove in production)"""
 	var item =  ItemDatabase.create_item("item_1764169325431")
-	var item2 =  ItemDatabase.create_item("ammo_1764360991992" , 75)
-	var item3 =  ItemDatabase.create_item("medkit_1764361004645" , 6)
+	var item2 =  ItemDatabase.create_item("ammo_1764360991992", 75)
+	var item3 =  ItemDatabase.create_item("medkit_1764361004645", 6)
 	var item4 =  ItemDatabase.create_item("medkit_1764361004645")
 	var item5 =  ItemDatabase.create_item("medkit_1764361004645")
 	var item6 =  ItemDatabase.create_item("medkit_1764361004645")
 	var item7 =  ItemDatabase.create_item("medkit_1764361004645")
 	var item8 =  ItemDatabase.create_item("medkit_1764361004645")
+	
 	inventory_component.add_item(item)
 	inventory_component.add_item(item2)
 	inventory_component.add_item(item3)
@@ -31,18 +52,10 @@ func _ready():
 	inventory_component.add_item(item6)
 	inventory_component.add_item(item7)
 	inventory_component.add_item(item8)
-	
-	if not inventory_ui:
-		inventory_ui = get_node_or_null("InventoryUI")
-	
-	if inventory_ui:
-		inventory_ui.inventory_component = inventory_component
-		inventory_ui.ui_closed.connect(_on_inventory_closed)
 
 func _input(event):
 	if inventory_open:
-		# Optional: block player input while inventory is open
-		pass
+		pass # Block player input while inventory is open
 
 	# Toggle inventory
 	if event.is_action_pressed("toggle_inventory"):
@@ -75,20 +88,17 @@ func open_inventory():
 	inventory_ui.open_inventory()
 
 	if state_machine:
-		state_machine.transition_to(state_machine.get_state("StaticState"))  # or dedicated InventoryState
-	# Pause the game
+		state_machine.transition_to(state_machine.get_state("StaticState"))
+	
 	if camera_controller:
 		camera_controller.set_process_input(false)
 
-	#get_tree().paused = true
-	#inventory_ui.pause_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func close_inventory():
 	if not inventory_ui:
 		return
 
-	#inventory_open = false
 	inventory_ui.close_inventory()
 
 	if state_machine:
@@ -111,15 +121,16 @@ func use_hotbar_slot(slot: int):
 		return
 	inventory_component.use_hotbar_slot(slot)
 
-# Public API: called by player or world
+## Called by PickupInteractionComponent
 func pickup_item(item: InventoryItem) -> bool:
 	if not inventory_component:
 		return false
+	
 	if inventory_component.add_item(item):
-		print("Picked up: ", item.display_name)
+		print("✓ Picked up: ", item.display_name)
 		return true
 	else:
-		print("Inventory full!")
+		print("✗ Inventory full!")
 		return false
 
 func use_item_by_id(item_id: String):
@@ -135,13 +146,13 @@ func _use_item(item: InventoryItem):
 		"consumable":
 			_use_consumable(item)
 		"key":
-			pass  # handled externally
+			pass # handled externally
 
 func _use_consumable(item: InventoryItem):
 	if item.attributes.has("heal_amount"):
 		var heal = item.attributes.heal_amount
 		print("Used ", item.display_name, " - Healed ", heal)
-		# TODO: Apply to player health (via signal or reference)
+		# TODO: Apply to player health
 
 	if item.attributes.has("stamina_amount"):
 		var stamina = item.attributes.stamina_amount
@@ -165,8 +176,7 @@ func _spawn_weapon_model(item: InventoryItem):
 		var weapon_scene = load(item.scene_path)
 		if weapon_scene:
 			var weapon_instance = weapon_scene.instantiate()
-			# Note: Attach to weapon holder via signal or by exposing it externally
-			# Example: emit_signal("spawn_weapon", weapon_instance)
+			# Note: Attach to weapon holder via signal
 
 func fire_equipped_weapon():
 	var weapon = inventory_component.get_equipped_weapon("primary_weapon")
@@ -180,16 +190,26 @@ func fire_equipped_weapon():
 		print("No ammo!")
 		return
 
-	# TODO: Fire logic (emit signal or call player method)
-	# Example: emit_signal("fire_weapon", weapon)
-
-	# Consume ammo
+	# TODO: Fire logic
 	inventory_component.consume_ammo(weapon, 1)
 
 func interact_with_container(container: ContainerComponent):
-	if container.try_open(get_parent()):  # assumes Player is parent
+	if container.try_open(get_parent()):
 		inventory_ui.open_container(container)
 		open_inventory()
+
+## Pickup system callbacks
+func _on_item_detected(item: PickupableItem):
+	# Optional: Show UI feedback
+	pass
+
+func _on_item_lost():
+	# Optional: Hide UI feedback
+	pass
+
+func _on_pickup_failed(reason: String):
+	print("Pickup failed: ", reason)
+	# Optional: Show error message to player
 
 # Save/Load
 func save_inventory() -> Dictionary:

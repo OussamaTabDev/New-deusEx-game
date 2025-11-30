@@ -19,7 +19,7 @@ class_name Player extends CharacterBody3D
 @export var step_handler : StepHandlerComponent
 @export var audio_component: PlayerAudioComponent
 @export var rigidbody_interaction_component: RigidBodyInteractionComponent
-@export var  inventory_handler: InventoryHandlerComponenent
+@export var inventory_handler: InventoryHandlerComponenent
 
 @export_group("Audio")
 ## AudioStream that gets played when the player jumps.
