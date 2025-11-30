@@ -43,4 +43,5 @@ shape = SubResource("ConvexPolygonShape3D_uxo6f")
 [node name="ItemPickup" parent="." instance=ExtResource("2_uxo6f")]
 item_id = "medkit_1764361004645"
 stack_count = 10
+highlight_on_look = false
 highlight_material = SubResource("ShaderMaterial_863pi")

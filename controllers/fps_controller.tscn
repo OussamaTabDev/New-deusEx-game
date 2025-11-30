@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=66 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -42,6 +42,8 @@
 [ext_resource type="Shader" uid="uid://cckhr4i3nubjv" path="res://controllers/UI/shaders/birdges.gdshader" id="32_kaa6b"]
 [ext_resource type="Resource" uid="uid://ca0q2t6w08ubh" path="res://addons/cogito/DynamicFootstepSystem/FootstepMaterialLibrary/sample_footstep_material_library.tres" id="32_uefoi"]
 [ext_resource type="Texture2D" uid="uid://cumvdin6jmyh1" path="res://textures/Images/UI/main_pause.png" id="32_xno33"]
+[ext_resource type="Script" uid="uid://bgjtlul6bmw6u" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gd" id="43_teryj"]
+[ext_resource type="Shader" uid="uid://bragsbfphgcjf" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gdshader" id="44_b6iva"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
 size = Vector3(0.1, 0.1, 0.1)
@@ -466,6 +468,18 @@ stream_2/stream = ExtResource("27_ou6tx")
 stream_3/stream = ExtResource("28_stri7")
 stream_4/stream = ExtResource("29_adv5w")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sy8o7"]
+shader = ExtResource("44_b6iva")
+shader_parameter/scanning_progress = 0.0
+shader_parameter/visibility = 1.0
+shader_parameter/color = Color(0, 1, 0, 1)
+shader_parameter/initial_outline_pixel_size = 32.0
+shader_parameter/final_outline_pixel_size = 2.0
+shader_parameter/initial_fill_transparency = 2.0
+shader_parameter/final_fill_transparency = 0.15
+shader_parameter/initial_pixelize_power = 9.0
+shader_parameter/final_pixelize_power = 1.0
+
 [node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler") groups=["Player"]]
 collision_layer = 2
 collision_mask = 271
@@ -531,12 +545,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
 interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
 carryable_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
 
-[node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("shape_cast", "inventory_handler", "camera_controller", "interact_control", "pickup_label")]
+[node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("shape_cast", "inventory_handler", "camera_controller", "cyber_scanner", "interact_control", "pickup_label")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35666072, 0)
 script = ExtResource("8_kaa6b")
 shape_cast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/ItemsIntectionCast")
 inventory_handler = NodePath("../InventoryComponent/InventoryHandlingComponent")
 camera_controller = NodePath("../../CameraController")
+cyber_scanner = NodePath("../../Effects/ScannerEffect")
 interact_control = NodePath("../../Control/UI/InteractControl")
 pickup_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/PickupLabel")
 
@@ -929,3 +944,32 @@ generic_fallback_footstep_profile = ExtResource("31_12ia1")
 footstep_material_library = ExtResource("32_uefoi")
 generic_fallback_landing_profile = ExtResource("31_12ia1")
 landing_material_library = ExtResource("32_uefoi")
+
+[node name="Effects" type="Node3D" parent="."]
+
+[node name="ScannerEffect" type="Node3D" parent="Effects" node_paths=PackedStringArray("main_camera", "scanning_viewport")]
+script = ExtResource("43_teryj")
+main_camera = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D")
+scanning_viewport = NodePath("ScanningViewport")
+
+[node name="ScanningViewport" type="SubViewportContainer" parent="Effects/ScannerEffect"]
+visible = false
+material = SubResource("ShaderMaterial_sy8o7")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch = true
+metadata/_edit_use_anchors_ = true
+
+[node name="SubViewport" type="SubViewport" parent="Effects/ScannerEffect/ScanningViewport"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1920, 1080)
+render_target_update_mode = 0
+
+[node name="ScanningCamera" type="Camera3D" parent="Effects/ScannerEffect/ScanningViewport/SubViewport"]
+unique_name_in_owner = true
+cull_mask = 2

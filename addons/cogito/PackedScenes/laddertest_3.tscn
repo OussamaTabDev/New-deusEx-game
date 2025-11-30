@@ -7,16 +7,16 @@
 [ext_resource type="ArrayMesh" uid="uid://n7ttnd1eh5kl" path="res://materials/ladders/Textures/ladder_1/mid_ladder.vox" id="3_fglm8"]
 [ext_resource type="ArrayMesh" uid="uid://bmivbrhrs6ll6" path="res://materials/ladders/Textures/ladder_1/t_ladder.vox" id="4_pf4hd"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_vfq2c"]
-size = Vector3(0.832, 9.011395, 0.224)
+[sub_resource type="BoxShape3D" id="BoxShape3D_pf4hd"]
+size = Vector3(0.832, 1.8113959, 0.224)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_byywe"]
 albedo_texture = ExtResource("2_pf4hd")
 normal_enabled = true
 normal_texture = ExtResource("3_ffy46")
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_rthi5"]
-size = Vector3(0.832, 8.110256, 0.224)
+[sub_resource type="BoxShape3D" id="BoxShape3D_ffy46"]
+size = Vector3(0.832, 1.6302563, 0.224)
 
 [node name="Ladder" type="Area3D" node_paths=PackedStringArray("ladder_collision", "area_collision_shape", "mid_ladder", "t_ladder", "b_ladder")]
 transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, 0, 0, 0)
@@ -28,90 +28,39 @@ area_collision_shape = NodePath("ladderArea")
 mid_ladder = NodePath("ladder/mid_ladder")
 t_ladder = NodePath("ladder/t_ladder")
 b_ladder = NodePath("ladder/b_ladder")
-max_pieces = 10
+max_pieces = 1
 
 [node name="ladderArea" type="CollisionShape3D" parent="."]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.05, 4.310302, 0.030000001)
-shape = SubResource("BoxShape3D_vfq2c")
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.05, 0.7103021, 0.030000001)
+shape = SubResource("BoxShape3D_pf4hd")
 
 [node name="ladder" type="StaticBody3D" parent="."]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
 
 [node name="b_ladder" type="MeshInstance3D" parent="ladder"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.56339586, 0.03)
+layers = 2
 material_override = SubResource("StandardMaterial3D_byywe")
 mesh = ExtResource("2_d8yih")
 skeleton = NodePath("")
 
 [node name="mid_ladder" type="MeshInstance3D" parent="ladder"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.03)
+layers = 2
 material_override = SubResource("StandardMaterial3D_byywe")
 mesh = ExtResource("3_fglm8")
 skeleton = NodePath("")
 
 [node name="t_ladder" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0.03)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0.03)
+layers = 2
 material_override = SubResource("StandardMaterial3D_byywe")
 mesh = ExtResource("4_pf4hd")
 skeleton = NodePath("")
 
 [node name="@CollisionShape3D@58424" type="CollisionShape3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 4.310302, 0.030000001)
-shape = SubResource("BoxShape3D_rthi5")
-
-[node name="@MeshInstance3D@47355" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@47356" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@47357" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@47358" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@47359" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@47360" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@47361" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.6, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@47362" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.4, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
-
-[node name="@MeshInstance3D@47363" type="MeshInstance3D" parent="ladder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.2000003, 0.03)
-material_override = SubResource("StandardMaterial3D_byywe")
-mesh = ExtResource("3_fglm8")
-skeleton = NodePath("")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.7103021, 0.030000001)
+shape = SubResource("BoxShape3D_ffy46")
 
 [connection signal="area_shape_entered" from="." to="." method="_on_area_shape_entered"]
 [connection signal="area_shape_exited" from="." to="." method="_on_area_shape_exited"]

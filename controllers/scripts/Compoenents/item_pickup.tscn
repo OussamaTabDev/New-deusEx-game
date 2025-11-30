@@ -5,4 +5,11 @@
 
 [node name="ItemPickup" type="Node3D"]
 script = ExtResource("1_pxa35")
+highlight_on_look = false
 highlight_material = ExtResource("2_ehu2d")
+scanner_color = Color(0.4754299, 0, 1.8247963, 0.89500004)
+initial_outline_pixel_size = 42.0
+initial_fill_transparency = 2.0
+final_fill_transparency = 0.2
+initial_pixelize_power = 5.0
+final_pixelize_power = 1.0

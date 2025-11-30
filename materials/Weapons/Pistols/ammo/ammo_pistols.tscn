@@ -1,10 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://jaxyv821npli"]
+[gd_scene load_steps=10 format=3 uid="uid://jaxyv821npli"]
 
-[ext_resource type="Shader" uid="uid://dkuw4qyn7xnd" path="res://controllers/UI/shaders/waterEffect.gdshader" id="1_3tcr8"]
 [ext_resource type="Texture2D" uid="uid://b12bl7rm3d5ec" path="res://materials/Weapons/Pistols/ammo/ammo_pistols.png" id="1_047tk"]
+[ext_resource type="Shader" uid="uid://b780vms62tfob" path="res://controllers/UI/shaders/hologramcyber.gdshader" id="2_3tcr8"]
 [ext_resource type="PackedScene" uid="uid://b20kvf66jy2oo" path="res://controllers/scripts/Compoenents/item_pickup.tscn" id="3_jydji"]
 [ext_resource type="Shader" uid="uid://cl81v83p6nddy" path="res://shaders/uis/hologramEffect.gdshader" id="4_dmd6b"]
-[ext_resource type="Texture2D" uid="uid://wyebpbnvva4o" path="res://materials/ladders/Textures/ladder_1/ladder_n.png" id="5_jydji"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lbso2"]
 albedo_texture = ExtResource("1_047tk")
@@ -12,6 +11,18 @@ albedo_texture = ExtResource("1_047tk")
 [sub_resource type="BoxMesh" id="BoxMesh_jrhah"]
 material = SubResource("StandardMaterial3D_lbso2")
 size = Vector3(0.25, 0.15, 0.15)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jydji"]
+shader = ExtResource("2_3tcr8")
+shader_parameter/scanning_progress = 0.0
+shader_parameter/visibility = 0.999999977648
+shader_parameter/color = Color(0.45176542, 0.6260589, 0.9983489, 1)
+shader_parameter/initial_outline_pixel_size = 32.0
+shader_parameter/final_outline_pixel_size = 2.0
+shader_parameter/initial_fill_transparency = 2.0
+shader_parameter/final_fill_transparency = 0.15
+shader_parameter/initial_pixelize_power = 9.0
+shader_parameter/final_pixelize_power = 1.0
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_q0jm5"]
 points = PackedVector3Array(-0.123728134, -0.074999996, -0.074999996, 0.122425705, 0.074999996, 0.074999996, 0.122425705, -0.07420633, 0.074999996, 0.123728134, -0.074999996, -0.074999996, -0.122425705, 0.074999996, -0.07420633, -0.122425705, -0.07420633, 0.074999996, -0.122425705, 0.074999996, 0.074999996, 0.122425705, 0.074999996, -0.07420633)
@@ -30,36 +41,13 @@ shader_parameter/scan_colour = Color(0, 1, 0, 1)
 shader_parameter/scan_opacity = 0.5
 shader_parameter/line_density = 100.0
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_dmd6b"]
-render_priority = 0
-shader = ExtResource("1_3tcr8")
-shader_parameter/time_speed = 0.1
-shader_parameter/surface_speed = 0.1
-shader_parameter/spin = 0.0
-shader_parameter/brightness = 2.89
-shader_parameter/color_intensity = 1.085
-shader_parameter/horizontal_frequency = 3.32
-shader_parameter/vertical_frequency = 2.975
-shader_parameter/size = 3.41
-shader_parameter/banding_bias = 2.145
-shader_parameter/wave_texture = ExtResource("5_jydji")
-shader_parameter/wave_height = 0.5
-shader_parameter/texture_height = 0.5
-shader_parameter/color1 = Color(0.59, 0.761, 1, 1)
-shader_parameter/color2 = Color(0.274, 0.474, 0.98, 1)
-shader_parameter/color3 = Color(0.059, 0.389, 0.85, 1)
-shader_parameter/color4 = Color(0, 0.267, 1, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_q0jm5"]
-material = SubResource("ShaderMaterial_dmd6b")
-
 [node name="AmmoPistol" type="RigidBody3D"]
 collision_layer = 128
 collision_mask = 137
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-visible = false
 mesh = SubResource("BoxMesh_jrhah")
+surface_material_override/0 = SubResource("ShaderMaterial_jydji")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 visible = false
@@ -69,6 +57,3 @@ shape = SubResource("ConvexPolygonShape3D_q0jm5")
 item_id = "ammo_1764360991992"
 stack_count = 10
 highlight_material = SubResource("ShaderMaterial_snbne")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_q0jm5")
