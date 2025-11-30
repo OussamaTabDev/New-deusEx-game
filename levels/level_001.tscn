@@ -184,7 +184,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.1380001, 0, 0)
+uv1_offset = Vector3(0.11700001, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -193,7 +193,7 @@ texture_filter = 0
 
 [node name="WorldEnvironment" parent="." instance=ExtResource("1_db21n")]
 
-[node name="CharacterBody3D" parent="." instance=ExtResource("4_liofc")]
+[node name="player" parent="." instance=ExtResource("4_liofc")]
 transform = Transform3D(-0.9455015, 0, -0.3256177, 0, 1, 0, 0.3256177, 0, -0.9455015, -8.728192, 4.224064, 14.286257)
 
 [node name="env" type="Node3D" parent="."]

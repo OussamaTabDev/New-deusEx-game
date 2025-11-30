@@ -48,7 +48,7 @@ size = Vector3(0.1, 0.1, 0.1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_xno33"]
 margin = 1.034
-size = Vector3(0.6, 0.65, 1.4)
+size = Vector3(0.8, 0.65, 1.2)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -515,7 +515,9 @@ script = ExtResource("5_12ia1")
 player = NodePath("../..")
 grid_columns = 15
 grid_rows = 6
+max_weight = null
 hotbar_slots = 10
+enable_weight_limit = null
 drop_marker = NodePath("../ItemsInteractionComponent/DropMarker")
 
 [node name="InventoryHandlingComponent" type="Node" parent="Components/InventoryComponent" node_paths=PackedStringArray("inventory_component", "inventory_ui", "camera_controller", "state_machine", "pickup_interaction")]
@@ -532,16 +534,19 @@ interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/C
 carryable_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
 
 [node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("shape_cast", "inventory_handler", "camera_controller", "interact_control", "pickup_label")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35666072, 0)
 script = ExtResource("8_kaa6b")
 shape_cast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/ItemsIntectionCast")
 inventory_handler = NodePath("../InventoryComponent/InventoryHandlingComponent")
 camera_controller = NodePath("../../CameraController")
+pickup_action = null
+hold_threshold = null
+max_pickup_distance = null
+show_pickup_prompt = null
 interact_control = NodePath("../../Control/UI/InteractControl")
 pickup_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/PickupLabel")
 
 [node name="DropMarker" type="Marker3D" parent="Components/ItemsInteractionComponent"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9155706, -1.4331703)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5589099, -1.4331703)
 visible = false
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "CAMERA_CONTROLLER", "camera_offset", "lean_shape_cast_left", "lean_shape_cast_right")]
@@ -600,7 +605,7 @@ root_node = NodePath("../..")
 [node name="CameraTree" type="AnimationTree" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
 
 [node name="ItemsIntectionCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025275946, -1.3016729)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025275946, -1.1798408)
 shape = SubResource("BoxShape3D_xno33")
 exclude_parent = false
 target_position = Vector3(0, 0, 0)
