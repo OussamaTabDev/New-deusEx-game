@@ -23,6 +23,7 @@ signal pickup_failed(reason: String)
 @export var show_pickup_prompt: bool = true
 
 @export_group("UI")
+@export var interact_control: Control ## Optional: UI label showing item name
 @export var pickup_label: Label ## Optional: UI label showing item name
 
 # --- Internal State ---
@@ -66,7 +67,7 @@ func _update_detection() -> void:
 	for i in range(shape_cast.get_collision_count()):
 		var collider = shape_cast.get_collider(i)
 		if not collider:
-			continue
+			continue 
 		# Skip if too far
 		var distance = global_position.distance_to(collider.global_position)
 		if distance > max_pickup_distance:
@@ -124,7 +125,14 @@ func _set_target(target: Node) -> void:
 	if target is PickupableItem:
 		is_item = true
 		item_detected.emit(target)
-		_update_ui(target.item_data.display_name)
+		var item_name = target.item_data.display_name
+		var count = target.stack_count
+		
+		# Show count if stackable and > 1
+		if target.item_data.stackable and count > 1:
+			_update_ui("%s" % item_name)
+		else:
+			_update_ui(item_name)
 	elif target is ContainerComponent:
 		is_container = true
 		container_detected.emit(target)
@@ -142,9 +150,11 @@ func _clear_target() -> void:
 func _update_ui(text: String) -> void:
 	if pickup_label and show_pickup_prompt:
 		if text != "":
-			pickup_label.text = "[E] Pick up %s" % text if is_item else "[E] Open %s" % text
+			pickup_label.text = "[%s] Pick up %s" % [InputActions.get_action_key("interact"),text] if is_item else "[%s] Open %s" % [InputActions.get_action_key("interact"),text]
+			interact_control.visible = true
 			pickup_label.visible = true
 		else:
+			interact_control.visible = false
 			pickup_label.visible = false
 
 func _handle_input(delta: float) -> void:
@@ -178,23 +188,36 @@ func _pickup_item(pickup: PickupableItem) -> void:
 		pickup_failed.emit("No inventory handler")
 		return
 	
-	var item = pickup.item_data
-	if not item:
+	var base_item = pickup.item_data
+	if not base_item:
 		pickup_failed.emit("Invalid item data")
 		return
 	
-	# Check if item can be grabbed (has RigidBody component)
-	if pickup.can_be_grabbed:
-		# Priority system: Quick press = pickup, Hold = grab (handled by RigidBodyInteractionComponent)
-		pass
-	
-	# Attempt to add to inventory
-	if inventory_handler.pickup_item(item):
-		# Success - destroy pickup from world
+	# Use actual stack count from the world object
+	var total_count = pickup.stack_count
+	var max_stack = base_item.max_stack
+	var items_to_add: Array[InventoryItem] = []
+
+	# Split into valid chunks
+	while total_count > 0:
+		var chunk = base_item.duplicate()
+		chunk.stack_count = min(total_count, max_stack)
+		items_to_add.append(chunk)
+		total_count -= max_stack
+
+	# Try to add all chunks
+	var all_succeeded = true
+	for item in items_to_add:
+		if not inventory_handler.pickup_item(item):
+			all_succeeded = false
+			break  # Stop on first failure (optional: could collect how many fit)
+
+	if all_succeeded:
+		# Success: remove pickup from world
 		pickup.on_picked_up()
 		_clear_target()
 	else:
-		pickup_failed.emit("Inventory full")
+		pickup_failed.emit("Inventory full or partial pickup not implemented")
 
 func _open_container(container: ContainerComponent) -> void:
 	if not inventory_handler:

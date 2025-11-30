@@ -9,9 +9,9 @@ signal grabbed(by_player: Player)
 
 @export_group("Item Data")
 @export var item_id: String = "" ## ID from ItemDatabase
-@export var count : int = 1 ## how much you need
 @export var item_data: InventoryItem ## Pre-configured item data
 @export var auto_load_from_id: bool = true
+@export var stack_count: int = 1 ## How many of this item to pick up
 
 @export_group("Pickup Settings")
 @export var can_be_grabbed: bool = true ## Can also be grabbed as RigidBody
@@ -26,13 +26,18 @@ signal grabbed(by_player: Player)
 var original_materials: Array[Material] = []
 var is_highlighted: bool = false
 var item 
+var _stack_count = stack_count
 func _ready() -> void:
 	item = get_parent()
 	# Auto-load item data from database
 	if auto_load_from_id and item_id != "" and not item_data:
-		item_data = ItemDatabase.create_item(item_id)
+		item_data = ItemDatabase.create_item(item_id, _stack_count)
 		if not item_data:
 			push_error("PickupableItem: Failed to load item '%s' from database" % item_id)
+	
+	# If item_data exists but stack_count was set manually, update it
+	if item_data and _stack_count > 1:
+		item_data.stack_count = _stack_count
 	
 	# Validate collision layer
 	_validate_collision_setup()
@@ -118,7 +123,7 @@ func set_highlighted(enabled: bool) -> void:
 	
 	is_highlighted = enabled
 	
-	for mesh in _get_all_mesh_instances(self):
+	for mesh in _get_all_mesh_instances(item):
 		if enabled:
 			# Apply highlight material
 			for i in mesh.get_surface_override_material_count():
@@ -164,5 +169,6 @@ static func create_pickup(item: InventoryItem, position: Vector3, scene_root: No
 	
 	if pickup_component:
 		pickup_component.set_item_data(item)
+		pickup_component.stack_count = item.stack_count
 	
 	return pickup_component

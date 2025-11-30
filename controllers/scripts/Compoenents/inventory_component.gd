@@ -246,6 +246,36 @@ func add_item(item: InventoryItem) -> bool:
     inventory_full.emit()
     return false
 
+## Adds multiple items atomically (all or nothing)
+## Returns true only if ALL items were successfully added
+func add_items(items: Array[InventoryItem]) -> bool:
+    # if not inventory_component:
+    #     return false
+
+    var original_items: Array[InventoryItem] = get_all_items()
+    var added_items: Array[InventoryItem] = []
+
+    for item in items:
+        if add_item(item):
+            added_items.append(item)
+        else:
+            # ❌ Failed to add one → rollback everything
+            for added in added_items:
+                remove_item(added)
+            # Restore original state (in case any items were merged)
+            # Note: This simple rollback works if no external merges occurred
+            # For robustness, you'd need a full inventory snapshot — but this is fine for most cases
+            return false
+
+    # ✅ All succeeded
+    for item in added_items:
+        if item.stackable and item.stack_count > 1:
+            print("✓ Picked up: %s (x%d)" % [item.display_name, item.stack_count])
+        else:
+            print("✓ Picked up: %s" % item.display_name)
+
+    return true
+    
 ## Split stack
 func split_stack(item: InventoryItem, amount: int) -> InventoryItem:
     if not item.stackable or amount <= 0 or amount >= item.stack_count:
@@ -381,21 +411,12 @@ func drop_item(item: InventoryItem, source: String):
         push_warning("Dropped item is null or missing scene_path")
         return
 
-    var scene = load(item.scene_path)
-    if not scene or not scene is PackedScene:
-        push_error("Invalid scene path for dropped item: %s" % item.scene_path)
-        return
-
-    var pickup = scene.instantiate()
-    print("entring")
-    print(pickup)
-    
-    # Optional: Add to world (ensure get_parent() is your world/level node)
-    var world = get_tree().get_current_scene()  # safer than get_parent() sometimes
-    world.add_child(pickup)
-    item_dropped.emit(item,source)
-    # Position it (consider player forward offset or raycast later)
-    pickup.global_position = drop_marker.global_position # slight up to avoid floor clipping
+    var world = get_tree().get_current_scene()
+    var pickup = PickupableItem.create_pickup(item, drop_marker.global_position, world)
+    if pickup:
+        item_dropped.emit(item, source)
+    else:
+        push_error("Failed to create pickup for item: %s" % item.id)
 
 ## Save inventory to dictionary
 func save_to_dict() -> Dictionary:

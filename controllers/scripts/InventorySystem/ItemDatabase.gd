@@ -102,21 +102,27 @@ func _register_item(data: Dictionary):
 
 ## Create a new item instance from database
 func create_item(item_id: String, count: int = 1) -> InventoryItem:
+	# Returns ONE item (clamped to max_stack)
+	# Use create_items() below for multiple!
 	if not items.has(item_id):
 		push_error("Item not found in database: " + item_id)
 		return null
 	
 	var template = items[item_id]
 	var item = template.duplicate()
-	if count < item.max_stack:
-		item.stack_count = count
-	else:
-
-		item.stack_count = item.max_stack
-		count = count - item.max_stack
-		var still_item = create_item(item_id , count)
-		
+	item.stack_count = min(count, item.max_stack)
+	item.stack_count = max(1, item.stack_count)  # at least 1
 	return item
+
+# NEW: create multiple items if needed
+func create_items(item_id: String, total_count: int) -> Array[InventoryItem]:
+	var items_list: Array[InventoryItem] = []
+	var remaining = total_count
+	while remaining > 0:
+		var chunk_count = min(remaining, get_item_template(item_id).max_stack)
+		items_list.append(create_item(item_id, chunk_count))
+		remaining -= chunk_count
+	return items_list
 
 ## Get item template (don't modify!)
 func get_item_template(item_id: String) -> InventoryItem:

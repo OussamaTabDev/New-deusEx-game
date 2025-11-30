@@ -48,7 +48,7 @@ size = Vector3(0.1, 0.1, 0.1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_xno33"]
 margin = 1.034
-size = Vector3(0.8, 0.65, 1.2)
+size = Vector3(1, 0.65, 1.2)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -848,18 +848,11 @@ grow_vertical = 2
 mouse_filter = 1
 
 [node name="Panel" type="Panel" parent="Control/UI/InteractControl"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = 36.0
-offset_top = 31.0
-offset_right = 222.0
-offset_bottom = 90.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 0
+offset_left = 998.0
+offset_top = 566.0
+offset_right = 1184.0
+offset_bottom = 625.0
 
 [node name="VSplitContainer" type="VSplitContainer" parent="Control/UI/InteractControl/Panel"]
 layout_mode = 1
@@ -875,7 +868,6 @@ size_flags_horizontal = 4
 text = "Press E to Pick up"
 
 [node name="GrapLabel" type="Label" parent="Control/UI/InteractControl/Panel/VSplitContainer"]
-visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Hold E to Pick up"

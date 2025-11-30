@@ -6,11 +6,12 @@
 resource_local_to_scene = true
 render_priority = 0
 shader = ExtResource("1_ppbg4")
-shader_parameter/opacity = 0.35
-shader_parameter/core_colour = Color(1, 1, 1, 1)
-shader_parameter/fresnel_strength = 0.8
-shader_parameter/fresnel_colour = Color(1, 1, 1, 1)
+shader_parameter/opacity = 0.1070000050825
+shader_parameter/core_colour = Color(0.25109738, 8.798301e-05, 0.8646822, 1)
+shader_parameter/fresnel_strength = 1.5810000750975
+shader_parameter/fresnel_colour = Color(0.97514766, 0.4014846, 0, 1)
 shader_parameter/enable_scan_lines = true
 shader_parameter/scan_speed = 1.0
 shader_parameter/scan_colour = Color(0, 1, 0, 1)
-shader_parameter/line_density = 100.0
+shader_parameter/scan_opacity = 0.258000012255
+shader_parameter/line_density = 1.0

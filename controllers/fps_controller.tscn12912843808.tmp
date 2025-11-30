@@ -48,7 +48,7 @@ size = Vector3(0.1, 0.1, 0.1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_xno33"]
 margin = 1.034
-size = Vector3(0.8, 0.65, 1.2)
+size = Vector3(1, 0.65, 1.2)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -515,7 +515,9 @@ script = ExtResource("5_12ia1")
 player = NodePath("../..")
 grid_columns = 15
 grid_rows = 6
+max_weight = null
 hotbar_slots = 10
+enable_weight_limit = null
 drop_marker = NodePath("../ItemsInteractionComponent/DropMarker")
 
 [node name="InventoryHandlingComponent" type="Node" parent="Components/InventoryComponent" node_paths=PackedStringArray("inventory_component", "inventory_ui", "camera_controller", "state_machine", "pickup_interaction")]

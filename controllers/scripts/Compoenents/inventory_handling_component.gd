@@ -36,7 +36,7 @@ func _ready():
 func _add_test_items() -> void:
 	"""Add test items (remove in production)"""
 	var item =  ItemDatabase.create_item("item_1764169325431")
-	var item2 =  ItemDatabase.create_item("ammo_1764360991992", 75)
+	var item2 =  ItemDatabase.create_items("ammo_1764360991992", 75)
 	var item3 =  ItemDatabase.create_item("medkit_1764361004645", 6)
 	var item4 =  ItemDatabase.create_item("medkit_1764361004645")
 	var item5 =  ItemDatabase.create_item("medkit_1764361004645")
@@ -45,7 +45,7 @@ func _add_test_items() -> void:
 	var item8 =  ItemDatabase.create_item("medkit_1764361004645")
 	
 	inventory_component.add_item(item)
-	inventory_component.add_item(item2)
+	inventory_component.add_items(item2)
 	inventory_component.add_item(item3)
 	inventory_component.add_item(item4)
 	inventory_component.add_item(item5)
@@ -127,7 +127,11 @@ func pickup_item(item: InventoryItem) -> bool:
 		return false
 	
 	if inventory_component.add_item(item):
-		print("✓ Picked up: ", item.display_name)
+		# Show count if stackable
+		if item.stackable and item.stack_count > 1:
+			print("✓ Picked up: %s (x%d)" % [item.display_name, item.stack_count])
+		else:
+			print("✓ Picked up: %s" % item.display_name)
 		return true
 	else:
 		print("✗ Inventory full!")
