@@ -1,4 +1,4 @@
-[gd_scene load_steps=72 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=74 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -34,6 +34,7 @@
 [ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
 [ext_resource type="Script" uid="uid://bjjqmr27j3eg8" path="res://controllers/scripts/StateMchinePlayer/swimming_state.gd" id="17_5b0ob"]
 [ext_resource type="Script" uid="uid://c2ehk8a60pir7" path="res://controllers/scripts/StateMchinePlayer/sprint_swiming_state.gd" id="18_bygp4"]
+[ext_resource type="Shader" uid="uid://bidtqalywrkra" path="res://shaders/uis/DistortionSpeedLines.gdshader" id="18_tnfk2"]
 [ext_resource type="Script" uid="uid://bn3kmp5jtydid" path="res://controllers/scripts/StateMchinePlayer/surface_swimming_state.gd" id="19_rcx31"]
 [ext_resource type="PackedScene" uid="uid://dy3tudla5p2nc" path="res://addons/cogito/Components/PlayerInteractionComponent.tscn" id="25_bjwns"]
 [ext_resource type="AudioStream" uid="uid://up2hfhgq1qx6" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep00.ogg" id="25_qmwy2"]
@@ -57,6 +58,17 @@ size = Vector3(0.1, 0.1, 0.1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_xno33"]
 margin = 1.034
 size = Vector3(0.6, 0.65, 1.4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ius01"]
+shader = ExtResource("18_tnfk2")
+shader_parameter/line_count = 2.0
+shader_parameter/distortion_power = 0.034
+shader_parameter/line_falloff = 1.0
+shader_parameter/mask_size = 0.175
+shader_parameter/mask_edge = 0.195
+shader_parameter/animation_speed = 20.0
+shader_parameter/blur_strength = 0.01
+shader_parameter/effect_power = 0.0
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -541,7 +553,7 @@ drop_marker = NodePath("../ItemsInteractionComponent/DropMarker")
 [node name="InventoryHandlingComponent" type="Node" parent="Components/InventoryComponent" node_paths=PackedStringArray("inventory_component", "inventory_ui", "camera_controller", "state_machine", "pickup_interaction")]
 script = ExtResource("6_uefoi")
 inventory_component = NodePath("..")
-inventory_ui = NodePath("../../../Control/InventoryUI")
+inventory_ui = NodePath("../../../Control/UI/InventoryUI")
 camera_controller = NodePath("../../../CameraController")
 state_machine = NodePath("../../../StateMachine")
 pickup_interaction = NodePath("../../ItemsInteractionComponent")
@@ -563,11 +575,9 @@ pickup_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/
 
 [node name="DropMarker" type="Marker3D" parent="Components/ItemsInteractionComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9155706, -1.4331703)
-visible = false
 
-[node name="PlayerHealthComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
+[node name="PlayerHealthComponent" type="Node" parent="Components"]
 script = ExtResource("9_b6iva")
-player = NodePath("../..")
 
 [node name="ArmorModule" type="Node" parent="Components/PlayerHealthComponent"]
 script = ExtResource("10_sy8o7")
@@ -588,12 +598,11 @@ post_process_layer = NodePath("../../../CameraController/CameraBase/CameraOffset
 [node name="HealingManager" type="Node" parent="Components"]
 script = ExtResource("12_xikej")
 
-[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_base", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
+[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
 player = NodePath("..")
 audio_component = NodePath("../Components/AudioController")
-camera_base = NodePath("CameraBase")
 camera_offset = NodePath("CameraBase/CameraOffset")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
 MOUSE_SENSITIVITY = 0.1
@@ -655,32 +664,47 @@ collision_mask = 128
 
 [node name="Effects" type="CanvasLayer" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 
-[node name="BlurRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects"]
+[node name="Control" type="Control" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects"]
 visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="BlurRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects/Control"]
+visible = false
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="DesaturationRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects"]
+[node name="DesaturationRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects/Control"]
 visible = false
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VignetteRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects"]
+[node name="VignetteRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects/Control"]
 visible = false
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="blur4" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects"]
+[node name="DistortionSpeedLines" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects/Control"]
 visible = false
+material = SubResource("ShaderMaterial_ius01")
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -879,54 +903,15 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 
-[node name="Crosshair" parent="Control/UI" instance=ExtResource("4_5w0k0")]
-layout_mode = 1
-crosshairThickness = 1.5
-crosshairSize = 6.0
-crosshairGap = 3.0
-crosshairDot = true
-breathingEnabled = false
-currentPreset = 1
-
-[node name="BottomPanel" type="MarginContainer" parent="Control/UI"]
-layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -100.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_constants/margin_left = 450
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 450
-theme_override_constants/margin_bottom = 30
-
-[node name="PanelContainer" type="PanelContainer" parent="Control/UI/BottomPanel"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/UI/BottomPanel/PanelContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="Label" type="Label" parent="Control/UI/BottomPanel/PanelContainer/VBoxContainer"]
-layout_mode = 2
-text = "Hotbar [1-8]"
-horizontal_alignment = 1
-
-[node name="Hotbar" type="HBoxContainer" parent="Control/UI/BottomPanel/PanelContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-alignment = 1
-
 [node name="InteractControl" type="Control" parent="Control/UI"]
+z_index = -1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
+mouse_filter = 2
 
 [node name="Panel" type="Panel" parent="Control/UI/InteractControl"]
 layout_mode = 1
@@ -961,11 +946,50 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "Hold E to Pick up"
 
-[node name="InventoryUI" parent="Control" instance=ExtResource("29_thp3d")]
+[node name="Crosshair" parent="Control/UI" instance=ExtResource("4_5w0k0")]
 visible = false
 layout_mode = 1
-cell_size = null
-hotbar_always_visible = null
+crosshairThickness = 1.5
+crosshairSize = 6.0
+crosshairGap = 3.0
+crosshairDot = true
+breathingEnabled = false
+currentPreset = 1
+
+[node name="InventoryUI" parent="Control/UI" instance=ExtResource("29_thp3d")]
+visible = false
+layout_mode = 1
+
+[node name="BottomPanel" type="MarginContainer" parent="Control/UI"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 450
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 450
+theme_override_constants/margin_bottom = 30
+
+[node name="PanelContainer" type="PanelContainer" parent="Control/UI/BottomPanel"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/UI/BottomPanel/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="Control/UI/BottomPanel/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Hotbar [1-8]"
+horizontal_alignment = 1
+
+[node name="Hotbar" type="HBoxContainer" parent="Control/UI/BottomPanel/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
 
 [node name="PauseMenu" type="Control" parent="Control"]
 visible = false

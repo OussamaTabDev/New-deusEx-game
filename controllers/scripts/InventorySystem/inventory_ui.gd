@@ -27,8 +27,8 @@ const COLOR_GAMEPAD_CURSOR = Color(1.0, 0.8, 0.2, 0.4) # Gold highlight for cont
 @onready var equipment_panel: PanelContainer = $MarginContainer/HBoxContainer/EquipmentPanel
 @onready var container_panel: PanelContainer = $MarginContainer/HBoxContainer/ContainerPanel
 
-@onready var hotbar_panel: PanelContainer = $"../UI/BottomPanel/PanelContainer"
-@onready var hotbar_container: HBoxContainer = $"../UI/BottomPanel/PanelContainer/VBoxContainer/Hotbar"
+@onready var hotbar_panel: PanelContainer = $"../BottomPanel/PanelContainer"
+@onready var hotbar_container: HBoxContainer = $"../BottomPanel/PanelContainer/VBoxContainer/Hotbar"
 
 @onready var tooltip: PanelContainer = $Tooltip
 @onready var context_menu: PopupMenu = $ContextMenu
@@ -171,16 +171,25 @@ func _initialize_hotbar():
         slot.add_theme_stylebox_override("panel", style)
         
         var label = Label.new()
-        label.text = str((i + 1)%10)
+        label.text = str((i + 1) % 10)
         label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         slot.add_child(label)
         
-        # Connect input for Drag & Drop
+        # --- FIX: Connect Input AND Hover signals ---
         slot.gui_input.connect(_on_hotbar_slot_input.bind(i))
         
+        # This enables the "Examine" debug tooltip when hovering
+        slot.mouse_entered.connect(func(): 
+            if inventory_component.hotbar[i]: 
+                _on_item_mouse_entered(inventory_component.hotbar[i])
+        )
+        slot.mouse_exited.connect(_on_item_mouse_exited)
+        # ---------------------------------------------
+        
         hotbar_container.add_child(slot)
-        hotbar_container.get_node("../Label").text = "Hotbar [1-%s]" % (inventory_component.hotbar_slots%10)  
         hotbar_slots.append(slot)
+    
+    hotbar_container.get_node("../Label").text = "Hotbar [1-%s]" % (inventory_component.hotbar_slots % 10)
 
 func _initialize_container_grid(container: ContainerComponent):
     for cell in container_grid_cells: cell.queue_free()
@@ -627,36 +636,48 @@ func _get_source_from_panel(panel_name: String) -> String:
 
 func _on_hotbar_slot_input(event: InputEvent, index: int):
     if event is InputEventMouseButton:
-        if event.button_index == MOUSE_BUTTON_LEFT:
-            if event.pressed:
-                # 1. Drop logic: If dragging something, try to put it in hotbar
-                if is_dragging:
-                    _attempt_drop_to_hotbar(index)
-                else:
-                    # 2. Drag logic: If not dragging, try to drag FROM hotbar (remove assignment)
-                    var item = inventory_component.hotbar[index]
-                    if item:
-                        # For hotbar, we usually just clear the slot, we don't "take" the item object out of existence
-                        # because hotbar items usually reference inventory items.
-                        # BUT, depending on system, if it's a reference:
-                        inventory_component.hotbar[index] = null
-                        refresh_display()
+        # [FIX] RIGHT CLICK: Remove item instantly
+        if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+            if not is_dragging:
+                inventory_component.hotbar[index] = null
+                refresh_display()
+                # Optional: Hide tooltip since item is gone
+                _hide_tooltip()
+
+        # [FIX] LEFT CLICK: Drag logic
+        elif event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+            if is_dragging:
+                # If holding an item, try to DROP it here
+                _attempt_drop_to_hotbar(index)
+            else:
+                # If NOT holding, PICK IT UP (Start Dragging)
+                var item = inventory_component.hotbar[index]
+                if item:
+                    # 1. Clear the slot (so we can move it or drop it in void to remove)
+                    inventory_component.hotbar[index] = null
+                    refresh_display()
+                    
+                    # 2. ACTUALLY Start the drag (This was missing before!)
+                    _start_drag(item, "hotbar")
 
 func _attempt_drop_to_hotbar(index: int):
     if not dragged_item: return
     
-    # RESTRICTION: No Ammo, No Useless items
+    # RESTRICTION: Check if item is allowed (e.g. no ammo)
     if not _can_equip_to_hotbar(dragged_item):
-        # Optional: Shake effect or red flash
         return
 
-    # Assign to hotbar
+    # [FIX] NO DUPLICATE LOGIC
+    # Loop through all hotbar slots. If we find this item, clear it.
+    for i in range(inventory_component.hotbar.size()):
+        if inventory_component.hotbar[i] == dragged_item:
+            inventory_component.hotbar[i] = null
+
+    # Assign to the new slot
     inventory_component.hotbar[index] = dragged_item
     
-    # We don't remove it from inventory (usually hotbar is a shortcut reference)
-    # If your system removes it from grid, use: inventory_component.remove_item(dragged_item)
-    # Assuming Hotbar is SHORTCUTS:
-    _cancel_drag(true) # Success, put it back in grid visually, copy to hotbar
+    # Stop dragging (Success)
+    _cancel_drag(true) 
     refresh_display()
 
 func _can_equip_to_hotbar(item: InventoryItem) -> bool:
@@ -711,6 +732,7 @@ func _start_drag(item: InventoryItem, source: String):
     
     # Create Floating Icon
     drag_floating_icon = TextureRect.new()
+    drag_floating_icon.z_index = 2
     drag_floating_icon.texture = item.icon
     drag_floating_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     drag_floating_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -906,12 +928,6 @@ func _end_drag():
                         success = false
 
     # 3. DROP ITEM FROM INVENTORY IF RELEASED OUTSIDE VALID AREAS
-    # if not success:
-    #     var source_inv = _get_inventory_from_source(drag_source)
-    #     if source_inv:
-    
-    #         source_inv.remove_item(dragged_item)
-    #         success = true  # Consider this a successful "drop"
 
     if not success:
         var source_inv = _get_inventory_from_source(drag_source)

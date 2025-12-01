@@ -410,13 +410,39 @@ func drop_item(item: InventoryItem, source: String):
     if not item or item.scene_path == "":
         push_warning("Dropped item is null or missing scene_path")
         return
-
+    
+    var drop_pos := player.global_position + Vector3(0,0.2,0)
     var world = get_tree().get_current_scene()
-    var pickup = PickupableItem.create_pickup(item, drop_marker.global_position, world)
+    if not player.is_ledge_detect() :
+        
+
+        # Random spread radius
+        var radius := 0.5  # how far items can land around the drop marker
+        var rand_offset := Vector3(
+            randf_range(-radius, radius),
+            0,
+            randf_range(0, radius)
+        )
+
+        drop_pos = drop_marker.global_position + rand_offset
+    
+    
+    var pickup = PickupableItem.create_pickup(item, drop_pos, world)
+    
     if pickup:
+        # Optional: add slight rotation randomness for visual variation
+        pickup.rotation.y = randf_range(0.0, TAU)
+
+        # If RigidBody -> throw it a bit
+        if pickup is RigidBody3D:
+            (pickup as RigidBody3D).apply_impulse(Vector3.ZERO,
+                Vector3(randf_range(-2,2), randf_range(3,6), randf_range(-2,2))
+            )
+
         item_dropped.emit(item, source)
     else:
         push_error("Failed to create pickup for item: %s" % item.id)
+
 
 ## Save inventory to dictionary
 func save_to_dict() -> Dictionary:
