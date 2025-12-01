@@ -47,7 +47,7 @@ func check_transitions() -> State:
 		return state_machine.get_state("JumpingState")
 	
 	# Check for crouch
-	if Input.is_action_just_pressed("crouch"):
+	if Input.is_action_just_pressed("crouch") or need_to_crouch():
 		
 		return state_machine.get_state("CrouchWalkingState")
 	
@@ -68,11 +68,9 @@ func check_transitions() -> State:
 
 	return null
 
-# func _process(delta: float) -> void:
 
-
-
-	
-
-		
-	
+func need_to_crouch() -> bool:
+	# Check if the player is in a space that requires crouching
+	if player:
+		return $"../../Raycasters/HeadCast".is_colliding()
+	return false

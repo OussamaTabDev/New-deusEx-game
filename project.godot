@@ -167,6 +167,10 @@ toggle_inventory={
 
 [layer_names]
 
+3d_render/layer_1="MainLayer"
+3d_render/layer_2="HackingLayer"
+3d_render/layer_3="player"
+3d_render/layer_4="WeaponsLayer"
 3d_physics/layer_1="Land"
 3d_physics/layer_2="player"
 3d_physics/layer_4="ItemsGrap"

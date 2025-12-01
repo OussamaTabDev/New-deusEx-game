@@ -12,8 +12,10 @@ extends Node3D
 @export_group("Node References")
 @export var player: CharacterBody3D
 @export var audio_component: PlayerAudioComponent
-@export var CAMERA_CONTROLLER: Camera3D
+@export var camera_base:Node3D
 @export var camera_offset:Node3D
+@export var CAMERA_CONTROLLER: Camera3D
+### self[camera_base[camera_offset[CAMERA_CONTROLLER]]] as childs of each others
 # ============================================================
 # FEATURE TOGGLES
 # ============================================================

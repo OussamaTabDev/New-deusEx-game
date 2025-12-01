@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://txxbxnskk0kg"]
+
+[ext_resource type="Script" uid="uid://dgepyay2a1nxs" path="res://controllers/scripts/HeathAndDamageSystem/enemy_health_component.gd" id="1_my7u3"]
+[ext_resource type="Script" uid="uid://cgxjwtj0l6grg" path="res://controllers/scripts/HeathAndDamageSystem/armor_module.gd" id="2_035gx"]
+[ext_resource type="Script" uid="uid://dbcsitmcbiri2" path="res://controllers/scripts/HeathAndDamageSystem/bleeding_system.gd" id="3_gyrv2"]
+
+[node name="EnemyHealthComponent" type="Node"]
+script = ExtResource("1_my7u3")
+
+[node name="ArmorModule" type="Node" parent="."]
+script = ExtResource("2_035gx")
+
+[node name="BleedingSystem" type="Node" parent="."]
+script = ExtResource("3_gyrv2")

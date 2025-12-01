@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bs225oddvmcic"]
+
+[ext_resource type="Shader" uid="uid://cl81v83p6nddy" path="res://shaders/uis/hologramEffect.gdshader" id="1_b8x30"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_b8x30")
+shader_parameter/opacity = 0.05200000247
+shader_parameter/core_colour = Color(1, 0.34117648, 1, 1)
+shader_parameter/fresnel_strength = 0.3450000163875
+shader_parameter/fresnel_colour = Color(0.43177944, 0.128566, 0, 1)
+shader_parameter/enable_scan_lines = true
+shader_parameter/scan_speed = 2.0000001043084
+shader_parameter/scan_colour = Color(0, 1, 0, 1)
+shader_parameter/scan_opacity = 0.270000012825
+shader_parameter/line_density = 109.0
