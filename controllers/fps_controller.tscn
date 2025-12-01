@@ -578,20 +578,22 @@ script = ExtResource("11_pxa28")
 [node name="MovementInjuryEffects" type="Node" parent="Components/PlayerHealthComponent"]
 script = ExtResource("12_t14so")
 
-[node name="CameraInjuryEffects" type="Node" parent="Components/PlayerHealthComponent" node_paths=PackedStringArray("camera_controller", "health_component", "camera_3d")]
+[node name="CameraInjuryEffects" type="Node" parent="Components/PlayerHealthComponent" node_paths=PackedStringArray("camera_controller", "health_component", "camera_3d", "post_process_layer")]
 script = ExtResource("13_tnfk2")
 camera_controller = NodePath("../../../CameraController")
 health_component = NodePath("..")
 camera_3d = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D")
+post_process_layer = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D/Effects")
 
 [node name="HealingManager" type="Node" parent="Components"]
 script = ExtResource("12_xikej")
 
-[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
+[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_base", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
 player = NodePath("..")
 audio_component = NodePath("../Components/AudioController")
+camera_base = NodePath("CameraBase")
 camera_offset = NodePath("CameraBase/CameraOffset")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
 MOUSE_SENSITIVITY = 0.1
