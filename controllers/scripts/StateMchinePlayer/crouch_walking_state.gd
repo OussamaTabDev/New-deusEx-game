@@ -1,8 +1,8 @@
 class_name CrouchWalkingState
 extends State
 
-@export_range(3, 10, 0.1) var crouch_speed: float = 6.0
-@export var walk_crouch_speed: float = 2.5
+
+@export_range(3, 10, 0.1) var anim_crouch_speed: float = 6.0
 @export var is_toggle_crouch: bool = false
 @export var headCast: ShapeCast3D
 @export var proneCast: ShapeCast3D
@@ -18,7 +18,7 @@ func _ready():
 	proneCast.add_exception(player)  # Good practice
 
 func enter() -> void:
-	player.SPEED = walk_crouch_speed
+	player.SPEED = movement_stats_provider.crouch_speed
 	if state_machine.previous_state.name in was_crouching_array:
 		pass
 	else:
@@ -35,7 +35,7 @@ func update(delta: float) -> void:
 
 func physics_update(delta: float) -> void:
 	# Interpolate speed to crouch walk speed
-	player.SPEED = lerp(player.SPEED, walk_crouch_speed, 2.5 * delta)
+	player.SPEED = lerp(player.SPEED, movement_stats_provider.crouch_speed, 2.5 * delta)
 
 	# Apply gravity if airborne
 	if not player.is_on_floor():
@@ -103,15 +103,15 @@ func check_transitions() -> State:
 
 func _animate_crouch(is_crouching: bool) -> void:
 	if is_crouching:
-		player.anim_player.play("Crouching", -1, crouch_speed)
+		player.anim_player.play("Crouching", -1, anim_crouch_speed)
 	else:
-		player.anim_player.play("Crouching", -1, -crouch_speed * 0.8, true)
+		player.anim_player.play("Crouching", -1, -anim_crouch_speed * 0.8, true)
 
 func _animate_proning(is_proning: bool) -> void:
 	if is_proning:
-		player.anim_player.play("Pronning", -1, crouch_speed * 2)
+		player.anim_player.play("Pronning", -1, anim_crouch_speed * 2)
 	else:
-		player.anim_player.play("Pronning", -1, -crouch_speed * 2, true)
+		player.anim_player.play("Pronning", -1, -anim_crouch_speed * 2, true)
 
 func _update_prone_pose() -> void:
 	var should_prone = proneCast.is_colliding()

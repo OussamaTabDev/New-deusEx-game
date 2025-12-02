@@ -1,4 +1,4 @@
-[gd_scene load_steps=74 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=75 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -30,6 +30,7 @@
 [ext_resource type="Script" uid="uid://boyrl6hfbog6l" path="res://controllers/scripts/HeathAndDamageSystem/injuredSystem/camera_injury_effects.gd" id="13_tnfk2"]
 [ext_resource type="Script" uid="uid://4prbyxtm4pjg" path="res://controllers/scripts/StateMchinePlayer/wall_run_state.gd" id="14_fyafc"]
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
+[ext_resource type="Script" uid="uid://dmfp4audscxl3" path="res://controllers/scripts/StateMchinePlayer/movement_stats_provider.gd" id="15_mn68o"]
 [ext_resource type="Script" uid="uid://clhcimphoqlp5" path="res://controllers/scripts/StateMchinePlayer/ladder_climb_state.gd" id="16_h7h5r"]
 [ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
 [ext_resource type="Script" uid="uid://bjjqmr27j3eg8" path="res://controllers/scripts/StateMchinePlayer/swimming_state.gd" id="17_5b0ob"]
@@ -498,24 +499,23 @@ shader_parameter/final_fill_transparency = 0.15
 shader_parameter/initial_pixelize_power = 9.0
 shader_parameter/final_pixelize_power = 1.0
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "h_cast", "h_cast_up", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler") groups=["Player"]]
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "h_cast", "h_cast_up", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler") groups=["Player"]]
 collision_layer = 2
 collision_mask = 271
 platform_on_leave = 2
 script = ExtResource("1_pgc1p")
-WALK_SPEED = 4.0
 JUMP_VELOCITY = 4.8
 CAMERA_CONTROLLER = NodePath("CameraController")
 state_machine = NodePath("StateMachine")
 anim_player = NodePath("CameraController/AnimationPlayer")
 head_Cast = NodePath("Raycasters/HeadCast")
+h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
+h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
 chest_Cast = NodePath("Raycasters/ClimbingCasts/ChestCast")
 mid_chest_Cast = NodePath("Raycasters/ClimbingCasts/midChestCast")
 upperchestCastNode = NodePath("Raycasters/ClimbingCasts/upperChestCasts")
 upperchest_Cast = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle")
 upperchest_Cast_Crouch = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastCrouch")
-h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
-h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
 r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
 step_handler = NodePath("Components/StepHandlerComponent")
 audio_component = NodePath("Components/AudioController")
@@ -576,8 +576,9 @@ pickup_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/
 [node name="DropMarker" type="Marker3D" parent="Components/ItemsInteractionComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9155706, -1.4331703)
 
-[node name="PlayerHealthComponent" type="Node" parent="Components"]
+[node name="PlayerHealthComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
 script = ExtResource("9_b6iva")
+player = NodePath("../..")
 
 [node name="ArmorModule" type="Node" parent="Components/PlayerHealthComponent"]
 script = ExtResource("10_sy8o7")
@@ -585,8 +586,14 @@ script = ExtResource("10_sy8o7")
 [node name="BleedingSystem" type="Node" parent="Components/PlayerHealthComponent"]
 script = ExtResource("11_pxa28")
 
-[node name="MovementInjuryEffects" type="Node" parent="Components/PlayerHealthComponent"]
+[node name="MovementInjuryEffects" type="Node" parent="Components/PlayerHealthComponent" node_paths=PackedStringArray("player", "movement_stats_provider", "health_component", "state_machine", "audio_component")]
 script = ExtResource("12_t14so")
+player = NodePath("../../..")
+movement_stats_provider = NodePath("../../MovementStatsProvider")
+health_component = NodePath("..")
+state_machine = NodePath("../../../StateMachine")
+audio_component = NodePath("../../AudioController")
+enable_injury_stamina = false
 
 [node name="CameraInjuryEffects" type="Node" parent="Components/PlayerHealthComponent" node_paths=PackedStringArray("camera_controller", "health_component", "camera_3d", "post_process_layer")]
 script = ExtResource("13_tnfk2")
@@ -597,6 +604,11 @@ post_process_layer = NodePath("../../../CameraController/CameraBase/CameraOffset
 
 [node name="HealingManager" type="Node" parent="Components"]
 script = ExtResource("12_xikej")
+
+[node name="MovementStatsProvider" type="Node" parent="Components" node_paths=PackedStringArray("player", "injury_effects")]
+script = ExtResource("15_mn68o")
+player = NodePath("../..")
+injury_effects = NodePath("../PlayerHealthComponent/MovementInjuryEffects")
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
@@ -732,10 +744,11 @@ libraries = {
 root_node = NodePath("../..")
 anim_player = NodePath("../AnimationPlayer")
 
-[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "player")]
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "player", "movement_stats_provider")]
 script = ExtResource("4_l8yvu")
 initial_state = NodePath("IdleState")
 player = NodePath("..")
+movement_stats_provider = NodePath("../Components/MovementStatsProvider")
 
 [node name="IdleState" type="Node" parent="StateMachine"]
 script = ExtResource("5_5w0k0")
@@ -768,7 +781,6 @@ collision = NodePath("../../CollisionShape3D")
 
 [node name="CrouchWalkingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast", "proneCast")]
 script = ExtResource("11_fdopr")
-walk_crouch_speed = 2.0
 headCast = NodePath("../../Raycasters/HeadCast")
 proneCast = NodePath("../../Raycasters/ProneCast")
 

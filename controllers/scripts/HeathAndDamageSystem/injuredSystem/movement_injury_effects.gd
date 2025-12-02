@@ -28,6 +28,7 @@ enum MovementState {
 # ============================================================
 @export_category("Core References")
 @export var player: Player
+@export var movement_stats_provider: MovementStatsProvider
 @export var health_component: PlayerHealthComponent
 @export var state_machine: StateMachine
 @export var audio_component: PlayerAudioComponent
@@ -143,6 +144,7 @@ var current_movement_state: MovementState = MovementState.NORMAL
 # Speed calculations
 var _calculated_walk_speed: float = 0.0
 var _calculated_sprint_speed: float = 0.0
+var _calculated_crouch_speed: float = 0.0
 var _speed_multiplier: float = 1.0
 
 # Stamina
@@ -212,6 +214,12 @@ func _process(delta: float):
 	_update_injury_events(delta)
 	_apply_movement_modifiers()
 
+	
+	# Notify stats provider (if exists)
+	if player and movement_stats_provider:
+		# var provider = player.get_node("MovementStatsProvider") as MovementStatsProvider
+		# if provider:
+		movement_stats_provider.update_stats()
 func _update_health_cache():
 	var left_leg = health_component.get_limb_health_percent(LimbData.BodyPart.LEFT_LEG)
 	var right_leg = health_component.get_limb_health_percent(LimbData.BodyPart.RIGHT_LEG)
@@ -297,6 +305,7 @@ func _update_speed_calculations():
 	# Calculate final speeds
 	_calculated_walk_speed = player.WALK_SPEED * _speed_multiplier
 	_calculated_sprint_speed = player.SPRINT_SPEED * _speed_multiplier
+	_calculated_crouch_speed = player.CROUCH_SPEED * _speed_multiplier
 
 # ============================================================
 # STAMINA SYSTEM
@@ -452,8 +461,8 @@ func _apply_movement_modifiers():
 	if not player:
 		return
 	
-	# Apply speed modifiers
-	player.SPEED = _calculated_walk_speed
+	# Apply speed modifiers by providing apis instead hard code ## TODO AI 
+	# player.SPEED = _calculated_walk_speed
 	
 	# Modify jump velocity if injured
 	if _leg_avg_health < 0.6:

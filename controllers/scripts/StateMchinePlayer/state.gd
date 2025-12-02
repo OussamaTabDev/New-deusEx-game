@@ -5,6 +5,7 @@ extends Node
 var player: CharacterBody3D
 var state_machine: StateMachine
 var CAMERA_CONTROLLER: CameraController
+var movement_stats_provider : MovementStatsProvider
 
 func _ready():
 	# Wait for state machine to be ready
@@ -12,6 +13,7 @@ func _ready():
 	state_machine = get_parent()
 	player = state_machine.player
 	CAMERA_CONTROLLER = player.CAMERA_CONTROLLER
+	movement_stats_provider = state_machine.movement_stats_provider
 
 # Called when entering the state
 func enter() -> void:

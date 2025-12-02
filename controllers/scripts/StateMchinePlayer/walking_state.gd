@@ -4,11 +4,11 @@ extends State
 
 func enter() -> void:
 	player.can_wall_run_bool = true
-	player.SPEED = player.WALK_SPEED
+	player.SPEED = movement_stats_provider.walk_speed
 
 func physics_update(delta: float) -> void:
 	# Smoothly transition speed
-	player.SPEED = lerp(player.SPEED, player.WALK_SPEED, 2.5 * delta)
+	player.SPEED = lerp(player.SPEED, movement_stats_provider.walk_speed, 2.5 * delta)
 	
 	# Apply gravity
 	if not player.is_on_floor():

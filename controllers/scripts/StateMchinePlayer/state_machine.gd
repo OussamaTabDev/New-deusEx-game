@@ -3,6 +3,7 @@ extends Node
 
 @export var initial_state: State
 @export var player: CharacterBody3D
+@export var movement_stats_provider: MovementStatsProvider
 var current_state: State
 var previous_state: State  # <-- new variable to track previous state
 var states: Dictionary = {}

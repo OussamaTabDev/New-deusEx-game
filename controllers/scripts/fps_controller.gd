@@ -1,25 +1,57 @@
 class_name Player extends CharacterBody3D
 
 # Movement parameters
-@export var WALK_SPEED: float = 5.0
+## ---------------------------------------------------------
+## PLAYER SETTINGS
+## ---------------------------------------------------------
+@export_category("Player Settings")
+
+@export_group("Movement")
+@export var WALK_SPEED: float = 4.0
 @export var SPRINT_SPEED: float = 8.0
+@export var CROUCH_SPEED: float = 2.0
 @export var JUMP_VELOCITY: float = 4.5
+
+@export_group("Controllers")
 @export var CAMERA_CONTROLLER: CameraController
 @export var state_machine: StateMachine
 @export var anim_player: AnimationPlayer
-@export var head_Cast : ShapeCast3D
+
+## ---------------------------------------------------------
+## DETECTION & COLLISION CASTS
+## ---------------------------------------------------------
+@export_category("Detection & Casts")
+
+@export_group("Head Casts")
+@export var head_Cast: ShapeCast3D
+@export var h_cast: RayCast3D
+@export var h_cast_up: RayCast3D
+
+@export_group("Chest Casts")
 @export var chest_Cast: ShapeCast3D
 @export var mid_chest_Cast: ShapeCast3D
+
+@export_subgroup("Upper Chest")
 @export var upperchestCastNode: Node3D
 @export var upperchest_Cast: ShapeCast3D
 @export var upperchest_Cast_Crouch: ShapeCast3D
-@export var h_cast : RayCast3D
-@export var h_cast_up : RayCast3D
-@export var r_cast : RayCast3D
-@export var step_handler : StepHandlerComponent
+
+@export_group("Right Side Casts")
+@export var r_cast: RayCast3D
+
+## ---------------------------------------------------------
+## COMPONENTS
+## ---------------------------------------------------------
+@export_category("Components")
+
+@export_group("Player Systems")
+@export var step_handler: StepHandlerComponent
 @export var audio_component: PlayerAudioComponent
 @export var rigidbody_interaction_component: RigidBodyInteractionComponent
+
+@export_group("Inventory")
 @export var inventory_handler: InventoryHandlerComponenent
+
 
 @export_group("Audio")
 ## AudioStream that gets played when the player jumps.
