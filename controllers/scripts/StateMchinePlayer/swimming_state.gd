@@ -2,7 +2,7 @@ class_name SwimmingState
 extends State
 
 # Swimming parameters
-@export var swim_speed: float = 3.0
+
 @export var swim_acceleration: float = 6.0
 @export var swim_friction: float = 6.0
 @export var buoyancy_force: float = .5
@@ -21,7 +21,7 @@ func enter() -> void:
 		player.anim_player.play("Crouching", -1, -10, true)
 		pass
 	player.can_wall_run_bool = false
-	player.SPEED = swim_speed
+	player.SPEED = movement_stats_provider.swim_speed
 	oxygen = oxygen_max
 	
 	# Store the velocity when entering water for momentum-based depth
@@ -99,8 +99,8 @@ func physics_update(delta: float) -> void:
 	
 	# Horizontal movement
 	if input_dir.length() > 0.1:
-		player.velocity.x = move_toward(player.velocity.x, direction.x * swim_speed, swim_acceleration * delta)
-		player.velocity.z = move_toward(player.velocity.z, direction.z * swim_speed, swim_acceleration * delta)
+		player.velocity.x = move_toward(player.velocity.x, direction.x * movement_stats_provider.swim_speed, swim_acceleration * delta)
+		player.velocity.z = move_toward(player.velocity.z, direction.z * movement_stats_provider.swim_speed, swim_acceleration * delta)
 	else:
 		# Apply friction
 		player.velocity.x = move_toward(player.velocity.x, 0, swim_friction * delta)
@@ -149,9 +149,9 @@ func check_transitions() -> State:
 			return state_machine.get_state("FallingState")
 	
 	# Sprint swimming (faster swimming)
-	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
-	if Input.is_action_pressed("sprint") and input_dir.length() > 0.1:
-		return state_machine.get_state("SprintSwimmingState")  # Optional: create this for faster swimming
+	# var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	# if Input.is_action_pressed("sprint") and input_dir.length() > 0.1:
+	# 	return state_machine.get_state("SprintSwimmingState")  # Optional: create this for faster swimming
 	
 	# Only transition to surface swimming if:
 	# - Very close to surface

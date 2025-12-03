@@ -10,6 +10,7 @@ class_name Player extends CharacterBody3D
 @export var WALK_SPEED: float = 4.0
 @export var SPRINT_SPEED: float = 8.0
 @export var CROUCH_SPEED: float = 2.0
+@export var SWIM_SPEED: float = 2.0
 @export var JUMP_VELOCITY: float = 4.5
 
 @export_group("Controllers")

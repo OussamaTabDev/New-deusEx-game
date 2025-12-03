@@ -1,4 +1,4 @@
-[gd_scene load_steps=75 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=76 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -50,6 +50,7 @@
 [ext_resource type="Shader" uid="uid://cckhr4i3nubjv" path="res://controllers/UI/shaders/birdges.gdshader" id="32_kaa6b"]
 [ext_resource type="Resource" uid="uid://ca0q2t6w08ubh" path="res://addons/cogito/DynamicFootstepSystem/FootstepMaterialLibrary/sample_footstep_material_library.tres" id="32_uefoi"]
 [ext_resource type="Texture2D" uid="uid://cumvdin6jmyh1" path="res://textures/Images/UI/main_pause.png" id="32_xno33"]
+[ext_resource type="Script" uid="uid://c3tv7kqkyftel" path="res://controllers/debugs/hand_d_debug.gd" id="42_ius01"]
 [ext_resource type="Script" uid="uid://bgjtlul6bmw6u" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gd" id="43_teryj"]
 [ext_resource type="Shader" uid="uid://bragsbfphgcjf" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gdshader" id="44_b6iva"]
 
@@ -617,6 +618,7 @@ player = NodePath("..")
 audio_component = NodePath("../Components/AudioController")
 camera_offset = NodePath("CameraBase/CameraOffset")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
+enable_idle_shake = false
 MOUSE_SENSITIVITY = 0.1
 CONTROLLER_SENSITIVITY = 2.5
 LEAN_AMOUNT = 0.8
@@ -905,6 +907,7 @@ mouse_filter = 1
 script = ExtResource("16_tg6sc")
 player = NodePath("..")
 state_machine = NodePath("../StateMachine")
+enable_debug = true
 
 [node name="UI" type="Control" parent="Control"]
 layout_mode = 1
@@ -1024,6 +1027,20 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("32_xno33")
+
+[node name="HandDDebug" type="Control" parent="Control" node_paths=PackedStringArray("player", "health_component", "healing_manager")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("42_ius01")
+player = NodePath("../..")
+auto_find_player = false
+health_component = NodePath("../../Components/PlayerHealthComponent")
+healing_manager = NodePath("../../Components/HealingManager")
+enable_auto_tests = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

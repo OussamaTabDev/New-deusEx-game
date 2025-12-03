@@ -12,6 +12,8 @@ signal jump_updated(jump_vel: float)
 var walk_speed: float = 0.0
 var sprint_speed: float = 0.0
 var crouch_speed: float = 0.0
+var swim_speed: float = 0.0
+
 var jump_velocity: float = 0.0
 var speed_multiplier: float = 1.0
 
@@ -33,6 +35,8 @@ func update_stats():
 	var base_walk = player.WALK_SPEED
 	var base_sprint = player.SPRINT_SPEED
 	var base_crouch = player.CROUCH_SPEED
+	var base_swim_speed = player.SWIM_SPEED
+
 	var base_jump = player.JUMP_VELOCITY
 
 	# Apply injury effects multiplier
@@ -41,7 +45,8 @@ func update_stats():
 	walk_speed = base_walk * mult
 	sprint_speed = base_sprint * mult
 	crouch_speed = base_crouch * mult
-
+	swim_speed = base_swim_speed * mult
+	
 	# Jump reduction based on leg health (you can refine this)
 	var leg_health = injury_effects._leg_avg_health  # Access internal cache safely
 	if leg_health < 0.6:

@@ -3,7 +3,7 @@ class_name SprintSwimmingState
 extends State
 
 # Sprint swimming parameters
-@export var sprint_swim_speed: float = 6.0
+@export var sprint_swim_speed: float = 16.0
 @export var sprint_acceleration: float = 12.0
 @export var sprint_friction: float = 8.0
 @export var buoyancy_force: float = 2.0
@@ -18,6 +18,7 @@ var oxygen_max: float = 100.0
 var oxygen_drain_rate: float = 10.0
 
 func enter() -> void:
+	
 	player.can_wall_run_bool = false
 	player.SPEED = sprint_swim_speed
 	
