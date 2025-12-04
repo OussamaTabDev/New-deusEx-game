@@ -1,15 +1,16 @@
 class_name MovementInjuryEffects
 extends Node
 
-##TODO: need to make this worked with state machine
-## Modular movement injury system that modifies player movement based on health
-## Handles speed penalties, stamina, animation states, and movement restrictions
+## Modular movement injury system with "Juicy" transitions and State Machine enforcement.
+## Uses Perlin noise to create uneven limping gaits and smooth interpolation for speed changes.
 
 # ============================================================
 # SIGNALS
 # ============================================================
 signal movement_state_changed(state: MovementState)
+signal stamina_changed(current: float, max: float)
 signal stamina_depleted()
+signal stamina_recovered()
 signal fall_risk_increased()
 
 # ============================================================
@@ -27,11 +28,19 @@ enum MovementState {
 # EXPORTS - REFERENCES
 # ============================================================
 @export_category("Core References")
-@export var player: Player
-@export var movement_stats_provider: MovementStatsProvider
-@export var health_component: PlayerHealthComponent
-@export var state_machine: StateMachine
-@export var audio_component: PlayerAudioComponent
+@export var player: CharacterBody3D # Generalized to CharacterBody3D, cast as needed
+@export var movement_stats_provider: Node # Generic reference
+@export var health_component: Node # Generic reference
+@export var state_machine: Node # Generic reference
+@export var audio_component: Node # Generic reference
+
+# ============================================================
+# EXPORTS - FEEL & POLISH (THE JUICE)
+# ============================================================
+@export_category("Game Feel")
+@export var speed_change_smoothing: float = 2.0 # How fast speed penalties apply (lower = heavier feel)
+@export var gait_noise_speed: float = 2.5 # How fast the limp unevenness oscillates
+@export var gait_unevenness: float = 0.15 # How much speed fluctuates while limping
 
 # ============================================================
 # EXPORTS - SPEED MODIFIERS
@@ -43,7 +52,7 @@ enum MovementState {
 @export var severe_limp_threshold: float = 0.4
 @export var severe_limp_speed: float = 0.6
 @export var crawl_threshold: float = 0.15
-@export var walk_threshold: float = 0.3
+@export var walk_threshold: float = 0.3 # Below this, cannot stand
 
 @export var crawl_speed: float = 0.3
 
@@ -63,12 +72,14 @@ enum MovementState {
 @export var enable_injury_stamina: bool = true
 @export var base_stamina: float = 100.0
 @export var stamina_regen_rate: float = 20.0
-@export var injured_stamina_regen: float = 10.0  # Slower regen when hurt
+@export var injured_stamina_regen: float = 8.0  # Slower regen when hurt
 
 @export_group("Stamina Costs")
 @export var sprint_stamina_cost: float = 15.0
 @export var jump_stamina_cost: float = 20.0
 @export var dash_stamina_cost: float = 30.0
+@export var swim_stamina_cost: float = 10.0
+@export var climb_stamina_cost: float = 12.0
 @export var injured_stamina_multiplier: float = 1.5  # Costs more when hurt
 
 # ============================================================
@@ -83,7 +94,7 @@ enum MovementState {
 @export var jump_height_reduction: float = 0.5  # At low leg health
 @export var jump_disabled_threshold: float = 0.2
 
-@export_group("Climb")
+@export_group("Climb & Parkour")
 @export var climb_disabled_arm_threshold: float = 0.3
 @export var climb_disabled_leg_threshold: float = 0.2
 
@@ -91,67 +102,32 @@ enum MovementState {
 @export var dash_disabled_threshold: float = 0.4
 
 # ============================================================
-# EXPORTS - ANIMATION EFFECTS
+# EXPORTS - ANIMATION & AUDIO
 # ============================================================
-@export_category("Animation Effects")
-@export_group("Limp Animation")
-@export var enable_limp_animation: bool = true
-@export var limp_animation_speed: float = 0.7
-@export var severe_limp_drag_leg: bool = true
-
-@export_group("Pain Reactions")
+@export_category("Feedback")
 @export var enable_pain_stumbles: bool = true
 @export var stumble_chance_per_second: float = 0.1
 @export var stumble_slow_duration: float = 0.8
-
-@export_group("Exhaustion")
-@export var enable_exhaustion_pause: bool = true
-@export var exhaustion_pause_chance: float = 0.05
-@export var exhaustion_pause_duration: float = 1.5
-
-# ============================================================
-# EXPORTS - AUDIO FEEDBACK
-# ============================================================
-@export_category("Audio Feedback")
-@export_group("Footsteps")
-@export var limp_footstep_pattern: bool = true  # Uneven footstep timing
-@export var pain_grunt_chance: float = 0.15
-@export var heavy_breathing_volume: float = -10.0  # dB
-
-@export_group("Pain Sounds")
-@export var enable_pain_sounds: bool = true
-@export var light_pain_sounds: Array[AudioStream] = []
-@export var heavy_pain_sounds: Array[AudioStream] = []
-@export var exhaustion_sounds: Array[AudioStream] = []
-
-# ============================================================
-# EXPORTS - FALL SYSTEM
-# ============================================================
-@export_category("Fall System")
-@export_group("Fall Risk")
 @export var enable_injury_falls: bool = true
-@export var fall_risk_threshold: float = 0.3  # Leg HP
-@export var fall_chance_per_second: float = 0.08
-@export var fall_recovery_time: float = 2.0
-
-@export_group("Stumble Falls")
-@export var stumble_can_cause_fall: bool = true
-@export var stumble_fall_chance: float = 0.3
+@export var fall_risk_threshold: float = 0.2  # Leg HP
 
 # ============================================================
 # INTERNAL STATE
 # ============================================================
 var current_movement_state: MovementState = MovementState.NORMAL
 
+# Noise for organic gait
+var _noise: FastNoiseLite = FastNoiseLite.new()
+var _noise_time: float = 0.0
+
 # Speed calculations
-var _calculated_walk_speed: float = 0.0
-var _calculated_sprint_speed: float = 0.0
-var _calculated_crouch_speed: float = 0.0
-var _speed_multiplier: float = 1.0
+var _target_speed_multiplier: float = 1.0
+var _smoothed_speed_multiplier: float = 1.0 # The actual value used
 
 # Stamina
 var _current_stamina: float = 100.0
 var _stamina_depleted: bool = false
+var _stamina_regen_delay: float = 0.0
 
 # Movement restrictions
 var _can_walk :bool = true
@@ -159,16 +135,13 @@ var _can_sprint: bool = true
 var _can_jump: bool = true
 var _can_climb: bool = true
 var _can_dash: bool = true
-var _can_swim:bool = true
+var _can_swim: bool = true
+
 # State timers
 var _stumble_timer: float = 0.0
 var _exhaustion_pause_timer: float = 0.0
 var _fall_recovery_timer: float = 0.0
 var _is_fallen: bool = false
-
-# Audio
-var _pain_sound_cooldown: float = 0.0
-var _breathing_audio_player: AudioStreamPlayer
 
 # Cache
 var _leg_avg_health: float = 1.0
@@ -180,8 +153,12 @@ var _total_health_percent: float = 1.0
 # INITIALIZATION
 # ============================================================
 func _ready():
+    # Setup Noise
+    _noise.seed = randi()
+    _noise.frequency = 0.5
+    
     if not player:
-        player = get_parent() as Player
+        player = get_parent() as CharacterBody3D
     
     if health_component:
         _connect_health_signals()
@@ -189,17 +166,16 @@ func _ready():
         push_error("MovementInjuryEffects: No health_component assigned!")
     
     _current_stamina = base_stamina
-    _setup_audio()
+    _update_health_cache()
 
 func _connect_health_signals():
-    health_component.limb_damaged.connect(_on_limb_damaged)
-    health_component.limb_critical.connect(_on_limb_critical)
-    health_component.state_changed.connect(_on_health_state_changed)
-
-func _setup_audio():
-    _breathing_audio_player = AudioStreamPlayer.new()
-    add_child(_breathing_audio_player)
-    _breathing_audio_player.bus = "SFX"
+    # Using string referencing for safety if component is generic
+    if health_component.has_signal("limb_damaged"):
+        health_component.limb_damaged.connect(_on_limb_damaged)
+    if health_component.has_signal("limb_critical"):
+        health_component.limb_critical.connect(_on_limb_critical)
+    if health_component.has_signal("state_changed"):
+        health_component.state_changed.connect(_on_health_state_changed)
 
 # ============================================================
 # MAIN UPDATE
@@ -208,39 +184,46 @@ func _process(delta: float):
     if not health_component or not player:
         return
     
-
+    _noise_time += delta * gait_noise_speed
+    
     _update_health_cache()
     _update_movement_state()
     _update_stamina(delta)
-    _update_speed_calculations()
+    
+    # 1. Determine Restrictions
     _update_movement_restrictions()
-
-    # Check if current state is allowed given new restrictions
+    
+    # 2. Kick player out of illegal states
     _enforce_state_constraints()
-
-
+    
+    # 3. Handle Timers & Random Events
     _update_timers(delta)
     _update_injury_events(delta)
-    _apply_movement_modifiers()
-
     
-    # Notify stats provider
-    if player and movement_stats_provider:
+    # 4. Calculate & Apply Smooth Speed
+    _calculate_target_speed_multiplier()
+    _apply_speed_smoothing(delta)
+    
+    # 5. Notify stats provider
+    if movement_stats_provider and movement_stats_provider.has_method("update_stats"):
         movement_stats_provider.update_stats()
 
 func _update_health_cache():
-    var left_leg = health_component.get_limb_health_percent(LimbData.BodyPart.LEFT_LEG)
-    var right_leg = health_component.get_limb_health_percent(LimbData.BodyPart.RIGHT_LEG)
-    var left_arm = health_component.get_limb_health_percent(LimbData.BodyPart.LEFT_ARM)
-    var right_arm = health_component.get_limb_health_percent(LimbData.BodyPart.RIGHT_ARM)
-    
-    _leg_avg_health = (left_leg + right_leg) / 2.0
-    _arm_avg_health = (left_arm + right_arm) / 2.0
-    _torso_health = health_component.get_limb_health_percent(LimbData.BodyPart.TORSO)
-    _total_health_percent = health_component.get_total_health_percent()
+    if health_component.has_method("get_limb_health_percent"):
+        var left_leg = health_component.get_limb_health_percent(4) # Assuming indices match your LimbData
+        var right_leg = health_component.get_limb_health_percent(5)
+        var left_arm = health_component.get_limb_health_percent(2)
+        var right_arm = health_component.get_limb_health_percent(3)
+        
+        _leg_avg_health = (left_leg + right_leg) / 2.0
+        _arm_avg_health = (left_arm + right_arm) / 2.0
+        _torso_health = health_component.get_limb_health_percent(1) # Torso
+        
+    if health_component.has_method("get_total_health_percent"):
+        _total_health_percent = health_component.get_total_health_percent()
 
 # ============================================================
-# MOVEMENT STATE
+# MOVEMENT STATE LOGIC
 # ============================================================
 func _update_movement_state():
     var old_state = current_movement_state
@@ -258,373 +241,317 @@ func _update_movement_state():
     
     if old_state != current_movement_state:
         movement_state_changed.emit(current_movement_state)
-        _on_movement_state_changed(old_state, current_movement_state)
-
-func _on_movement_state_changed(old_state: MovementState, new_state: MovementState):
-    match new_state:
-        MovementState.LIMPING:
-            print("Player is now limping")
-            _play_pain_sound(false)
-        
-        MovementState.SEVERE_LIMP:
-            print("Player has severe limp")
-            _play_pain_sound(true)
-        
-        MovementState.CRAWLING:
-            print("Player is now crawling")
-            _play_pain_sound(true)
-            if state_machine:
-                # Force player into crouch/crawl state
-                pass
-        
-        MovementState.IMMOBILIZED:
-            print("Player is immobilized")
+        # Optional: Trigger one-shot audio or particles here
 
 # ============================================================
-# SPEED CALCULATIONS
+# SPEED CALCULATIONS (THE JUICE)
 # ============================================================
-func _update_speed_calculations():
-    _speed_multiplier = 1.0
+func _calculate_target_speed_multiplier():
+    var base_mult = 1.0
     
-    # Leg damage penalties
+    # 1. Leg Damage Penalties (Base)
     match current_movement_state:
         MovementState.LIMPING:
-            _speed_multiplier *= slight_limp_speed
+            base_mult *= slight_limp_speed
         MovementState.SEVERE_LIMP:
-            _speed_multiplier *= severe_limp_speed
+            base_mult *= severe_limp_speed
         MovementState.CRAWLING:
-            _speed_multiplier *= crawl_speed
+            base_mult *= crawl_speed
         MovementState.IMMOBILIZED:
-            _speed_multiplier = 0.0
-    
-    # Torso damage penalty
+            base_mult = 0.0
+            
+    # 2. Procedural Gait (Gait Unevenness)
+    # If limping, speed isn't constant. It fluctuates to simulate stepping on bad leg.
+    if current_movement_state in [MovementState.LIMPING, MovementState.SEVERE_LIMP]:
+        if player.velocity.length() > 0.1:
+            var noise_val = _noise.get_noise_1d(_noise_time) # -1 to 1
+            # Map noise to a dip in speed
+            var gait_mod = 1.0 - (abs(noise_val) * gait_unevenness)
+            base_mult *= gait_mod
+
+    # 3. Torso/Breath Penalty
     if _torso_health < torso_endurance_threshold:
         var torso_penalty = lerp(1.0, torso_speed_penalty, 1.0 - (_torso_health / torso_endurance_threshold))
-        _speed_multiplier *= torso_penalty
+        base_mult *= torso_penalty
     
-    # Critical health penalty
+    # 4. Critical Health (Dying)
     if _total_health_percent < critical_health_threshold:
-        _speed_multiplier *= critical_speed_multiplier
+        base_mult *= critical_speed_multiplier
     
-    # Stamina depletion
+    # 5. Stamina Depletion
     if _stamina_depleted:
-        _speed_multiplier *= heavy_breathing_speed
+        base_mult *= heavy_breathing_speed
+        
+    # 6. Temporary Stumbles
+    if _stumble_timer > 0.0:
+        base_mult *= 0.5
+        
+    _target_speed_multiplier = base_mult
+
+func _apply_speed_smoothing(delta: float):
+    # Smoothly move current speed towards target speed
+    # This prevents jerky snapping when damage is taken or states change
+    _smoothed_speed_multiplier = move_toward(
+        _smoothed_speed_multiplier, 
+        _target_speed_multiplier, 
+        delta * speed_change_smoothing
+    )
     
-    # Calculate final speeds
-    _calculated_walk_speed = player.WALK_SPEED * _speed_multiplier
-    _calculated_sprint_speed = player.SPRINT_SPEED * _speed_multiplier
-    _calculated_crouch_speed = player.CROUCH_SPEED * _speed_multiplier
+    # In case of large discrepancies (e.g. teleporting), clamp it optionally
+    # But usually move_toward is sufficient.
 
 # ============================================================
 # STAMINA SYSTEM
 # ============================================================
 func _update_stamina(delta: float):
-    if not enable_injury_stamina:
+    if not enable_injury_stamina or not state_machine:
         return
     
-    var state_name = state_machine.get_current_state_name() if state_machine else ""
-    
-    # Drain stamina
+    var current_state = state_machine.get_current_state_name() if state_machine.has_method("get_current_state_name") else ""
     var stamina_cost = 0.0
-    match state_name:
-        "SprintingState", "SprintSwimmingState":
+    
+    # Define costs based on provided States
+    match current_state:
+        "SprintingState", "SprintSwimingState":
             stamina_cost = sprint_stamina_cost
         "DashState":
             stamina_cost = dash_stamina_cost
+        "JumpingState":
+            # Jumping usually instantaneous cost, handled in API
+            pass
+        "ClimbState", "LadderClimbState", "WallRunState":
+            stamina_cost = climb_stamina_cost
     
-    # Multiply cost if injured
-    if _total_health_percent < 0.5:
-        stamina_cost *= injured_stamina_multiplier
-    
-    _current_stamina -= stamina_cost * delta
-    
-    # Regenerate stamina
-    var regen_rate = stamina_regen_rate
-    if _total_health_percent < 0.6:
-        regen_rate = injured_stamina_regen
-    
-    if stamina_cost == 0.0:
-        _current_stamina += regen_rate * delta
+    # Apply Stamina Drain
+    if stamina_cost > 0.0:
+        # Cost multiplier when injured
+        if _total_health_percent < 0.5:
+            stamina_cost *= injured_stamina_multiplier
+            
+        _current_stamina -= stamina_cost * delta
+        _stamina_regen_delay = 1.5 # Pause regen after use
+    else:
+        # Handle Regen
+        if _stamina_regen_delay > 0.0:
+            _stamina_regen_delay -= delta
+        else:
+            var regen_rate = stamina_regen_rate
+            if _total_health_percent < 0.6:
+                regen_rate = injured_stamina_regen
+            
+            # Regen is slower when stamina is completely empty (exhaustion)
+            if _stamina_depleted:
+                regen_rate *= 0.5
+                
+            _current_stamina += regen_rate * delta
     
     _current_stamina = clamp(_current_stamina, 0.0, base_stamina)
     
-    # Check depletion
+    # Check Depletion State Transitions
     var was_depleted = _stamina_depleted
-    _stamina_depleted = _current_stamina <= 0.0
     
-    if not was_depleted and _stamina_depleted:
+    if _current_stamina <= 0.0 and not was_depleted:
+        _stamina_depleted = true
         stamina_depleted.emit()
-        _play_exhaustion_sound()
+    elif _current_stamina > (base_stamina * 0.2) and was_depleted:
+        # Only recover from depleted state once we have 20% stamina back
+        _stamina_depleted = false
+        stamina_recovered.emit()
+        
+    stamina_changed.emit(_current_stamina, base_stamina)
 
 # ============================================================
-# MOVEMENT RESTRICTIONS
+# MOVEMENT RESTRICTIONS & STATE ENFORCEMENT
 # ============================================================
 func _update_movement_restrictions():
-    # 1. Get precise limb data
-    var left_leg_hp = health_component.get_limb_health_percent(LimbData.BodyPart.LEFT_LEG)
-    var right_leg_hp = health_component.get_limb_health_percent(LimbData.BodyPart.RIGHT_LEG)
-    
-    # --- CAN WALK (Stand Upright) ---
+    # Helper vars
+    var left_leg = 1.0; var right_leg = 1.0
+    if health_component.has_method("get_limb_health_percent"):
+        left_leg = health_component.get_limb_health_percent(4)
+        right_leg = health_component.get_limb_health_percent(5)
+
+    # 1. Walk (Upright)
     _can_walk = true
-    
-    # Condition A: Both legs are critical (Deus Ex style: forced crawl)
-    if left_leg_hp <= walk_threshold  and right_leg_hp <= walk_threshold:
+    if (left_leg <= walk_threshold and right_leg <= walk_threshold) or _is_fallen:
         _can_walk = false
         
-    # Condition B: Immobilized by fall or mechanic
-    # if current_movement_state == MovementState.IMMOBILIZED or _is_fallen:
-    #     _can_walk = false
+    # 2. Swim
     _can_swim = true
-    
     if _torso_health <= crawl_threshold:
-        _can_swim = false
-
-    # --- CAN SPRINT ---
+        _can_swim = false # Too weak to swim
+        
+    # 3. Sprint
     _can_sprint = true
-    # Cannot sprint if we can't even stand
-    if not _can_walk:
+    if not _can_walk or _stamina_depleted:
         _can_sprint = false
-    # Cannot sprint if one leg is badly hurt (even if we can walk)
-    elif left_leg_hp < sprint_disabled_threshold or right_leg_hp < sprint_disabled_threshold:
+    elif left_leg < sprint_disabled_threshold or right_leg < sprint_disabled_threshold:
         _can_sprint = false
     elif _torso_health < sprint_torso_threshold:
         _can_sprint = false
-    elif _stamina_depleted:
-        _can_sprint = false
-
-    # --- CAN JUMP ---
+        
+    # 4. Jump
     _can_jump = true
-    if not _can_walk: # Hard to jump from a crawl
+    if not _can_walk or _current_stamina < jump_stamina_cost:
         _can_jump = false
     elif _leg_avg_health < jump_disabled_threshold:
         _can_jump = false
-    elif _current_stamina < jump_stamina_cost:
-        _can_jump = false
-
-    # --- CAN CLIMB ---
+        
+    # 5. Climb / WallRun / Ladder
     _can_climb = true
-    if _arm_avg_health < climb_disabled_arm_threshold:
+    if _arm_avg_health < climb_disabled_arm_threshold or _stamina_depleted:
         _can_climb = false
-    # Needs at least one good leg to push up
-    if left_leg_hp < climb_disabled_leg_threshold and right_leg_hp < climb_disabled_leg_threshold:
+    # Need at least one functional leg to boost up walls usually
+    if left_leg < climb_disabled_leg_threshold and right_leg < climb_disabled_leg_threshold:
         _can_climb = false
-
-    # --- CAN DASH ---
+        
+    # 6. Dash
     _can_dash = true
-    if not _can_walk:
+    if not _can_walk or _stamina_depleted or _current_stamina < dash_stamina_cost:
         _can_dash = false
     elif _leg_avg_health < dash_disabled_threshold:
         _can_dash = false
-    elif _current_stamina < dash_stamina_cost:
-        _can_dash = false
-
-# ============================================================
-# TIMERS
-# ============================================================
-func _update_timers(delta: float):
-    if _stumble_timer > 0.0:
-        _stumble_timer -= delta
-    
-    if _exhaustion_pause_timer > 0.0:
-        _exhaustion_pause_timer -= delta
-        _speed_multiplier *= 0.3  # Very slow during exhaustion pause
-    
-    if _fall_recovery_timer > 0.0:
-        _fall_recovery_timer -= delta
-        if _fall_recovery_timer <= 0.0:
-            _is_fallen = false
-    
-    if _pain_sound_cooldown > 0.0:
-        _pain_sound_cooldown -= delta
-
-# ============================================================
-# INJURY EVENTS
-# ============================================================
-func _update_injury_events(delta: float):
-    if not player.is_on_floor():
-        return
-    
-    var is_moving = player.velocity.length() > 0.5
-    
-    # Stumble events
-    if enable_pain_stumbles and is_moving and _stumble_timer <= 0.0:
-        if _leg_avg_health < 0.5:
-            var stumble_chance = stumble_chance_per_second * (1.0 - _leg_avg_health)
-            if randf() < stumble_chance * delta:
-                _trigger_stumble()
-    
-    # Exhaustion pause
-    if enable_exhaustion_pause and _stamina_depleted and _exhaustion_pause_timer <= 0.0:
-        if randf() < exhaustion_pause_chance * delta:
-            _trigger_exhaustion_pause()
-    
-    # Fall events
-    if enable_injury_falls and not _is_fallen and _fall_recovery_timer <= 0.0:
-        if _leg_avg_health < fall_risk_threshold:
-            var fall_chance = fall_chance_per_second * (1.0 - _leg_avg_health)
-            if randf() < fall_chance * delta:
-                _trigger_fall()
-
 
 func _enforce_state_constraints():
-    if not state_machine:
+    if not state_machine or not state_machine.has_method("get_current_state_name"):
         return
 
     var current_state = state_machine.get_current_state_name()
     
-    # 1. Enforce Non-Walking (Forced Crawl/Crouch)
-    if not _can_walk:
-        # List of states that require standing
-        var standing_states = ["IdleState", "WalkingState", "SprintingState", "JumpingState"]
-        
-        if current_state in standing_states:
-            # Force transition to a generic crouch/crawl state
-            # You might need to adjust "CrouchState" to whatever your specific state is named
-            print("Injury System: Forcing transition to Crouch/Crawl")
-            state_machine.get_state("CrouchState")
-            return # Stop checking other constraints if we forced a switch
-
-    # 2. Enforce Non-Sprinting
-    if not _can_sprint and (current_state == "SprintingState" or current_state == "SprintSwimmingState"):
-        print("Injury System: Forcing transition to Walk due to injury/stamina")
-        state_machine.get_state("WalkingState")
-        return  
-
-    # 3. Enforce Non-Climbing
-    if not _can_climb and current_state == "ClimbingState":
-        state_machine.get_state("FallingState")
+    # LOGIC MAPPING FOR PROVIDED STATE LIST
+    
+    # A. IMMOBILIZED / FALLEN
+    if _is_fallen:
+        # Force a generic fallen/prone state if available, or crouch
+        if current_state != "FallingState" and current_state != "CrouchWalkingState":
+             # We assume CrouchWalkingState can handle being on ground
+             _force_state_transition("CrouchWalkingState")
         return
+
+    # B. FORCED CRAWL (Cannot Walk)
+    if not _can_walk:
+        # Illegal states when you can't stand
+        var standing_states = [
+            "WalkingState", "SprintingState", "JumpingState", 
+            "DashState", "WallRunState", "LadderClimbState"
+        ]
+        if current_state in standing_states:
+            # Demote to Crouch (Crawl)
+            _force_state_transition("CrouchWalkingState")
+            return
+
+    # C. NO SPRINTING
+    if not _can_sprint:
+        if current_state == "SprintingState":
+            _force_state_transition("WalkingState")
+        elif current_state == "SprintSwimingState":
+            _force_state_transition("SwimmingState")
+        elif current_state == "WallRunState":
+            _force_state_transition("FallingState") # Usually need sprint to wall run
+            
+    # D. NO CLIMBING / PARKOUR
+    if not _can_climb:
+        if current_state in ["ClimbState", "LadderClimbState", "WallRunState"]:
+            _force_state_transition("FallingState")
+
+    # E. NO SWIMMING
+    #if not _can_swim:
+        #if current_state in ["SwimmingState", "SprintSwimingState", "SurfaceSwimmingState"]:
+             ## If you can't swim, you drown or sink (FallingState underwater usually)
+             #_force_state_transition("FallingState")
+
+func _force_state_transition(target_state_name: String):
+    if state_machine.has_method("get_state"):
+        # Some FSMs use get_state to switch
+        state_machine.get_state(target_state_name)
+        return
+# ============================================================
+# EVENT LOGIC
+# ============================================================
+func _update_timers(delta: float):
+    if _stumble_timer > 0.0:
+        _stumble_timer -= delta
+        
+    if _fall_recovery_timer > 0.0:
+        _fall_recovery_timer -= delta
+        if _fall_recovery_timer <= 0.0:
+            _is_fallen = false
+
+func _update_injury_events(delta: float):
+    if not player.is_on_floor():
+        return
+        
+    var velocity_len = player.velocity.length()
+    if velocity_len < 0.1: return
+    
+    # Random Stumbles (Procedural Noise Threshold)
+    if enable_pain_stumbles and _stumble_timer <= 0.0:
+        if _leg_avg_health < 0.5:
+            # Use noise to determine stumble spikes instead of pure random
+            # This makes stumbles cluster together organically
+            var noise_val = _noise.get_noise_1d(_noise_time * 2.0)
+            var stumble_threshold = 0.6 + (_leg_avg_health * 0.3) # Harder to stumble if healthy
+            
+            if noise_val > stumble_threshold:
+                _trigger_stumble()
+
+    # Falls
+    if enable_injury_falls and not _is_fallen and _fall_recovery_timer <= 0.0:
+        if _leg_avg_health < fall_risk_threshold:
+             # Pure random for falls is usually better as it's a rare event
+             if randf() < (0.01 * delta): # Very low chance per frame
+                 _trigger_fall()
+
 func _trigger_stumble():
     _stumble_timer = stumble_slow_duration
-    _speed_multiplier *= 0.5
+    # We rely on _calculate_target_speed_multiplier to apply the slow
     
-    _play_pain_sound(false)
+    # Optional: Emit signal for Camera Shake or Audio
+    # camera_injury.add_screen_shake(...) 
     
-    # Chance to fall from stumble
-    if stumble_can_cause_fall and _leg_avg_health < 0.3:
-        if randf() < stumble_fall_chance:
-            _trigger_fall()
-
-func _trigger_exhaustion_pause():
-    _exhaustion_pause_timer = exhaustion_pause_duration
-    _play_exhaustion_sound()
+    # High risk of falling if stumbling while running
+    if _leg_avg_health < 0.3 and _can_sprint == false:
+         if randf() < 0.2:
+             _trigger_fall()
 
 func _trigger_fall():
     _is_fallen = true
-    _fall_recovery_timer = fall_recovery_time
+    _fall_recovery_timer = 2.0
     fall_risk_increased.emit()
-    _play_pain_sound(true)
-    
-    # Add camera shake
-    if player.CAMERA_CONTROLLER:
-        player.CAMERA_CONTROLLER.add_screen_shake(0.5, 0.5)
-
-# ============================================================
-# APPLY MODIFIERS (best way is by providers: Done!)
-# ============================================================
-func _apply_movement_modifiers():
-    if not player:
-        return
-    
-    
-    # Modify jump velocity if injured
-    # if _leg_avg_health < 0.6:
-    #     var jump_reduction = lerp(1.0, jump_height_reduction, 1.0 - (_leg_avg_health / 0.6))
-    #     # You'd need to modify player's jump calculation
-    #     # player.JUMP_VELOCITY *= jump_reduction
-
-# ============================================================
-# AUDIO
-# ============================================================
-func _play_pain_sound(heavy: bool):
-    if not enable_pain_sounds or _pain_sound_cooldown > 0.0:
-        return
-    
-    var sounds = heavy_pain_sounds if heavy else light_pain_sounds
-    if sounds.is_empty():
-        return
-    
-    var sound = sounds[randi() % sounds.size()]
-    if audio_component:
-        # Use your audio component to play
-        pass
-    
-    _pain_sound_cooldown = 2.0
-
-func _play_exhaustion_sound():
-    if exhaustion_sounds.is_empty():
-        return
-    
-    var sound = exhaustion_sounds[randi() % exhaustion_sounds.size()]
-    _breathing_audio_player.stream = sound
-    _breathing_audio_player.volume_db = heavy_breathing_volume
-    _breathing_audio_player.play()
+    _force_state_transition("CrouchWalkingState") # Or a Ragdoll state if you have one
 
 # ============================================================
 # SIGNAL HANDLERS
 # ============================================================
-func _on_limb_damaged(limb: LimbData.BodyPart, damage: float, damage_type: DamageTypes.Type):
-    # Play pain grunt on significant damage
-    if damage > 15.0 and randf() < pain_grunt_chance:
-        _play_pain_sound(damage > 30.0)
+func _on_limb_damaged(limb: int, damage: float, type: int):
+    # Juice: Stamina damage on hit
+    if damage > 20.0:
+        _current_stamina = max(0, _current_stamina - (damage * 0.5))
+        _stamina_regen_delay = 2.0
 
-func _on_limb_critical(limb: LimbData.BodyPart):
-    _play_pain_sound(true)
+func _on_limb_critical(limb: int):
+    # Force immediate stumble on break
+    if limb == 4 or limb == 5: # Legs
+        _trigger_stumble()
 
-func _on_health_state_changed(new_state: HealthComponent.CharacterState):
+func _on_health_state_changed(new_state: int):
     pass
 
 # ============================================================
-# PUBLIC API
+# PUBLIC API (For MovementStatsProvider)
 # ============================================================
-func can_walk() -> bool:
-    """Returns true if the player is physically capable of standing upright."""
-    return _can_walk
-
-func can_sprint() -> bool:
-    return _can_sprint
-
-func can_jump() -> bool:
-    return _can_jump
-
-func can_climb() -> bool:
-    return _can_climb
-
-func can_dash() -> bool:
-    return _can_dash
-
-func can_swim() -> bool:
-    return _can_swim
-
-func consume_jump_stamina() -> bool:
-    if _current_stamina >= jump_stamina_cost:
-        _current_stamina -= jump_stamina_cost
-        return true
-    return false
-
-func consume_dash_stamina() -> bool:
-    if _current_stamina >= dash_stamina_cost:
-        _current_stamina -= dash_stamina_cost
-        return true
-    return false
-
 func get_speed_multiplier() -> float:
-    return _speed_multiplier
+    return _smoothed_speed_multiplier
 
 func get_stamina_percent() -> float:
     return _current_stamina / base_stamina
 
-func get_movement_state() -> MovementState:
-    return current_movement_state
-
 func is_movement_impaired() -> bool:
     return current_movement_state != MovementState.NORMAL
 
-func is_immobilized() -> bool:
-    return _is_fallen or current_movement_state == MovementState.IMMOBILIZED
-
-func force_recovery_from_fall():
-    """Call this to manually recover from fall (e.g., player pressed button)"""
-    _is_fallen = false
-    _fall_recovery_timer = 0.0
-
+func consume_instant_stamina(amount: float) -> bool:
+    if _current_stamina >= amount:
+        _current_stamina -= amount
+        _stamina_regen_delay = 1.0
+        stamina_changed.emit(_current_stamina, base_stamina)
+        return true
+    return false

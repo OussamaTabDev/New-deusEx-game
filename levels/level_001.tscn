@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=41 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
@@ -16,7 +16,10 @@
 [ext_resource type="ArrayMesh" uid="uid://haxkoju43w4s" path="res://materials/Weapons/SMgs/smgMil/smglight.vox" id="14_ecv8m"]
 [ext_resource type="PackedScene" uid="uid://bq5n1u2nn5bka" path="res://materials/items/medicans/medkit/medkit.tscn" id="14_ywvwd"]
 [ext_resource type="PackedScene" uid="uid://da1urtyq070gb" path="res://addons/cogito/PackedScenes/laddertest_3.tscn" id="16_5d8v6"]
+[ext_resource type="Texture2D" uid="uid://cew0axp4tebwt" path="res://materials/Effects/Blood/T_Decal_Blood651aas.png" id="17_m86b5"]
 [ext_resource type="PackedScene" uid="uid://cnjlt7smtn8jm" path="res://Characters/Player/player.glb" id="17_ye0g1"]
+[ext_resource type="Texture2D" uid="uid://dpfdfkwhhg0u" path="res://materials/Effects/Blood/T_Decal_Blood651aas_N.png" id="18_jixnm"]
+[ext_resource type="PackedScene" uid="uid://c8vbcqht8qq5r" path="res://materials/Effects/Blood/blood_particales_1.tscn" id="20_jixnm"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -185,10 +188,17 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(2.32201, 0, 0)
+uv1_offset = Vector3(0.050999973, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
+
+[sub_resource type="Gradient" id="Gradient_jixnm"]
+offsets = PackedFloat32Array(0.47328246)
+colors = PackedColorArray(0, 0.38109186, 0.6651851, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_lqhs4"]
+gradient = SubResource("Gradient_jixnm")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ye0g1"]
 radius = 0.20703125
@@ -222,7 +232,7 @@ transform = Transform3D(0.22937033, 0, 0.9733392, 0, 1, 0, -0.9733392, 0, 0.2293
 transform = Transform3D(-0.9966574, 0, -0.08169487, 0, 1, 0, 0.08169487, 0, -0.9966574, 16.347242, 1.600001, -10.862814)
 
 [node name="Floor" type="MeshInstance3D" parent="env"]
-transform = Transform3D(3.063698, 0, 0, 0, 1, 0, 0, 0, 2.5398302, 0, -0.25, 0)
+transform = Transform3D(3.063698, 0, 0, 0, 1, 0, 0, 0, 2.5398302, 0.02503872, -0.26831722, 0.022169113)
 mesh = SubResource("BoxMesh_gd0ev")
 skeleton = NodePath("../..")
 
@@ -423,6 +433,15 @@ mesh = ExtResource("14_ecv8m")
 [node name="Ladder3" parent="." instance=ExtResource("16_5d8v6")]
 transform = Transform3D(-2.98023e-08, 0, -1, 0, 1, 0, 1, 0, -2.98023e-08, -5.662465, 0.19539583, 16.695753)
 
+[node name="Decal" type="Decal" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 5, 0.13071346, 0)
+size = Vector3(2, 0.7617798, 2)
+texture_albedo = ExtResource("17_m86b5")
+texture_normal = ExtResource("18_jixnm")
+texture_orm = SubResource("GradientTexture1D_lqhs4")
+modulate = Color(1, 0.18281268, 0.18281268, 1)
+distance_fade_enabled = true
+
 [node name="RigidBody3D" type="CharacterBody3D" parent="."]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -10.996373, 0, 16.726835)
 collision_layer = 8
@@ -433,3 +452,6 @@ collision_mask = 777
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.50109863, 0)
 shape = SubResource("CapsuleShape3D_ye0g1")
+
+[node name="BloodParticales1" parent="." instance=ExtResource("20_jixnm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.366645, 1.9368432, 0.5774557)

@@ -76,6 +76,44 @@ func _process(delta: float):
 		_update_status_display()
 
 
+
+func _input(event: InputEvent) -> void:
+	# Only handle input when panel is open
+		# return
+
+	if event.is_action_pressed("ui_toggle_debug_panel"):
+		if visible:
+			_close_panel()
+			Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+			# accept_event()  # Prevent key from affecting gameplay
+			# accept_event()  # Prevent key from affecting gameplay
+		else:
+			open_panel()
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+# func _process_visibility():
+# 	# Not needed – handled via visible + set_process_input
+# 	pass
+
+
+## === TOGGLE CONTROL ===
+
+func open_panel():
+	if visible:
+		return
+	visible = true
+	# set_process_input(true)
+	log_message("Debug panel opened", Color.LIGHT_GREEN)
+
+
+func _close_panel():
+	if not visible:
+		return
+	visible = false
+	# set_process_input(false)
+	release_focus()  # Release keyboard/mouse focus if held
+	log_message("Debug panel closed", Color.GRAY)
+
 ## === UI BUILDING ===
 
 func _build_ui():

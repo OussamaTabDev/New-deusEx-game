@@ -1,0 +1,77 @@
+[gd_scene load_steps=12 format=3 uid="uid://c8vbcqht8qq5r"]
+
+[ext_resource type="Texture2D" uid="uid://od2hhpx4vfmx" path="res://materials/Effects/Blood/T_Decal_Blood651aaswas.png" id="1_p1ifw"]
+[ext_resource type="Texture2D" uid="uid://dpfdfkwhhg0u" path="res://materials/Effects/Blood/T_Decal_Blood651aas_N.png" id="2_prfib"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5e54u"]
+transparency = 2
+alpha_scissor_threshold = 0.054
+alpha_antialiasing_mode = 0
+vertex_color_use_as_albedo = true
+vertex_color_is_srgb = true
+albedo_texture = ExtResource("1_p1ifw")
+metallic = 0.31
+metallic_specular = 0.19
+roughness = 0.0
+normal_enabled = true
+normal_scale = 3.33
+normal_texture = ExtResource("2_prfib")
+billboard_mode = 3
+billboard_keep_scale = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="Curve" id="Curve_a4tps"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.1484375, 1), 0.0, 0.0, 0, 0, Vector2(0.1484475, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 1.0356215, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_beclk"]
+curve = SubResource("Curve_a4tps")
+
+[sub_resource type="Gradient" id="Gradient_dhcd3"]
+offsets = PackedFloat32Array(0, 0.24782608, 1)
+colors = PackedColorArray(0.35257253, 2.4967827e-07, 1.4439226e-07, 1, 1.2450142, 0, 0.20452936, 1, 0.014283925, 0, 0.00018550553, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_hss6n"]
+gradient = SubResource("Gradient_dhcd3")
+
+[sub_resource type="Curve" id="Curve_bog6a"]
+_data = [Vector2(0.00390625, 0.0041185617), 0.0, 5.4827027, 0, 0, Vector2(1, 1), 1.4462243, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_7i4n6"]
+curve = SubResource("Curve_bog6a")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_48xhi"]
+lifetime_randomness = 0.5
+particle_flag_rotate_y = true
+emission_shape = 1
+emission_sphere_radius = 0.3
+angle_min = -179.99998
+angle_max = 180.00002
+direction = Vector3(0, 1, 0)
+spread = 10.0
+initial_velocity_min = -0.5
+initial_velocity_max = 3.0
+radial_velocity_min = -2.2351742e-05
+radial_velocity_max = 0.39997762
+scale_min = 0.5
+scale_max = 1.1999999
+scale_curve = SubResource("CurveTexture_7i4n6")
+color_ramp = SubResource("GradientTexture1D_hss6n")
+alpha_curve = SubResource("CurveTexture_beclk")
+
+[sub_resource type="QuadMesh" id="QuadMesh_di4ff"]
+
+[node name="BloodParticales1" type="GPUParticles3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9257003, -0.0016322136)
+material_override = SubResource("StandardMaterial3D_5e54u")
+emitting = false
+amount = 10
+one_shot = true
+explosiveness = 0.55
+randomness = 0.14
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_48xhi")
+draw_pass_1 = SubResource("QuadMesh_di4ff")

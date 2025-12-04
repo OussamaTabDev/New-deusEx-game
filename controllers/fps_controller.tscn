@@ -602,6 +602,7 @@ camera_controller = NodePath("../../../CameraController")
 health_component = NodePath("..")
 camera_3d = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D")
 post_process_layer = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D/Effects")
+breathing_frequency = 0.2
 
 [node name="HealingManager" type="Node" parent="Components"]
 script = ExtResource("12_xikej")
@@ -1040,7 +1041,6 @@ player = NodePath("../..")
 auto_find_player = false
 health_component = NodePath("../../Components/PlayerHealthComponent")
 healing_manager = NodePath("../../Components/HealingManager")
-enable_auto_tests = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

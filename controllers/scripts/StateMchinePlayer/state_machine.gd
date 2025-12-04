@@ -16,6 +16,7 @@ func _ready():
 	for child in get_children():
 		if child is State:
 			states[child.name.to_lower()] = child
+			print(child.name)
 	# Set initial state
 	if initial_state:
 		current_state = initial_state
