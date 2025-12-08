@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=40 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
@@ -17,7 +17,6 @@
 [ext_resource type="PackedScene" uid="uid://bq5n1u2nn5bka" path="res://materials/items/medicans/medkit/medkit.tscn" id="14_ywvwd"]
 [ext_resource type="PackedScene" uid="uid://da1urtyq070gb" path="res://addons/cogito/PackedScenes/laddertest_3.tscn" id="16_5d8v6"]
 [ext_resource type="Texture2D" uid="uid://cew0axp4tebwt" path="res://materials/Effects/Blood/T_Decal_Blood651aas.png" id="17_m86b5"]
-[ext_resource type="PackedScene" uid="uid://cnjlt7smtn8jm" path="res://Characters/Player/player.glb" id="17_ye0g1"]
 [ext_resource type="Texture2D" uid="uid://dpfdfkwhhg0u" path="res://materials/Effects/Blood/T_Decal_Blood651aas_N.png" id="18_jixnm"]
 [ext_resource type="PackedScene" uid="uid://c8vbcqht8qq5r" path="res://materials/Effects/Blood/blood_particales_1.tscn" id="20_jixnm"]
 
@@ -188,7 +187,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.050999973, 0, 0)
+uv1_offset = Vector3(0.040999986, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -446,8 +445,6 @@ distance_fade_enabled = true
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -10.996373, 0, 16.726835)
 collision_layer = 8
 collision_mask = 777
-
-[node name="player2" parent="RigidBody3D" instance=ExtResource("17_ye0g1")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.50109863, 0)

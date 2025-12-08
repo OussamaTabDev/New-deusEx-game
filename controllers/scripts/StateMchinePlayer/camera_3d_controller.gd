@@ -12,10 +12,11 @@ extends Node3D
 @export_group("Node References")
 @export var player: CharacterBody3D
 @export var audio_component: PlayerAudioComponent
-@export var camera_base:Node3D
-@export var camera_offset:Node3D
+@export var camera_base: Node3D
+@export var camera_offset: Node3D
 @export var CAMERA_CONTROLLER: Camera3D
 ### self[camera_base[camera_offset[CAMERA_CONTROLLER]]] as childs of each others
+
 # ============================================================
 # FEATURE TOGGLES
 # ============================================================
@@ -32,7 +33,9 @@ extends Node3D
 @export var enable_screen_shake: bool = true
 @export var enable_step_smoothing: bool = true
 @export var enable_ladder_mode: bool = true
-@export var static_camera_mode: bool = false  
+@export var static_camera_mode: bool = false
+@export var climb_effects_enabled: bool = true  
+
 # ============================================================
 # INPUT SETTINGS
 # ============================================================
@@ -76,13 +79,15 @@ extends Node3D
 @export var LEAN_AMOUNT: float = 0.3
 @export var LEAN_SPEED: float = 8.0
 @export var LEAN_ROLL_ANGLE: float = deg_to_rad(5.0)
+@export var lean_camera_rot_limit := 45.0 # degrees
 @export var lean_shape_cast_left: ShapeCast3D
 @export var lean_shape_cast_right: ShapeCast3D
 
 @export_group("Leaning Restrictions")
 @export var resurrected_states_on_leaning := [
     "SprintingState", "SlidingState", "JumpingState",
-    "FallingState", "ClimbLadderState", "DashState","SwimmingState","SprintSwimmingState"
+    "FallingState", "ClimbLadderState", "DashState",
+    "SwimmingState","SprintSwimmingState"
 ]
 @export var resurrected_states_on_using := ["ClimbLadderState"]
 
@@ -133,6 +138,11 @@ extends Node3D
 @export var DAMAGE_KICK_PITCH: float = 8.0
 @export var DAMAGE_KICK_ROLL: float = 5.0
 
+@export_group("Climb Effects")
+@export var climb_bob_intensity: float = 0.05
+@export var climb_bob_speed: float = 8.0
+@export var climb_tilt_amount: float = 2.0 # Degrees to tilt down when pulling up
+
 # ============================================================
 # INTERNAL STATE - Don't expose these
 # ============================================================
@@ -156,6 +166,8 @@ var is_zoomed: bool = false
 # Leaning
 var current_lean: float = 0.0
 var current_roll: float = 0.0
+var _is_actively_leaning: bool = false
+var _lean_yaw_center: float = 0.0
 
 # Fall kick
 var _fall_timer: float = 0.0
@@ -180,14 +192,19 @@ var offset_height: float = 0.0
 
 # Ladder mode
 var _is_on_ladder: bool = false
-var _ladder_yaw_center: float = 0.0  # Center yaw when entering ladder
-var _ladder_transition_progress: float = 0.0  # 0 = free, 1 = locked
+var _ladder_yaw_center: float = 0.0
+var _ladder_transition_progress: float = 0.0
 var _is_centering_to_ladder: bool = false
 var _ladder_center_yaw_target: float = 0.0
 
 # Dash directional roll
 var _dash_direction_roll: float = 0.0
 var _dash_direction_roll_timer: float = 0.0
+
+# Climb Juice
+var _climb_offset_y: float = 0.0
+var _climb_pitch_mod: float = 0.0
+var _climb_roll_mod: float = 0.0
 
 # ============================================================
 # INITIALIZATION
@@ -233,12 +250,8 @@ func _update_camera(delta: float):
     if not player or not CAMERA_CONTROLLER or not camera_offset:
         return
     
-     # === STATIC MODE OVERRIDE ===
+    # === STATIC MODE OVERRIDE ===
     if static_camera_mode:
-        # Reset all dynamic offsets to zero to freeze the camera
-        # CAMERA_CONTROLLER.transform.origin = Vector3.ZERO
-        # CAMERA_CONTROLLER.rotation = Vector3.ZERO
-        # Optionally keep FOV unchanged or reset it too
         return
 
     var is_climbing = _is_climbing()
@@ -271,17 +284,23 @@ func _update_camera(delta: float):
         _ladder_offset_pitch = clamp(_ladder_offset_pitch, -LOCKED_PITCH_LIMIT, LOCKED_PITCH_LIMIT)
         _ladder_offset_yaw = clamp(_ladder_offset_yaw, -LOCKED_YAW_LIMIT, LOCKED_YAW_LIMIT)
     else:
-        # Normal free camera rotation
+        # Apply input to main rotation
         _mouse_rotation.y += yaw_input * delta
         _mouse_rotation.x += pitch_input * delta
         _mouse_rotation.x = clamp(_mouse_rotation.x, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
+        
+        # NEW: Enforce yaw clamp while actively leaning
+        if _is_actively_leaning:
+            var max_offset = deg_to_rad(45.0)
+            var min_yaw = _lean_yaw_center - max_offset
+            var max_yaw = _lean_yaw_center + max_offset
+            _mouse_rotation.y = clamp(_mouse_rotation.y, min_yaw, max_yaw)
         
         # Smoothly reset ladder offset to zero when not on ladder
         var reset_speed = 8.0
         _ladder_offset_yaw = lerp(_ladder_offset_yaw, 0.0, delta * reset_speed)
         _ladder_offset_pitch = lerp(_ladder_offset_pitch, 0.0, delta * reset_speed)
         
-        # Snap to zero when very close
         if abs(_ladder_offset_yaw) < 0.001:
             _ladder_offset_yaw = 0.0
         if abs(_ladder_offset_pitch) < 0.001:
@@ -299,7 +318,6 @@ func _update_camera(delta: float):
         total_offset += _calculate_headbob(t_bob)
 
         if audio_component:
-            # state_name = player.state_machine.get_current_state_name()
             audio_component.process_footstep_sync(t_bob, BOB_FREQ, BOB_AMP, state_name)
     
     # Leaning
@@ -325,13 +343,13 @@ func _update_camera(delta: float):
         total_pitch_modifier += _damage_kick_tilt * ratio
         total_roll += _damage_roll * ratio
     
-    # Dash directional roll (decays over time)
+    # Dash directional roll
     if _dash_direction_roll_timer > 0.0:
         _dash_direction_roll_timer -= delta
         var roll_ratio = _dash_direction_roll_timer / dash_shake_duration
-        total_roll += _dash_direction_roll * roll_ratio * roll_ratio  # ease-out
+        total_roll += _dash_direction_roll * roll_ratio * roll_ratio
     
-    # Screen shake (quake)
+    # Screen shake
     if enable_screen_shake and _current_screen_shake_amount > 0.0:
         var h_offset = randf_range(-_current_screen_shake_amount, _current_screen_shake_amount)
         var v_offset = randf_range(-_current_screen_shake_amount, _current_screen_shake_amount)
@@ -356,15 +374,18 @@ func _update_camera(delta: float):
             _step_smoothing_active = false
         total_offset.y += _step_target_height
     
+    if climb_effects_enabled:
+        total_offset.y += _climb_offset_y
+        total_pitch_modifier += _climb_pitch_mod
+        total_roll += _climb_roll_mod
+        
     # === APPLY TRANSFORMS ===
     var player_rotation = Vector3(0.0, _mouse_rotation.y, 0.0)
     player.global_transform.basis = Basis.from_euler(player_rotation)
     
-    # Apply camera_offset rotation (for ladder mode)
     camera_offset.rotation.y = _ladder_offset_yaw
     camera_offset.rotation.x = _ladder_offset_pitch
     
-    # Calculate final camera pitch (relative to camera_offset)
     var final_camera_pitch = _mouse_rotation.x + total_pitch_modifier
     final_camera_pitch = clamp(final_camera_pitch, TILT_LOWER_LIMIT, TILT_UPPER_LIMIT)
     
@@ -392,27 +413,35 @@ func _calculate_headbob(time: float) -> Vector3:
 func _update_leaning(delta: float, state_name: String) -> void:
     var target_lean: float = 0.0
     var target_roll: float = 0.0
-    
-    # Manual leaning
+    var was_actively_leaning = _is_actively_leaning
+    _is_actively_leaning = false
+
+    # Manual leaning only – auto-strafe doesn't count
     if state_name not in resurrected_states_on_leaning:
         if Input.is_action_pressed("lean_left"):
             if not lean_shape_cast_left or not lean_shape_cast_left.is_colliding():
                 target_lean = -LEAN_AMOUNT
+                _is_actively_leaning = true
             target_roll = LEAN_ROLL_ANGLE
         elif Input.is_action_pressed("lean_right"):
             if not lean_shape_cast_right or not lean_shape_cast_right.is_colliding():
                 target_lean = LEAN_AMOUNT
+                _is_actively_leaning = true
             target_roll = -LEAN_ROLL_ANGLE
-    
-    # Auto strafe tilt
+
+    # Auto strafe tilt (does not activate leaning restriction)
     var is_manually_leaning = Input.is_action_pressed("lean_left") or Input.is_action_pressed("lean_right")
     if player.is_on_floor() and not is_manually_leaning:
         var move_dir = Input.get_axis("move_left", "move_right")
         if move_dir != 0.0:
             target_roll = -move_dir * LEAN_ROLL_ANGLE * auto_strafe_intensity
-    
+
     current_lean = lerp(current_lean, target_lean, delta * LEAN_SPEED)
     current_roll = lerp(current_roll, target_roll, delta * LEAN_SPEED)
+
+    # Capture yaw center the moment leaning BEGINS
+    if _is_actively_leaning and not was_actively_leaning:
+        _lean_yaw_center = _mouse_rotation.y
 
 func _calculate_camera_shake(delta: float, intensity: float, frequency: float) -> Vector3:
     if intensity <= 0.0:
@@ -493,51 +522,63 @@ func add_screen_shake(amount: float, seconds: float) -> void:
     _screen_shake_tween.finished.connect(func(): _current_screen_shake_amount = 0.0)
 
 func trigger_dash_shake(intensity: float = 0.4, duration: float = 0.2) -> void:
-    """Trigger shake effect for dash - called from DashState"""
     add_screen_shake(intensity, duration)
 
 func trigger_dash_roll(dash_direction: Vector3) -> void:
-    """
-    Trigger directional camera roll for dash
-    dash_direction: World-space direction vector of the dash
-    """
     if not player:
         return
     
-    # Get player's right vector (local X axis)
     var player_right = player.global_transform.basis.x
-    
-    # Calculate how much the dash is going left/right relative to player
     var right_amount = dash_direction.dot(player_right)
-    
-    # Apply roll (negative because rolling right means tilting left)
     _dash_direction_roll = -right_amount * dash_roll_intensity
     _dash_direction_roll_timer = dash_shake_duration
 
 func smooth_step(height_change: float) -> void:
-    ## Call this when player climbs a step/stair to smooth the camera transition
     if enable_step_smoothing:
         _step_target_height -= height_change
         _step_smoothing_active = true
 
 func enter_ladder_mode(ladder_forward_direction: Vector3 = Vector3.ZERO) -> void:
-    ## Manually trigger ladder mode and optionally set the facing direction
-    ## ladder_forward_direction: The direction the ladder is facing (world space)
     if not enable_ladder_mode:
         return
-    print(ladder_forward_direction)
     if ladder_forward_direction != Vector3.ZERO:
-        # Calculate yaw from ladder direction
         var ladder_angle = atan2(ladder_forward_direction.x, ladder_forward_direction.z)
-        print(ladder_angle)
         _ladder_yaw_center = ladder_angle
     else:
-        # Use current player yaw
         _ladder_yaw_center = _mouse_rotation.y
-    
     _is_on_ladder = true
     _ladder_transition_progress = 0.0
 
 func exit_ladder_mode() -> void:
-    ## Manually exit ladder mode
     _is_on_ladder = false
+
+func process_climb_feedback(delta: float, velocity: Vector3, is_vertical_phase: bool) -> void:
+    # 1. Vertical Phase (Pulling Up)
+    if is_vertical_phase:
+        # Create a "struggle" sine wave
+        var bob = sin(Time.get_ticks_msec() * 0.01) * climb_bob_intensity
+        
+        # Lag the camera down slightly as we go up (implies weight)
+        var upward_force = velocity.y * 0.02
+        _climb_offset_y = lerp(_climb_offset_y, -upward_force + bob, delta * 5.0)
+        
+        # Tilt head down slightly to look at hands/ledge
+        _climb_pitch_mod = lerp(_climb_pitch_mod, deg_to_rad(-climb_tilt_amount), delta * 4.0)
+        _climb_roll_mod = lerp(_climb_roll_mod, 0.0, delta * 5.0)
+        
+    # 2. Horizontal Phase (Mantling)
+    else:
+        # Reset vertical offset
+        _climb_offset_y = lerp(_climb_offset_y, 0.0, delta * 8.0)
+        
+        # Pitch head up slightly as we crest the edge
+        _climb_pitch_mod = lerp(_climb_pitch_mod, deg_to_rad(climb_tilt_amount * 0.5), delta * 4.0)
+        
+        # Slight roll to simulate stepping one leg up
+        _climb_roll_mod = lerp(_climb_roll_mod, deg_to_rad(1.5), delta * 4.0)
+
+func reset_climb_feedback() -> void:
+    # Snap back or smooth back
+    _climb_offset_y = 0.0
+    _climb_pitch_mod = 0.0
+    _climb_roll_mod = 0.0
