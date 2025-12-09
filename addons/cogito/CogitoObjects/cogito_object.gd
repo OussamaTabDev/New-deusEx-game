@@ -142,4 +142,5 @@ func _exit_tree() -> void:
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D):
-	get_node("FlaotingComponent")._integrate_forces(state)
+	if has_node("FlaotingComponent"):
+		get_node("FlaotingComponent")._integrate_forces(state)

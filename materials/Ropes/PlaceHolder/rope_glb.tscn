@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://d0n1vih82h1t"]
+
+[ext_resource type="PackedScene" uid="uid://doie4s3yw2i5e" path="res://materials/Ropes/PlaceHolder/rope.glb" id="1_xnim3"]
+
+[node name="rope" instance=ExtResource("1_xnim3")]

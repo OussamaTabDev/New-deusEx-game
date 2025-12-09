@@ -119,9 +119,11 @@ extends Node3D
 @export var MIN_SCREEN_SHAKE: float = 0.05
 @export var MAX_SCREEN_SHAKE: float = 0.3
 
-@export_group("Dash Shake")
-@export var dash_shake_intensity: float = 0.4
-@export var dash_shake_duration: float = 0.2
+@export_category("Juicy Dash")
+@export var dash_fov_transition_speed: float = 0.15 # Fast entry
+@export var dash_fov_return_speed: float = 0.3 # Slower exit
+@export var dash_tilt_transition_speed: float = 0.1
+@export var dash_tilt_return_speed: float = 0.25
 
 # ============================================================
 # CAMERA KICK EFFECTS
@@ -200,6 +202,12 @@ var _ladder_center_yaw_target: float = 0.0
 # Dash directional roll
 var _dash_direction_roll: float = 0.0
 var _dash_direction_roll_timer: float = 0.0
+
+# 🆕 New Dash Internal State
+var _dash_roll_current: float = 0.0
+var _dash_fov_multiplier: float = 1.0
+var _dash_tween_tilt: Tween
+var _dash_tween_fov: Tween
 
 # Climb Juice
 var _climb_offset_y: float = 0.0
@@ -310,7 +318,10 @@ func _update_camera(delta: float):
     var total_offset = Vector3.ZERO
     var total_pitch_modifier = 0.0
     var total_roll = 0.0
-    
+
+    # We add this to the total roll calculation
+    total_roll += _dash_roll_current
+
     # Head bob
     if enable_head_bob:
         var bob_speed_scale = float(player.is_on_floor() and not is_climbing)
@@ -344,10 +355,10 @@ func _update_camera(delta: float):
         total_roll += _damage_roll * ratio
     
     # Dash directional roll
-    if _dash_direction_roll_timer > 0.0:
-        _dash_direction_roll_timer -= delta
-        var roll_ratio = _dash_direction_roll_timer / dash_shake_duration
-        total_roll += _dash_direction_roll * roll_ratio * roll_ratio
+    # if _dash_direction_roll_timer > 0.0:
+    #     _dash_direction_roll_timer -= delta
+    #     var roll_ratio = _dash_direction_roll_timer / dash_shake_duration
+    #     total_roll += _dash_direction_roll * roll_ratio * roll_ratio
     
     # Screen shake
     if enable_screen_shake and _current_screen_shake_amount > 0.0:
@@ -358,14 +369,29 @@ func _update_camera(delta: float):
     # Idle shake
     if enable_idle_shake:
         var is_idle = (player.is_on_floor() and player.velocity.length() < 0.1 and state_name == "IdleState")
+        var breath_intensity = SHAKE_INTENSITY_IDLE if is_idle else 0.0
+        shake_strength = lerp(shake_strength, breath_intensity, delta * (3.0 if is_idle else SHAKE_FADE_SPEED))
+        
+        # Deterministic breathing — no randomness
+        var breath_time = delta / 1000.0  # or use a local accumulator
+        var breath_y = sin(breath_time * SHAKE_FREQUENCY_IDLE) * shake_strength * 0.8
+        var breath_x = cos(breath_time * SHAKE_FREQUENCY_IDLE * 0.7) * shake_strength * 0.2  # subtle side sway
+
+        # var is_idle = (player.is_on_floor() and player.velocity.length() < 0.1 and state_name == "IdleState")
         if is_idle:
             shake_strength = lerp(shake_strength, SHAKE_INTENSITY_IDLE, delta * 3.0)
         else:
             shake_strength = lerp(shake_strength, 0.0, delta * SHAKE_FADE_SPEED)
         
         var freq = SHAKE_FREQUENCY_IDLE if is_idle else 12.0
+        total_offset += Vector3(breath_x, breath_y, 0.0)
         total_offset += _calculate_camera_shake(delta, shake_strength, freq)
     
+    # TODO: More Emergent shake types can be added here
+    # I = 0.01 ,F = 0.5 nervous shake when idle , S = 0.1 
+    # I = 0.001 , F = 5.0 calm shake when moving , S = 0.1
+    # we can lerp between them based on player state in state machine
+
     # Step smoothing
     if enable_step_smoothing and _step_smoothing_active:
         _step_target_height = lerp(_step_target_height, 0.0, step_smoothing_speed * delta)
@@ -455,12 +481,16 @@ func _calculate_camera_shake(delta: float, intensity: float, frequency: float) -
     return Vector3(offset_x, offset_y, 0.0)
 
 func _update_fov(delta: float, state_name: String) -> void:
-    var is_dashing = state_name == "DashState"
     var speed = max(0.5, player.velocity.length())
     var base_fov = lerp(BASE_FOV, zoom_fov, float(is_zoomed))
+    
+    # Standard speed-based FOV
     var target_fov = base_fov + FOV_CHANGE * clamp(speed, 0.5, player.SPEED * 2)
-    if is_dashing:
-        target_fov += 5.0
+    
+    # 🆕 2. APPLY DASH MULTIPLIER
+    # Instead of checking "if state == Dash", we just multiply by our juice value
+    target_fov *= _dash_fov_multiplier
+    
     CAMERA_CONTROLLER.fov = lerp(CAMERA_CONTROLLER.fov, target_fov, delta * 8.0)
 
 func _is_climbing() -> bool:
@@ -521,18 +551,6 @@ func add_screen_shake(amount: float, seconds: float) -> void:
     ).set_ease(Tween.EASE_OUT)
     _screen_shake_tween.finished.connect(func(): _current_screen_shake_amount = 0.0)
 
-func trigger_dash_shake(intensity: float = 0.4, duration: float = 0.2) -> void:
-    add_screen_shake(intensity, duration)
-
-func trigger_dash_roll(dash_direction: Vector3) -> void:
-    if not player:
-        return
-    
-    var player_right = player.global_transform.basis.x
-    var right_amount = dash_direction.dot(player_right)
-    _dash_direction_roll = -right_amount * dash_roll_intensity
-    _dash_direction_roll_timer = dash_shake_duration
-
 func smooth_step(height_change: float) -> void:
     if enable_step_smoothing:
         _step_target_height -= height_change
@@ -582,3 +600,68 @@ func reset_climb_feedback() -> void:
     _climb_offset_y = 0.0
     _climb_pitch_mod = 0.0
     _climb_roll_mod = 0.0
+
+# ============================================================
+# 🆕 NEW PUBLIC API (Called by DashState)
+# ============================================================
+
+## 1. TILT (Dutch Angle)
+## Called when dash starts to tilt camera left/right
+func trigger_dash_tilt(angle_degrees: float, _duration: float) -> void:
+    if _dash_tween_tilt: _dash_tween_tilt.kill()
+    _dash_tween_tilt = create_tween()
+    
+    # Tween to the angle quickly using Cubic Ease Out for a "Snap" feel
+    _dash_tween_tilt.tween_property(
+        self, 
+        "_dash_roll_current", 
+        deg_to_rad(angle_degrees), 
+        dash_tilt_transition_speed
+    ).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+## Called when dash ends to smooth back to 0
+func reset_dash_tilt() -> void:
+    if _dash_tween_tilt: _dash_tween_tilt.kill()
+    _dash_tween_tilt = create_tween()
+    
+    # Return to 0 slowly for a smooth settlement
+    _dash_tween_tilt.tween_property(
+        self, 
+        "_dash_roll_current", 
+        0.0, 
+        dash_tilt_return_speed
+    ).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+
+## 2. FOV (Warp Speed)
+## Called to punch the FOV out
+func set_dash_fov(multiplier: float) -> void:
+    if _dash_tween_fov: _dash_tween_fov.kill()
+    _dash_tween_fov = create_tween()
+    
+    _dash_tween_fov.tween_property(
+        self,
+        "_dash_fov_multiplier",
+        multiplier,
+        dash_fov_transition_speed
+    ).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+
+## Called to return FOV to normal
+func reset_dash_fov() -> void:
+    if _dash_tween_fov: _dash_tween_fov.kill()
+    _dash_tween_fov = create_tween()
+    
+    _dash_tween_fov.tween_property(
+        self,
+        "_dash_fov_multiplier",
+        1.0,
+        dash_fov_return_speed
+    ).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+
+## 3. SHAKE (Impact)
+func trigger_dash_shake(intensity: float = 0.4, duration: float = 0.2) -> void:
+    # High frequency shake for dash feels more energetic
+    SHAKE_FREQUENCY_IDLE = 20.0 
+    add_screen_shake(intensity, duration)
+    # Reset frequency after a moment (handled in update loop logic mostly, 
+    # but strictly we should reset it here via timer or just use a separate shake var. 
+    # For now, standard shake is fine)

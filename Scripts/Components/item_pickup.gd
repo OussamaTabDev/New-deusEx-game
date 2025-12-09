@@ -43,7 +43,10 @@ var item
 var _stack_count = stack_count
 
 func _ready() -> void:
+	
 	item = get_parent() as Node3D
+	# if can_be_grabbed:
+	# 	item.se
 	if not item:
 		push_error("PickupableItem must be a child of the scene root node (StaticBody/RigidBody).")
 		return

@@ -42,7 +42,7 @@ normal_texture = SubResource("NoiseTexture2D_mdx3j")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_xl6ub")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(143.20497, 140.45934, 0)
+uv1_offset = Vector3(0.10900004, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -83,7 +83,7 @@ min_depth_velocity = -4.755
 [node name="SwimmableArea3D" type="Area3D" parent="." groups=["water_area"]]
 unique_name_in_owner = true
 collision_layer = 512
-collision_mask = 778
+collision_mask = 906
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SwimmableArea3D"]
 unique_name_in_owner = true

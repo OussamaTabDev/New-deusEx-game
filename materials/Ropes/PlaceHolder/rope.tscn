@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dks5fiatfggga"]
+
+[ext_resource type="PackedScene" uid="uid://doie4s3yw2i5e" path="res://materials/Ropes/PlaceHolder/rope.glb" id="1_8u0x0"]
+
+[node name="Rope" type="Node3D"]
+
+[node name="rope" parent="." instance=ExtResource("1_8u0x0")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)

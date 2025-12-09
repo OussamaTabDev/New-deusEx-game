@@ -1,10 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://bq5n1u2nn5bka"]
+[gd_scene load_steps=8 format=3 uid="uid://bq5n1u2nn5bka"]
 
 [ext_resource type="Texture2D" uid="uid://cli6p25rja2wd" path="res://materials/items/medicans/medkit/Medkit.png" id="1_3qvqd"]
+[ext_resource type="Script" uid="uid://dmeh01c5ccjqc" path="res://addons/cogito/CogitoObjects/cogito_object.gd" id="1_863pi"]
 [ext_resource type="PackedScene" uid="uid://b20kvf66jy2oo" path="res://controllers/scripts/Compoenents/item_pickup.tscn" id="2_uxo6f"]
-[ext_resource type="PackedScene" uid="uid://cio4x05ipvslu" path="res://addons/cogito/Components/Interactions/CarryableComponent.tscn" id="4_d88wd"]
-[ext_resource type="AudioStream" uid="uid://cqgsihtcw0gl4" path="res://addons/cogito/Assets/Audio/Kenney/UiAudio/rollover1.ogg" id="5_pueqj"]
-[ext_resource type="AudioStream" uid="uid://1w0db1u6lv7t" path="res://addons/cogito/Assets/Audio/Kenney/UiAudio/rollover6.ogg" id="6_h0nqd"]
+[ext_resource type="Script" uid="uid://cm5g8bbxt8mpi" path="res://addons/cogito/Components/FlaotingComponent.gd" id="4_ej4vu"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uxo6f"]
 albedo_texture = ExtResource("1_3qvqd")
@@ -20,7 +19,10 @@ points = PackedVector3Array(-0.3900952, -0.29415873, -0.14999999, 0.37790474, 0.
 
 [node name="Medkit" type="RigidBody3D"]
 collision_layer = 128
-collision_mask = 137
+collision_mask = 905
+script = ExtResource("1_863pi")
+cogito_name = "Medkit"
+display_name = "Medkit"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_863pi")
@@ -32,12 +34,7 @@ shape = SubResource("ConvexPolygonShape3D_uxo6f")
 item_id = "medkit_1764361004645"
 stack_count = 10
 
-[node name="CarryableComponent" parent="." instance=ExtResource("4_d88wd")]
-pick_up_sound = ExtResource("5_pueqj")
-drop_sound = ExtResource("6_h0nqd")
-enable_manual_rotating = false
-attribute_check = 1
-attribute_to_check = "strength"
-min_value_to_pass = 5.0
-message_on_pass = "You lift with your back!"
-message_on_fail = "You are too weak."
+[node name="FlaotingComponent" type="Node3D" parent="." node_paths=PackedStringArray("rigid_body")]
+script = ExtResource("4_ej4vu")
+rigid_body = NodePath("..")
+metadata/_custom_type_script = "uid://cm5g8bbxt8mpi"

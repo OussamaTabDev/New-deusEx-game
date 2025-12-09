@@ -96,7 +96,8 @@ continuous_cd = true
 contact_monitor = true
 max_contacts_reported = 10
 script = ExtResource("1_p1u1m")
-cogito_name = ""
+cogito_name = "Barrel"
+display_name = "Barrel"
 
 [node name="CarryableComponent" parent="." instance=ExtResource("5_vqdq1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05015427, 0)

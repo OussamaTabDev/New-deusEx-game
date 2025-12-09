@@ -187,7 +187,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.040999986, 0, 0)
+uv1_offset = Vector3(0.0060000005, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -421,7 +421,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.851952, 5.3636384, -6.7493
 
 [node name="Medkit" parent="." instance=ExtResource("14_ywvwd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.089888, 2.9980724, 12.836086)
-collision_layer = 136
 
 [node name="StaticBody3D2" type="StaticBody3D" parent="."]
 

@@ -576,6 +576,7 @@ pickup_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/
 
 [node name="DropMarker" type="Marker3D" parent="Components/ItemsInteractionComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9155706, -1.4331703)
+visible = false
 
 [node name="PlayerHealthComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
 script = ExtResource("9_b6iva")
@@ -611,23 +612,24 @@ script = ExtResource("15_mn68o")
 player = NodePath("../..")
 injury_effects = NodePath("../PlayerHealthComponent/MovementInjuryEffects")
 
-[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
+[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_base", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
 player = NodePath("..")
 audio_component = NodePath("../Components/AudioController")
+camera_base = NodePath("CameraBase")
 camera_offset = NodePath("CameraBase/CameraOffset")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
-enable_idle_shake = false
 MOUSE_SENSITIVITY = 0.1
 CONTROLLER_SENSITIVITY = 2.5
 LEAN_AMOUNT = 0.8
 lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
 lean_shape_cast_right = NodePath("Raycasters/CameraRightCast")
 ladder_climbing_states = Array[String](["ClimbLadderState", "LadderClimbState"])
-SHAKE_INTENSITY_IDLE = 0.03
-SHAKE_FREQUENCY_IDLE = 1.0
-SHAKE_FADE_SPEED = 1.0
+SHAKE_INTENSITY_IDLE = 0.01
+SHAKE_FREQUENCY_IDLE = 0.5
+SHAKE_FADE_SPEED = 0.1
+SHAKE_RANDOMNESS = 0.1
 
 [node name="CameraBase" type="Node3D" parent="CameraController"]
 
@@ -785,7 +787,6 @@ proneCast = NodePath("../../Raycasters/ProneCast")
 
 [node name="DashState" type="Node" parent="StateMachine"]
 script = ExtResource("12_5b0ob")
-enable_8_direction = true
 
 [node name="SlidingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast")]
 script = ExtResource("13_l8yvu")
