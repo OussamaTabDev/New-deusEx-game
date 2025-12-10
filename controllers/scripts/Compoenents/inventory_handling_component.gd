@@ -8,7 +8,7 @@ extends Node
 @export var inventory_ui: InventoryUI
 @export var camera_controller: Node
 @export var state_machine: Node
-@export var pickup_interaction: PickupInteractionComponent ## NEW
+@export var pickup_interaction: UnifiedInteractionComponent ## NEW
 
 var inventory_open: bool = false
 

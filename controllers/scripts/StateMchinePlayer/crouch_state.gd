@@ -109,3 +109,13 @@ func exit() -> void:
     # Just in case we exit early
     if player.CAMERA_CONTROLLER:
         player.CAMERA_CONTROLLER.reset_climb_feedback()
+
+func check_transitions() -> State:
+    # Allow dropping off the ledge mid-climb
+    if Input.is_action_just_pressed("move_backward"):
+        # Push player slightly away from wall so they don't re-grab immediately
+        player.velocity -= player.global_transform.basis.z * 2.0 + player.global_transform.basis.y * 3.5
+        
+        return fallingState
+        
+    return null

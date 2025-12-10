@@ -1,0 +1,69 @@
+[gd_scene load_steps=11 format=3 uid="uid://cvhlcyq81dw3g"]
+
+[ext_resource type="Script" uid="uid://msg8neymlvtl" path="res://materials/Mics/Doors/doorMecanism.gd" id="1_4e6cy"]
+[ext_resource type="AudioStream" uid="uid://bipwc8kk30bub" path="res://addons/cogito/Assets/Audio/Kenney/doorOpen_1.ogg" id="2_608qd"]
+[ext_resource type="Script" uid="uid://bjfb2rnf3olhm" path="res://materials/Mics/Doors/Door_interactable_component.gd" id="3_ueh62"]
+[ext_resource type="AudioStream" uid="uid://g8n7a73j5qqo" path="res://addons/cogito/Assets/Audio/Kenney/doorClose_4.ogg" id="3_wdbbv"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_p23qg"]
+size = Vector3(1, 2.2, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_608qd"]
+albedo_color = Color(0.72275174, 0.856466, 0.98666173, 1)
+metallic = 0.17
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_4e6cy"]
+points = PackedVector3Array(-0.5, -1.1, -0.05, -0.5, -1.1, 0.05, -0.5, 1.1, -0.05, 0.5, -1.1, -0.05, 0.5, -1.1, 0.05, -0.5, 1.1, 0.05, 0.5, 1.1, -0.05, 0.5, 1.1, 0.05)
+
+[sub_resource type="BoxMesh" id="BoxMesh_8w7m1"]
+size = Vector3(0.1, 2.2, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ueh62"]
+albedo_color = Color(0.60046387, 0.22125971, 0, 1)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_608qd"]
+points = PackedVector3Array(-0.05, -1.1, -0.05, -0.05, -1.1, 0.05, -0.05, 1.1, -0.05, 0.05, -1.1, -0.05, 0.05, -1.1, 0.05, -0.05, 1.1, 0.05, 0.05, 1.1, -0.05, 0.05, 1.1, 0.05)
+
+[node name="DoorAnimations" type="Node3D"]
+script = ExtResource("1_4e6cy")
+
+[node name="Door" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08751252, 0, 0)
+collision_layer = 2048
+collision_mask = 266
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51850533, 0, 0)
+mesh = SubResource("BoxMesh_p23qg")
+surface_material_override/0 = SubResource("StandardMaterial3D_608qd")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51850533, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_4e6cy")
+
+[node name="DoorOpen" type="AudioStreamPlayer3D" parent="Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5146649, 0, 0)
+stream = ExtResource("2_608qd")
+
+[node name="DoorClose" type="AudioStreamPlayer3D" parent="Door"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5146649, 0, 0)
+stream = ExtResource("3_wdbbv")
+
+[node name="InteractableComponent" type="Node3D" parent="Door" node_paths=PackedStringArray("open_sound", "close_sound")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5146649, 0, 0)
+script = ExtResource("3_ueh62")
+auto_close = false
+open_sound = NodePath("../DoorOpen")
+close_sound = NodePath("../DoorClose")
+
+[node name="DoorFrame" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08751252, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="DoorFrame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.034587763, 0, 0)
+mesh = SubResource("BoxMesh_8w7m1")
+surface_material_override/0 = SubResource("StandardMaterial3D_ueh62")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DoorFrame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.034587763, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_608qd")

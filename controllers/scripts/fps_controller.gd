@@ -48,7 +48,7 @@ class_name Player extends CharacterBody3D
 @export_group("Player Systems")
 @export var step_handler: StepHandlerComponent
 @export var audio_component: PlayerAudioComponent
-@export var rigidbody_interaction_component: RigidBodyInteractionComponent
+@export var rigidbody_interaction_component : UnifiedInteractionComponent
 
 @export_group("Inventory")
 @export var inventory_handler: InventoryHandlerComponenent
@@ -277,9 +277,9 @@ func _push_away_rigid_bodies():
 			c.get_collider().apply_impulse(push_dir * velocity_diff_in_push_dir * push_force, c.get_position() - c.get_collider().global_position)
 
 func is_graping():
-	return rigidbody_interaction_component.is_holding
+	return rigidbody_interaction_component.is_holding_object
 
 func unhold_object():
 	if rigidbody_interaction_component.is_holding:
-			rigidbody_interaction_component.drop_object()
+			rigidbody_interaction_component.force_drop()
 	

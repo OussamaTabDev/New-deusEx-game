@@ -9,4 +9,4 @@ func get_action_key(action_name: String) -> String:
         for e in events:
             if e is InputEventKey:
                 return OS.get_keycode_string(e.physical_keycode) # readable key like "E", "F", etc.
-    return "?"
+    return "F" # default key if action not found

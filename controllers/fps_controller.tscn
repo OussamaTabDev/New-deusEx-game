@@ -1,4 +1,4 @@
-[gd_scene load_steps=76 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=75 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -8,7 +8,6 @@
 [ext_resource type="PackedScene" uid="uid://iwlpamd20oko" path="res://addons/customizableCrosshair/crosshair/crosshair.tscn" id="4_5w0k0"]
 [ext_resource type="Script" uid="uid://bdhoyf88f6a32" path="res://controllers/scripts/StateMchinePlayer/state_machine.gd" id="4_l8yvu"]
 [ext_resource type="PackedScene" uid="uid://cbd2ojah4nun6" path="res://addons/cogito/Components/interaction_raycast.tscn" id="4_rcx31"]
-[ext_resource type="Script" uid="uid://bodha8k2bc1ht" path="res://controllers/scripts/Compoenents/rigid_body_interaction_component.gd" id="4_stri7"]
 [ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
 [ext_resource type="Script" uid="uid://bfb43ifks0aqc" path="res://controllers/scripts/Compoenents/inventory_component.gd" id="5_12ia1"]
 [ext_resource type="Script" uid="uid://ua63m2y35w46" path="res://addons/cogito/Scripts/item_drop_shape_cast.gd" id="5_rcx31"]
@@ -502,7 +501,7 @@ shader_parameter/final_pixelize_power = 1.0
 
 [node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "h_cast", "h_cast_up", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler") groups=["Player"]]
 collision_layer = 2
-collision_mask = 271
+collision_mask = 2319
 platform_on_leave = 2
 script = ExtResource("1_pgc1p")
 JUMP_VELOCITY = 4.8
@@ -520,7 +519,7 @@ upperchest_Cast_Crouch = NodePath("Raycasters/ClimbingCasts/upperChestCasts/Uppe
 r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
 step_handler = NodePath("Components/StepHandlerComponent")
 audio_component = NodePath("Components/AudioController")
-rigidbody_interaction_component = NodePath("Components/RigidBodyInteractionComponent")
+rigidbody_interaction_component = NodePath("Components/ItemsInteractionComponent")
 inventory_handler = NodePath("Components/InventoryComponent/InventoryHandlingComponent")
 
 [node name="Components" type="Node3D" parent="."]
@@ -536,12 +535,6 @@ footstep_player = NodePath("../../FootstepPlayer")
 footstep_surface_detector = NodePath("../../FootstepPlayer")
 jump_audio_player = NodePath("../../FootstepPlayer")
 landing_audio_player = NodePath("../../FootstepPlayer")
-
-[node name="RigidBodyInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("interaction_raycast", "hold_position")]
-script = ExtResource("4_stri7")
-interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
-hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
-throw_action = "fire"
 
 [node name="InventoryComponent" type="Node" parent="Components" node_paths=PackedStringArray("player", "drop_marker")]
 script = ExtResource("5_12ia1")
@@ -564,15 +557,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
 interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
 carryable_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
 
-[node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("shape_cast", "inventory_handler", "camera_controller", "cyber_scanner", "interact_control", "pickup_label")]
+[node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("interaction_raycast", "inventory_handler", "camera_controller", "hold_position", "cyber_scanner", "player", "interact_control", "primary_action_label", "secondary_action_label")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35666072, 0)
 script = ExtResource("8_kaa6b")
-shape_cast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/ItemsIntectionCast")
+interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
 inventory_handler = NodePath("../InventoryComponent/InventoryHandlingComponent")
 camera_controller = NodePath("../../CameraController")
+hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
 cyber_scanner = NodePath("../../Effects/ScannerEffect")
+player = NodePath("../..")
 interact_control = NodePath("../../Control/UI/InteractControl")
-pickup_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/PickupLabel")
+primary_action_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/PickupLabel")
+secondary_action_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/GrapLabel")
+throw_action = "fire"
+throw_force = 25.0
 
 [node name="DropMarker" type="Marker3D" parent="Components/ItemsInteractionComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9155706, -1.4331703)
@@ -639,8 +637,7 @@ SHAKE_RANDOMNESS = 0.1
 physics_interpolation_mode = 1
 
 [node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D" instance=ExtResource("4_rcx31")]
-visible = false
-collision_mask = 10
+collision_mask = 2184
 
 [node name="CarryablePosition" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 unique_name_in_owner = true
@@ -673,6 +670,7 @@ root_node = NodePath("../..")
 
 [node name="ItemsIntectionCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025275946, -1.3016729)
+visible = false
 shape = SubResource("BoxShape3D_xno33")
 exclude_parent = false
 target_position = Vector3(0, 0, 0)
@@ -817,11 +815,13 @@ script = ExtResource("25_uefoi")
 
 [node name="ProneCast" type="ShapeCast3D" parent="Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1397371, 0)
+visible = false
 shape = SubResource("BoxShape3D_12ia1")
 debug_shape_custom_color = Color(0.9763817, 0.49272287, 0, 1)
 
 [node name="HeadCast" type="ShapeCast3D" parent="Raycasters"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
+visible = false
 shape = SubResource("SphereShape3D_l8yvu")
 
 [node name="ClimbingCasts" type="Node3D" parent="Raycasters"]

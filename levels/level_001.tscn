@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=42 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
@@ -19,6 +19,8 @@
 [ext_resource type="Texture2D" uid="uid://cew0axp4tebwt" path="res://materials/Effects/Blood/T_Decal_Blood651aas.png" id="17_m86b5"]
 [ext_resource type="Texture2D" uid="uid://dpfdfkwhhg0u" path="res://materials/Effects/Blood/T_Decal_Blood651aas_N.png" id="18_jixnm"]
 [ext_resource type="PackedScene" uid="uid://c8vbcqht8qq5r" path="res://materials/Effects/Blood/blood_particales_1.tscn" id="20_jixnm"]
+[ext_resource type="PackedScene" uid="uid://cvhlcyq81dw3g" path="res://materials/Mics/Doors/door.tscn" id="20_lqhs4"]
+[ext_resource type="PackedScene" uid="uid://bdyukj85qkut0" path="res://addons/cogito/PackedScenes/door.tscn" id="21_j8lij"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -187,7 +189,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.0060000005, 0, 0)
+uv1_offset = Vector3(0.16900016, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -451,3 +453,9 @@ shape = SubResource("CapsuleShape3D_ye0g1")
 
 [node name="BloodParticales1" parent="." instance=ExtResource("20_jixnm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.366645, 1.9368432, 0.5774557)
+
+[node name="Door" parent="." instance=ExtResource("20_lqhs4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.0076485, 1.0816828, 5.917161)
+
+[node name="Door2" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -11.039531, -0.018317223, 6.364714)
