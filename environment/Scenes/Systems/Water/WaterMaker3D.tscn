@@ -9,10 +9,11 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gss2v"]
 render_priority = 0
 shader = ExtResource("1_gss2v")
-shader_parameter/albedo = Color(0, 0, 0, 1)
+shader_parameter/albedo = Color(0.31, 0.54, 0.87, 0.8)
 shader_parameter/voxel_size = 1.0
 shader_parameter/uv_scale = Vector2(1, 1)
 shader_parameter/uv_offset = Vector2(1.325, 0)
+shader_parameter/alpha_scissor_threshold = 0.5
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_1bimf"]
 resource_local_to_scene = true
@@ -42,7 +43,7 @@ normal_texture = SubResource("NoiseTexture2D_mdx3j")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_xl6ub")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.10900004, 0, 0)
+uv1_offset = Vector3(5.0698633, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0

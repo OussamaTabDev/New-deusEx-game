@@ -214,6 +214,10 @@ var _climb_offset_y: float = 0.0
 var _climb_pitch_mod: float = 0.0
 var _climb_roll_mod: float = 0.0
 
+##
+var _processed_yaw_input: float = 0.0
+var _processed_pitch_input: float = 0.0
+
 # ============================================================
 # INITIALIZATION
 # ============================================================
@@ -268,7 +272,7 @@ func _update_camera(delta: float):
     # === ROTATION INPUT ===
     var yaw_input: float = 0.0
     var pitch_input: float = 0.0
-    
+
     # Mouse input
     if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
         var zoom_factor = zoom_sensitivity_multiplier if is_zoomed else 1.0
@@ -313,6 +317,9 @@ func _update_camera(delta: float):
             _ladder_offset_yaw = 0.0
         if abs(_ladder_offset_pitch) < 0.001:
             _ladder_offset_pitch = 0.0
+    
+    _processed_yaw_input = yaw_input
+    _processed_pitch_input = pitch_input
     
     # === COLLECT ALL OFFSETS ===
     var total_offset = Vector3.ZERO

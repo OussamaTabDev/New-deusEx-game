@@ -1,0 +1,118 @@
+[gd_scene load_steps=11 format=3 uid="uid://bg4gnlev81ka2"]
+
+[ext_resource type="PackedScene" path="res://addons/glue/scenes/DebugCamera.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://cttk1y1lf32hd" path="res://addons/glue/props/wall_big.tscn" id="3_fy4av"]
+[ext_resource type="PackedScene" uid="uid://uogxfey0t03a" path="res://addons/glue/props/interior_wall.tscn" id="8"]
+
+[sub_resource type="BoxMesh" id="155"]
+size = Vector3(110, 0.25, 110)
+
+[sub_resource type="BoxShape3D" id="160"]
+size = Vector3(110, 0.25, 110)
+
+[sub_resource type="Gradient" id="256"]
+colors = PackedColorArray(0, 0, 0, 1, 0.972168, 0.151901, 0.151901, 1)
+
+[sub_resource type="GradientTexture1D" id="257"]
+gradient = SubResource("256")
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xgm2g"]
+
+[sub_resource type="Sky" id="Sky_5cq73"]
+sky_material = SubResource("ProceduralSkyMaterial_xgm2g")
+
+[sub_resource type="Environment" id="162"]
+background_mode = 2
+background_color = Color(0.306923, 0.306923, 0.306923, 1)
+sky = SubResource("Sky_5cq73")
+ambient_light_energy = 0.0
+tonemap_mode = 2
+ssil_enabled = true
+glow_enabled = true
+glow_levels/1 = 1.0
+glow_bloom = 0.3
+glow_blend_mode = 1
+adjustment_color_correction = SubResource("257")
+
+[node name="Spatial" type="Node3D"]
+
+[node name="DebugCamera" parent="." instance=ExtResource("3")]
+
+[node name="GROUND" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.98916, -0.7, 0)
+mesh = SubResource("155")
+skeleton = NodePath("")
+
+[node name="StaticBody" type="StaticBody3D" parent="GROUND"]
+
+[node name="CollisionShape" type="CollisionShape3D" parent="GROUND/StaticBody"]
+shape = SubResource("160")
+
+[node name="SpotLight" type="SpotLight3D" parent="."]
+transform = Transform3D(0.713303, 0.386039, -0.584955, -0.115196, 0.887857, 0.445466, 0.691324, -0.250368, 0.677781, -11.8183, 5.4451, 5.56559)
+visible = false
+spot_range = 15.9064
+spot_angle = 44.4398
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("162")
+
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.528438, 0.665444, -0.527198, -3.25172e-08, 0.620984, 0.783823, 0.848972, 0.414202, -0.328151, 0, 4, 0)
+light_energy = 0.3
+light_bake_mode = 0
+shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_split_2 = 0.258
+directional_shadow_max_distance = 20.0
+
+[node name="Spatial" parent="." instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.0395, -0.572407, -1.38979)
+
+[node name="Spatial2" parent="." instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.64, -0.57, -1.39)
+
+[node name="Spatial3" parent="." instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.44, -0.57, -1.39)
+
+[node name="Spatial4" parent="." instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.83, -0.57, -1.39)
+
+[node name="Spatial13" parent="." instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.04, -0.57, 8.15)
+
+[node name="Spatial14" parent="." instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.64, -0.57, 8.15)
+
+[node name="Spatial15" parent="." instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.44, -0.57, 8.15)
+
+[node name="Spatial16" parent="." instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.83, -0.57, 8.15)
+
+[node name="Spatial5" parent="." instance=ExtResource("8")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -12.075, -0.57, 4.555)
+
+[node name="Spatial6" parent="." instance=ExtResource("8")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -12.075, -0.57, 6.955)
+
+[node name="Spatial7" parent="." instance=ExtResource("8")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -12.075, -0.57, 2.155)
+
+[node name="Spatial8" parent="." instance=ExtResource("8")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -12.075, -0.57, -0.235)
+
+[node name="Spatial9" parent="." instance=ExtResource("8")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -2.445, -0.57, 4.555)
+
+[node name="Spatial10" parent="." instance=ExtResource("8")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -2.445, -0.57, 6.955)
+
+[node name="Spatial11" parent="." instance=ExtResource("8")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -2.445, -0.57, 2.155)
+
+[node name="Spatial12" parent="." instance=ExtResource("8")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -2.445, -0.57, -0.235)
+
+[node name="wall_big" parent="." instance=ExtResource("3_fy4av")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, -1, 4)

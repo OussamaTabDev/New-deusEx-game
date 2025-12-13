@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://57l1kkwdfw5i"]
+
+[ext_resource type="PackedScene" uid="uid://dhxl7bhixg0je" path="res://Characters/Player/player.glb" id="1_i3pqv"]
+[ext_resource type="Shader" uid="uid://c3i0sa5av14u4" path="res://shaders/ps1Effects/default_object.gdshader" id="2_hqtel"]
+[ext_resource type="Texture2D" uid="uid://c3jj78j13v4mo" path="res://Characters/Player/player_texture_pbr_20250901.png" id="3_sweqy"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2hs0m"]
+render_priority = 0
+shader = ExtResource("2_hqtel")
+shader_parameter/color_texture = ExtResource("3_sweqy")
+shader_parameter/vertex_wobble = 1.0
+shader_parameter/affine_mapping = 1.0
+
+[node name="player" instance=ExtResource("1_i3pqv")]
+
+[node name="material" parent="metarig/Skeleton3D" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_2hs0m")

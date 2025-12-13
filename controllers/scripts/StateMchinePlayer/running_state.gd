@@ -17,9 +17,15 @@ func physics_update(delta: float) -> void:
 	var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction = (player.transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
+	# --- BACKWARD SPEED MODIFIER ---
+	var current_speed = player.SPEED
+	if input_dir.y > 0: # Input vector Y > 0 means moving backward
+		current_speed *= 0.5
+	# -----------------------------
+	
 	if direction:
-		player.velocity.x = direction.x * player.SPEED
-		player.velocity.z = direction.z * player.SPEED
+		player.velocity.x = direction.x * current_speed
+		player.velocity.z = direction.z * current_speed
 	else:
 		player.velocity.x = move_toward(player.velocity.x, 0, player.SPEED)
 		player.velocity.z = move_toward(player.velocity.z, 0, player.SPEED)

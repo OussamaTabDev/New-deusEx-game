@@ -1,4 +1,4 @@
-[gd_scene load_steps=75 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=79 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -29,12 +29,15 @@
 [ext_resource type="Script" uid="uid://boyrl6hfbog6l" path="res://controllers/scripts/HeathAndDamageSystem/injuredSystem/camera_injury_effects.gd" id="13_tnfk2"]
 [ext_resource type="Script" uid="uid://4prbyxtm4pjg" path="res://controllers/scripts/StateMchinePlayer/wall_run_state.gd" id="14_fyafc"]
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
+[ext_resource type="Script" uid="uid://cnpa03x4ajc8b" path="res://addons/PlayerCharacter/Scripts/Misc/LinkComponentScript.gd" id="15_7gkfl"]
 [ext_resource type="Script" uid="uid://dmfp4audscxl3" path="res://controllers/scripts/StateMchinePlayer/movement_stats_provider.gd" id="15_mn68o"]
 [ext_resource type="Script" uid="uid://clhcimphoqlp5" path="res://controllers/scripts/StateMchinePlayer/ladder_climb_state.gd" id="16_h7h5r"]
 [ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
 [ext_resource type="Script" uid="uid://bjjqmr27j3eg8" path="res://controllers/scripts/StateMchinePlayer/swimming_state.gd" id="17_5b0ob"]
+[ext_resource type="Script" uid="uid://k7djd8c1xge2" path="res://addons/Weapons/Scripts/Camera/CameraRecoilHolderScript.gd" id="17_i5pff"]
 [ext_resource type="Script" uid="uid://c2ehk8a60pir7" path="res://controllers/scripts/StateMchinePlayer/sprint_swiming_state.gd" id="18_bygp4"]
 [ext_resource type="Shader" uid="uid://bidtqalywrkra" path="res://shaders/uis/DistortionSpeedLines.gdshader" id="18_tnfk2"]
+[ext_resource type="PackedScene" uid="uid://ihkgdms5wjsu" path="res://addons/Weapons/Scenes/WeaponManagerScene.tscn" id="19_3qkg6"]
 [ext_resource type="Script" uid="uid://bn3kmp5jtydid" path="res://controllers/scripts/StateMchinePlayer/surface_swimming_state.gd" id="19_rcx31"]
 [ext_resource type="PackedScene" uid="uid://dy3tudla5p2nc" path="res://addons/cogito/Components/PlayerInteractionComponent.tscn" id="25_bjwns"]
 [ext_resource type="AudioStream" uid="uid://up2hfhgq1qx6" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep00.ogg" id="25_qmwy2"]
@@ -52,6 +55,7 @@
 [ext_resource type="Script" uid="uid://c3tv7kqkyftel" path="res://controllers/debugs/hand_d_debug.gd" id="42_ius01"]
 [ext_resource type="Script" uid="uid://bgjtlul6bmw6u" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gd" id="43_teryj"]
 [ext_resource type="Shader" uid="uid://bragsbfphgcjf" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gdshader" id="44_b6iva"]
+[ext_resource type="Script" uid="uid://ba0b0ekmy1qub" path="res://addons/PlayerCharacter/Scripts/Camera/ViewportCameraScript.gd" id="53_ius01"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
 size = Vector3(0.1, 0.1, 0.1)
@@ -610,6 +614,12 @@ script = ExtResource("15_mn68o")
 player = NodePath("../..")
 injury_effects = NodePath("../PlayerHealthComponent/MovementInjuryEffects")
 
+[node name="LinkComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("ammoManager", "weaponManager")]
+unique_name_in_owner = true
+script = ExtResource("15_7gkfl")
+ammoManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager/AmmunitionManager")
+weaponManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager")
+
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_base", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
@@ -618,7 +628,7 @@ audio_component = NodePath("../Components/AudioController")
 camera_base = NodePath("CameraBase")
 camera_offset = NodePath("CameraBase/CameraOffset")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
-MOUSE_SENSITIVITY = 0.1
+MOUSE_SENSITIVITY = 0.2
 CONTROLLER_SENSITIVITY = 2.5
 LEAN_AMOUNT = 0.8
 lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
@@ -632,20 +642,21 @@ SHAKE_RANDOMNESS = 0.1
 [node name="CameraBase" type="Node3D" parent="CameraController"]
 
 [node name="CameraOffset" type="Node3D" parent="CameraController/CameraBase"]
+script = ExtResource("17_i5pff")
 
 [node name="Camera3D" type="Camera3D" parent="CameraController/CameraBase/CameraOffset"]
 physics_interpolation_mode = 1
+cull_mask = 1048559
 
 [node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D" instance=ExtResource("4_rcx31")]
+target_position = Vector3(0, 0, -2.1)
 collision_mask = 2184
 
 [node name="CarryablePosition" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
-visible = false
 
 [node name="ItemDropShapeCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-visible = false
 shape = SubResource("BoxShape3D_57us7")
 target_position = Vector3(0, 0, -2)
 collision_mask = 3
@@ -653,7 +664,6 @@ debug_shape_custom_color = Color(1, 0.368977, 0.687569, 1)
 script = ExtResource("5_rcx31")
 
 [node name="ReflectionProbe" type="ReflectionProbe" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-visible = false
 enable_shadows = true
 
 [node name="Anim" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
@@ -725,6 +735,39 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D" node_paths=PackedStringArray("playChar", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "linkComponent") instance=ExtResource("19_3qkg6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5136298)
+shoot_action = "fire"
+playChar = NodePath("../../../../..")
+cameraHolder = NodePath("../../../..")
+cameraRecoilHolder = NodePath("../..")
+camera = NodePath("..")
+weaponContainer = NodePath("WeaponContainer")
+shootManager = NodePath("ShootManager")
+reloadManager = NodePath("ReloadManager")
+ammoManager = NodePath("AmmunitionManager")
+animPlayer = NodePath("AnimationPlayer")
+animManager = NodePath("AnimationManager")
+linkComponent = NodePath("../../../../../Components/LinkComponent")
+
+[node name="WeaponContainer" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.012, 0.447)
+
+[node name="AssaultRifle" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager/WeaponContainer" index="1"]
+transform = Transform3D(-0.22, 0, 5.5773995e-07, 0, 0.22, 0, -5.5773995e-07, 0, -0.22, 0.194412, -0.18, -0.144264)
+
+[node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="1" node_paths=PackedStringArray("weaponManager")]
+weaponManager = NodePath("..")
+
+[node name="ReloadManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="2" node_paths=PackedStringArray("weaponManager")]
+weaponManager = NodePath("..")
+
+[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="4" node_paths=PackedStringArray("cameraHolder", "playChar", "animPlayer", "weaponManager")]
+cameraHolder = NodePath("../../../../..")
+playChar = NodePath("../../../../../..")
+animPlayer = NodePath("../AnimationPlayer")
+weaponManager = NodePath("..")
+
 [node name="Raycasters" type="Node3D" parent="CameraController"]
 visible = false
 
@@ -741,10 +784,6 @@ root_node = NodePath("../..")
 libraries = {
 &"": SubResource("AnimationLibrary_5w0k0")
 }
-
-[node name="AnimationTree" type="AnimationTree" parent="CameraController"]
-root_node = NodePath("../..")
-anim_player = NodePath("../AnimationPlayer")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "player", "movement_stats_provider")]
 script = ExtResource("4_l8yvu")
@@ -770,8 +809,8 @@ air_control_factor = 0.85
 
 [node name="ClimbState" type="Node" parent="StateMachine" node_paths=PackedStringArray("upperchest_Cast_Idle", "crouchState", "standState", "fallingState")]
 script = ExtResource("10_h7h5r")
-vertical_speed = 7.0
-horizontal_speed = 5.0
+vertical_speed = 5.0
+horizontal_speed = 3.0
 move_speed = 0.7
 upperchest_Cast_Idle = NodePath("../../Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle")
 crouchState = NodePath("../CrouchWalkingState")
@@ -780,6 +819,7 @@ fallingState = NodePath("../FallingState")
 
 [node name="CrouchWalkingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast", "proneCast")]
 script = ExtResource("11_fdopr")
+is_toggle_crouch = true
 headCast = NodePath("../../Raycasters/HeadCast")
 proneCast = NodePath("../../Raycasters/ProneCast")
 
@@ -792,6 +832,7 @@ slide_friction = 5.0
 slide_duration = 2.5
 headCast = NodePath("../../Raycasters/HeadCast")
 crouch_speed = 4.0
+min_air_time_before_slide = 0.2
 
 [node name="WallRunState" type="Node" parent="StateMachine"]
 script = ExtResource("14_fyafc")
@@ -960,7 +1001,6 @@ size_flags_horizontal = 4
 text = "Hold E to Pick up"
 
 [node name="Crosshair" parent="Control/UI" instance=ExtResource("4_5w0k0")]
-visible = false
 layout_mode = 1
 crosshairThickness = 1.5
 crosshairSize = 6.0
@@ -1041,10 +1081,10 @@ healing_manager = NodePath("../../Components/HealingManager")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-visible = false
 shape = SubResource("CapsuleShape3D_u6tj1")
 
 [node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
+visible = false
 layers = 4
 mesh = SubResource("CapsuleMesh_6tv51")
 
@@ -1082,9 +1122,33 @@ metadata/_edit_use_anchors_ = true
 [node name="SubViewport" type="SubViewport" parent="Effects/ScannerEffect/ScanningViewport"]
 transparent_bg = true
 handle_input_locally = false
-size = Vector2i(1920, 1080)
+size = Vector2i(1280, 720)
 render_target_update_mode = 0
 
 [node name="ScanningCamera" type="Camera3D" parent="Effects/ScannerEffect/ScanningViewport/SubViewport"]
 unique_name_in_owner = true
 cull_mask = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="ViewportCam" type="Camera3D" parent="SubViewportContainer/SubViewport" node_paths=PackedStringArray("cam")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.540581, 0)
+cull_mask = 16
+fov = 90.0
+near = 0.01
+script = ExtResource("53_ius01")
+cam = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D")
+
+[editable path="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager"]
