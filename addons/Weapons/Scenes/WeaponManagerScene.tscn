@@ -1153,12 +1153,12 @@ script = ExtResource("1_r53v0")
 weaponResources = Array[ExtResource("2_wl0sp")]([ExtResource("3_7mp7g"), ExtResource("4_sle8a"), ExtResource("5_7741n"), ExtResource("6_q4c00"), ExtResource("7_qn0py")])
 
 [node name="RayCast3D" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15602002, -0.13405861, 0.6927786)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15602002, -0.13405861, -0.0030822158)
 target_position = Vector3(0, 0, -0.75)
 
 [node name="WeaponContainer" type="Node3D" parent="." node_paths=PackedStringArray("raycast")]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.67602e-09, -0.0115472, -0.038343)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.67602e-09, -0.0115472, 0.14430411)
 script = ExtResource("8_1upsk")
 raycast = NodePath("../RayCast3D")
 

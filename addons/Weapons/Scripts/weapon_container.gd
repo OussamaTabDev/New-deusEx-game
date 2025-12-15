@@ -7,16 +7,16 @@ extends Node3D
 
 var original_position := Vector3.ZERO
 var ray_length : float = 0.75
-var cw :WeaponSlot :
+var cw = null :
 	get:
-		if not weapon_manager:
+		if not weapon_manager or not weapon_manager.cW :
 			return null
 		return weapon_manager.cW
 
 var attack_point_z : float :
 	get:
 		if cw:
-			return cw.attackPoint.z
+			return cw.weaponSlot.attackPoint.global_position.z
 		return ray_length
 
 ## now we need to adapt each weapon with this code by using the attackPoint (because it postion in last of weapon)
@@ -29,7 +29,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var target_z = original_position.z
-	# raycast_setup()
+	raycast_setup()
 	if raycast.is_colliding():
 		# 1. Get the global point where the ray hit the wall
 		var collision_point = raycast.get_collision_point()
@@ -54,5 +54,6 @@ func _process(delta: float) -> void:
 
 func raycast_setup():
 	if cw and not raycast.is_colliding():
-		raycast.target_position.z = attack_point_z
+		#print(raycast.target_position)
+		raycast.target_position.z = -(raycast.global_position.z -attack_point_z + .2)
 		ray_length = abs(raycast.target_position.z)

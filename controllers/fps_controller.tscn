@@ -753,7 +753,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D" node_paths=PackedStringArray("playChar", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "inventory_component") instance=ExtResource("19_3qkg6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5136298)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.04, -0.239)
 shoot_action = "fire"
 playChar = NodePath("../../../../..")
 cameraHolder = NodePath("../../../..")
@@ -769,11 +769,11 @@ hud = NodePath("../../../../../HUD")
 linkComponent = NodePath("../../../../../Components/LinkComponent")
 inventory_component = NodePath("../../../../../Components/InventoryComponent")
 
-[node name="WeaponContainer" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.012, 0.447)
+[node name="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1996198, -0.1340586, -0.0030822158)
 
-[node name="AssaultRifle" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager/WeaponContainer" index="1"]
-transform = Transform3D(-0.22, 0, 5.5773995e-07, 0, 0.22, 0, -5.5773995e-07, 0, -0.22, 0.194412, -0.18, -0.144264)
+[node name="WeaponContainer" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="1" node_paths=PackedStringArray("weapon_manager")]
+weapon_manager = NodePath("..")
 
 [node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="2" node_paths=PackedStringArray("weaponManager")]
 weaponManager = NodePath("..")

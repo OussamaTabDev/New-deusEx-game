@@ -1,4 +1,4 @@
-class_name InteractableComponent
+class_name InteractableComponent 
 extends Node3D
 
 ## Base class for all interactable objects (doors, elevators, buttons, levers, etc.)

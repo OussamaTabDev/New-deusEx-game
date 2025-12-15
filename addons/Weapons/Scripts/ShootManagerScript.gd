@@ -58,6 +58,15 @@ func perform_single_shot(w_ref):
     # FIX: We consume ammo ONCE per shot cycle, not inside the pellet loop.
     consume_ammo(w_ref)
 
+    # --- JUICE INJECTION ---
+    # Arguments: (KickBack Amount, KickUp Amount)
+    # You can tweak these numbers or even add them to your WeaponResource
+    # Example: 0.15 meters back, 0.1 radians up
+    weaponManager.apply_visual_recoil(0.15, 0.1) 
+    # -----------------------
+
+
+
     # 2. Play Visuals & Audio
     weaponManager.weaponSoundManagement(w_ref.shootSound, w_ref.shootSoundSpeed)
     
@@ -68,6 +77,7 @@ func perform_single_shot(w_ref):
 
     if w_ref.showMuzzleFlash: 
         weaponManager.displayMuzzleFlash()
+
 
     # 3. Apply Recoil
     weaponManager.cameraRecoilHolder.setRecoilValues(w_ref.baseRotSpeed, w_ref.targetRotSpeed)
@@ -127,10 +137,20 @@ func handle_out_of_ammo(w_ref):
 
 func can_shoot() -> bool:
     if cW == null: return false
-    if cW.isShooting and not cW.canAutoShoot: return false
+    
+    # CRITICAL FIX: Always return false if the gun is currently cycling a shot.
+    # It doesn't matter if it's auto or semi; the mechanical parts need to cycle 
+    # (wait for the timer) before firing again.
+    if cW.isShooting: 
+        return false
+        
     if cW.isReloading: return false
     return true
 
+# func perform_single_shot(w_ref):
+    
+
+    # ... (Rest of your shooting logic) ...
 
 # --- SHOOTING LOGIC ---
 
