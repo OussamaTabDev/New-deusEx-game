@@ -667,6 +667,7 @@ physics_interpolation_mode = 1
 cull_mask = 1048559
 
 [node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D" instance=ExtResource("4_rcx31")]
+visible = false
 target_position = Vector3(0, 0, -2.1)
 collision_mask = 2184
 
@@ -675,6 +676,7 @@ unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
 
 [node name="ItemDropShapeCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+visible = false
 shape = SubResource("BoxShape3D_57us7")
 target_position = Vector3(0, 0, -2)
 collision_mask = 3
@@ -767,19 +769,19 @@ hud = NodePath("../../../../../HUD")
 linkComponent = NodePath("../../../../../Components/LinkComponent")
 inventory_component = NodePath("../../../../../Components/InventoryComponent")
 
-[node name="WeaponContainer" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="0"]
+[node name="WeaponContainer" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.012, 0.447)
 
 [node name="AssaultRifle" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager/WeaponContainer" index="1"]
 transform = Transform3D(-0.22, 0, 5.5773995e-07, 0, 0.22, 0, -5.5773995e-07, 0, -0.22, 0.194412, -0.18, -0.144264)
 
-[node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="1" node_paths=PackedStringArray("weaponManager")]
+[node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="2" node_paths=PackedStringArray("weaponManager")]
 weaponManager = NodePath("..")
 
-[node name="ReloadManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="2" node_paths=PackedStringArray("weaponManager")]
+[node name="ReloadManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="3" node_paths=PackedStringArray("weaponManager")]
 weaponManager = NodePath("..")
 
-[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="4" node_paths=PackedStringArray("cameraHolder", "playChar", "animPlayer", "weaponManager")]
+[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="5" node_paths=PackedStringArray("cameraHolder", "playChar", "animPlayer", "weaponManager")]
 cameraHolder = NodePath("../../../../..")
 playChar = NodePath("../../../../../..")
 animPlayer = NodePath("../AnimationPlayer")

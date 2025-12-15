@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=4 uid="uid://ihkgdms5wjsu"]
+[gd_scene load_steps=64 format=4 uid="uid://ihkgdms5wjsu"]
 
 [ext_resource type="Script" uid="uid://d2jpda3mq5jpa" path="res://addons/Weapons/Scripts/WeaponManagerScript.gd" id="1_r53v0"]
 [ext_resource type="Script" uid="uid://bnhfyt5sl8jcd" path="res://addons/Weapons/Scripts/WeaponResourcesScript.gd" id="2_wl0sp"]
@@ -7,6 +7,7 @@
 [ext_resource type="Resource" uid="uid://bgb8htvjywlwm" path="res://addons/Weapons/Resources/ShotgunWeaponResources.tres" id="5_7741n"]
 [ext_resource type="Resource" uid="uid://b63lj0c7tash0" path="res://addons/Weapons/Resources/SniperRifleWeaponResources.tres" id="6_q4c00"]
 [ext_resource type="Resource" uid="uid://dn71dyben68oe" path="res://addons/Weapons/Resources/RocketLauncherWeaponResources.tres" id="7_qn0py"]
+[ext_resource type="Script" uid="uid://c86nu2b3ov75j" path="res://addons/Weapons/Scripts/weapon_container.gd" id="8_1upsk"]
 [ext_resource type="Script" uid="uid://bcka80usfl4am" path="res://addons/Weapons/Scripts/WeaponSlotScript.gd" id="8_076ap"]
 [ext_resource type="Texture2D" uid="uid://dq6lmmv7chko6" path="res://addons/Addon Assets/Weapon Textures/atlass_1_diffuse.png" id="9_tmxqh"]
 [ext_resource type="Script" uid="uid://pufyqjrkl22t" path="res://addons/Weapons/Scripts/ShootManagerScript.gd" id="10_wdisg"]
@@ -1147,18 +1148,19 @@ _data = {
 &"UnequipAnimSniperRifle": SubResource("Animation_5k808")
 }
 
-[node name="WeaponManager" type="Node3D" node_paths=PackedStringArray("startWeapons")]
+[node name="WeaponManager" type="Node3D"]
 script = ExtResource("1_r53v0")
 weaponResources = Array[ExtResource("2_wl0sp")]([ExtResource("3_7mp7g"), ExtResource("4_sle8a"), ExtResource("5_7741n"), ExtResource("6_q4c00"), ExtResource("7_qn0py")])
-startWeapons = [NodePath("WeaponContainer/Pistol"), NodePath("WeaponContainer/AssaultRifle"), NodePath("WeaponContainer/Shotgun"), NodePath("WeaponContainer/SniperRifle"), NodePath("WeaponContainer/RocketLauncher")]
-shoot_action = "shoot"
-reload_action = "reload"
-weapon_wheel_up_action = "weaponWheelUp"
-weapon_wheel_down_action = "weaponWheelDown"
 
-[node name="WeaponContainer" type="Node3D" parent="."]
+[node name="RayCast3D" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15602002, -0.13405861, 0.6927786)
+target_position = Vector3(0, 0, -0.75)
+
+[node name="WeaponContainer" type="Node3D" parent="." node_paths=PackedStringArray("raycast")]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.67602e-09, -0.0115472, -0.038343)
+script = ExtResource("8_1upsk")
+raycast = NodePath("../RayCast3D")
 
 [node name="Pistol" type="Node3D" parent="WeaponContainer" node_paths=PackedStringArray("model", "attackPoint", "muzzleFlashSpawner")]
 transform = Transform3D(-0.3, 0, -2.18557e-08, 0, 0.3, 0, 2.62268e-08, 0, -0.25, 0.20047, -0.153444, -0.150842)
@@ -1186,6 +1188,7 @@ transform = Transform3D(1, 0, -4.54747e-13, 0, 1, 0, 0, 0, 1, -1.19209e-07, 0.06
 
 [node name="AssaultRifle" type="Node3D" parent="WeaponContainer" node_paths=PackedStringArray("model", "attackPoint", "muzzleFlashSpawner")]
 transform = Transform3D(-0.22, 0, 5.5774e-07, 0, 0.22, 0, -5.5774e-07, 0, -0.22, 0.194412, -0.18, -0.144264)
+visible = false
 script = ExtResource("8_076ap")
 model = NodePath(".")
 weaponId = 2
@@ -1209,6 +1212,7 @@ transform = Transform3D(1, 0, -9.9476e-14, 0, 1, 0, 9.9476e-14, 0, 1, -2.98023e-
 
 [node name="Shotgun" type="Node3D" parent="WeaponContainer" node_paths=PackedStringArray("model", "attackPoint", "muzzleFlashSpawner")]
 transform = Transform3D(-0.256072, 0.113256, 5.28255e-07, 0.113256, 0.256072, -2.31786e-07, -7.02272e-07, 2.06182e-09, -0.23, 0.196569, -0.209086, -0.0802836)
+visible = false
 script = ExtResource("8_076ap")
 model = NodePath(".")
 weaponId = 3
@@ -1232,6 +1236,7 @@ transform = Transform3D(1, -5.96046e-08, 0, 5.96046e-08, 1, -1.13687e-13, 4.5474
 
 [node name="SniperRifle" type="Node3D" parent="WeaponContainer" node_paths=PackedStringArray("model", "attackPoint", "muzzleFlashSpawner")]
 transform = Transform3D(-0.28, 0, 3.4729e-08, 0, 0.28, 0, -4.22788e-08, 0, -0.23, 0.208089, -0.137525, -0.165069)
+visible = false
 script = ExtResource("8_076ap")
 model = NodePath(".")
 weaponId = 4
@@ -1265,6 +1270,7 @@ transform = Transform3D(1, 0, -7.10543e-14, 0, 1, 0, 0, 0, 1, 5.96046e-07, 0.092
 
 [node name="RocketLauncher" type="Node3D" parent="WeaponContainer" node_paths=PackedStringArray("model", "attackPoint", "muzzleFlashSpawner")]
 transform = Transform3D(-0.29, 0, 6.33795e-07, 0, 0.29, 0, -7.35203e-07, 0, -0.25, 0.177288, -0.268151, -0.15469)
+visible = false
 script = ExtResource("8_076ap")
 model = NodePath(".")
 weaponId = 5

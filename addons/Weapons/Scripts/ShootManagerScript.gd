@@ -1,219 +1,235 @@
 extends Node3D
 class_name ShootManager
 
-var cW #current weapon
+# Local cache
+var cW # Current Weapon Resource
 var pointOfCollision : Vector3 = Vector3.ZERO
 var rng : RandomNumberGenerator
 
-@export var weaponManager : WeaponManager = %WeaponManager #weapon manager
+@export var weaponManager : WeaponManager = %WeaponManager
+
+func _ready():
+    # Performance: Initialize RNG once, not every frame
+    rng = RandomNumberGenerator.new()
 
 func getCurrentWeapon(currWeap):
-	#get current weapon resources
-	cW = currWeap
-	
+    cW = currWeap
+
 func shoot():
-	if not can_shoot():
-		return
-	
-	# Check if we have ammo in magazine
-	if cW.totalAmmoInMag < cW.nbProjShotsAtSameTime:
-		# Try auto-reload if enabled
-		if cW.autoReload and weaponManager.reloadManager:
-			weaponManager.reloadManager.reload()
-		else:
-			print("Out of ammo! Reload needed.")
-		return
-	
-	# Check if ammo exists in inventory (immersive check)
-	if not has_ammo_in_inventory():
-		print("No %s ammo in inventory!" % cW.ammoType)
-		# Optionally: show UI warning
-		return
-	
-	
-	# Consume ammo from magazine
-	cW.totalAmmoInMag -= cW.nbProjShotsAtSameTime
+    # 1. Validation checks
+    if not can_shoot():
+        return
+        
+    # CRITICAL FIX: Create a local reference to the weapon data.
+    # If the player switches weapons during the 'await' timer, 
+    # 'current_weapon' keeps pointing to the gun they started shooting with.
+    var current_weapon = cW 
+    
+    # 2. Check Ammo (Inventory/Mag)
+    if not has_ammo_to_start_shooting(current_weapon):
+        handle_out_of_ammo(current_weapon)
+        return
 
-	if !cW.isShooting and (
-	#magazine isn't empty, and has >= ammo than the number of projectiles required for a shot
-	(cW.totalAmmoInMag > 0 and cW.totalAmmoInMag >= cW.nbProjShotsAtSameTime)
-	or 
-	#has all ammos in the magazine, and number of ammo is positive
-	(cW.allAmmoInMag and weaponManager.ammoManager.ammoDict[cW.ammoType] > 0 and
-	#has >= ammo than the number of projectiles required for a shot
-	weaponManager.ammoManager.ammoDict[cW.ammoType] >= cW.nbProjShotsAtSameTime)
-	) and !cW.isReloading:
-		cW.isShooting = true
-		
-		#number of successive shots (for example if 3, the weapon will shot 3 times in a row)
-		for i in range(cW.nbProjShots):
-			#same conditions has before, are checked before every shot
-			if ((cW.totalAmmoInMag > 0 and cW.totalAmmoInMag >= cW.nbProjShotsAtSameTime) 
-			or (cW.allAmmoInMag and weaponManager.ammoManager.ammoDict[cW.ammoType] > 0) and 
-			weaponManager.ammoManager.ammoDict[cW.ammoType] >= cW.nbProjShotsAtSameTime):
-				
-				weaponManager.weaponSoundManagement(cW.shootSound, cW.shootSoundSpeed)
-				
-				if cW.shootAnimName != "":
-					weaponManager.animManager.playAnimation("ShootAnim%s" % cW.weaponName, cW.shootAnimSpeed, true)
-				else:
-					print("%s doesn't have a shoot animation" % cW.weaponName)
-					
-				#number projectiles shots at the same time (for example, 
-				#a shotgun shell is constituted of ~ 20 pellets that are spread across the target, 
-				#so 20 projectiles shots at the same time)
-				for j in range(0, cW.nbProjShotsAtSameTime):
-					if cW.allAmmoInMag: weaponManager.ammoManager.ammoDict[cW.ammoType] -= 1
-					else: cW.totalAmmoInMag -= 1
-						
-					#get the collision point
-					pointOfCollision = getCameraPOV()
-					
-					#call the fonction corresponding to the selected type
-					if cW.type == cW.types.HITSCAN: hitscanShot(pointOfCollision)
-					elif cW.type == cW.types.PROJECTILE: projectileShot(pointOfCollision)
-					
-				if cW.showMuzzleFlash: weaponManager.displayMuzzleFlash()
-				
-				weaponManager.cameraRecoilHolder.setRecoilValues(cW.baseRotSpeed, cW.targetRotSpeed)
-				weaponManager.cameraRecoilHolder.addRecoil(cW.recoilVal)
-				
-				await get_tree().create_timer(cW.timeBetweenShots).timeout
-				
-			else:
-				print("Not enought ammunitions to shoot")
-				
-		cW.isShooting = false
+    # 3. Start Shooting State
+    current_weapon.isShooting = true
+    
+    # 4. Burst Fire Loop (For burst weapons, this runs multiple times. For semi-auto, once.)
+    for i in range(current_weapon.nbProjShots):
+        
+        # Re-check ammo before every shot in the burst
+        if not has_enough_ammo_in_mag(current_weapon):
+            print("Click! Out of ammo mid-burst.")
+            break
+            
+        # --- EXECUTE SINGLE SHOT CYCLE ---
+        perform_single_shot(current_weapon)
+        
+        # Wait for fire rate (Rate of Fire)
+        await get_tree().create_timer(current_weapon.timeBetweenShots).timeout
+        
+        # Optional: Stop burst if trigger released (uncomment if desired)
+        # if not Input.is_action_pressed("fire"): break
+        
+    current_weapon.isShooting = false
 
 
-# func shoot():
-	
-	
-	# Your existing shooting logic here...
-	# (raycast, projectile spawning, effects, etc.)
+func perform_single_shot(w_ref):
+    # 1. Consume Ammo
+    # FIX: We consume ammo ONCE per shot cycle, not inside the pellet loop.
+    consume_ammo(w_ref)
+
+    # 2. Play Visuals & Audio
+    weaponManager.weaponSoundManagement(w_ref.shootSound, w_ref.shootSoundSpeed)
+    
+    if w_ref.shootAnimName != "":
+        weaponManager.animManager.playAnimation("ShootAnim%s" % w_ref.weaponName, w_ref.shootAnimSpeed, true)
+    else:
+        print("%s doesn't have a shoot animation" % w_ref.weaponName)
+
+    if w_ref.showMuzzleFlash: 
+        weaponManager.displayMuzzleFlash()
+
+    # 3. Apply Recoil
+    weaponManager.cameraRecoilHolder.setRecoilValues(w_ref.baseRotSpeed, w_ref.targetRotSpeed)
+    weaponManager.cameraRecoilHolder.addRecoil(w_ref.recoilVal)
+
+    # 4. Calculate Aim Point (Raycast from Camera center)
+    pointOfCollision = getCameraPOV(w_ref)
+
+    # 5. Spawn Projectiles / Hitscans (Handle Shotgun Pellets)
+    # If nbProjShotsAtSameTime is 1 (Rifle), this runs once.
+    # If it is 8 (Shotgun), this runs 8 times.
+    for j in range(w_ref.nbProjShotsAtSameTime):
+        
+        if w_ref.type == w_ref.types.HITSCAN:
+            hitscanShot(pointOfCollision, w_ref)
+        elif w_ref.type == w_ref.types.PROJECTILE:
+            projectileShot(pointOfCollision, w_ref)
+
+
+# --- AMMO HELPERS ---
+
+func has_ammo_to_start_shooting(w_ref) -> bool:
+    # Check if we have ammo in mag
+    if has_enough_ammo_in_mag(w_ref):
+        return true
+        
+    # If mag is empty, try auto-reload
+    if w_ref.autoReload and weaponManager.reloadManager:
+        weaponManager.reloadManager.reload()
+    return false
+
+func has_enough_ammo_in_mag(w_ref) -> bool:
+    # Logic: Do we have enough ammo for at least 1 projectile?
+    # Note: Usually you consume 1 ammo per shot, regardless of pellet count.
+    # If your game consumes 1 ammo per pellet, keep 'w_ref.nbProjShotsAtSameTime'.
+    # If 1 shell = 8 pellets, change comparison to just '>= 1'.
+    
+    var required_ammo = 1 # or w_ref.nbProjShotsAtSameTime if 1 pellet = 1 ammo unit
+    
+    if w_ref.allAmmoInMag:
+        return weaponManager.ammoManager.ammoDict.get(w_ref.ammoType, 0) >= required_ammo
+    else:
+        return w_ref.totalAmmoInMag >= required_ammo
+
+func consume_ammo(w_ref):
+    var amount_to_consume = 1 
+    # IF you want 1 ammo per pellet, change this to: amount_to_consume = w_ref.nbProjShotsAtSameTime
+    
+    if w_ref.allAmmoInMag:
+        weaponManager.ammoManager.ammoDict[w_ref.ammoType] -= amount_to_consume
+    else:
+        w_ref.totalAmmoInMag -= amount_to_consume
+
+func handle_out_of_ammo(w_ref):
+    print("Out of ammo!")
+    # Optional: Play dry fire sound here
 
 func can_shoot() -> bool:
-	if cW == null:
-		return false
-	
-	if cW.isShooting and not cW.canAutoShoot:
-		return false
-	
-	if cW.isReloading:
-		return false
-	
-	# Add your existing timing checks, etc.
-	
-	return true
+    if cW == null: return false
+    if cW.isShooting and not cW.canAutoShoot: return false
+    if cW.isReloading: return false
+    return true
 
-# NEW: Check if ammo type exists in inventory (immersive requirement)
-func has_ammo_in_inventory() -> bool:
-	if not weaponManager.ammoManager:
-		return true # Fallback
-	
-	# For magazine - we already have bullets loaded
-	if cW.totalAmmoInMag >= cW.nbProjShotsAtSameTime:
-		return true
-	
-	# Check if we have reserve ammo in inventory
-	return weaponManager.ammoManager.get_ammo_count(cW.ammoType) > 0
 
-# NEW: Display ammo warning
-func show_ammo_warning():
-	# You can trigger a HUD warning here
-	if weaponManager.hud and weaponManager.hud.has_method("show_ammo_warning"):
-		weaponManager.hud.show_ammo_warning(cW.ammoType)
+# --- SHOOTING LOGIC ---
 
-func getCameraPOV():  
-	var camera = weaponManager.camera 
-	var window : Window = get_window()
-	var viewport : Vector2i
-	
-	#match viewport to window size, to ensure that the raycast goes in the right direction
-	match window.content_scale_mode:
-		window.CONTENT_SCALE_MODE_VIEWPORT:
-			viewport = window.content_scale_size
-		window.CONTENT_SCALE_MODE_CANVAS_ITEMS:
-			viewport = window.content_scale_size
-		window.CONTENT_SCALE_MODE_DISABLED:
-			viewport = window.get_size()
-			
-	#Start raycast in camera position, and launch it in camera direction 
-	var raycastStart = camera.project_ray_origin(viewport/2)
-	var raycastEnd
-	if cW.type == cW.types.HITSCAN: raycastEnd = raycastStart + camera.project_ray_normal(viewport/2) * cW.maxRange 
-	if cW.type == cW.types.PROJECTILE: raycastEnd = raycastStart + camera.project_ray_normal(viewport/2) * 280
-	
-	#Create intersection space to contain possible collisions 
-	var newIntersection = PhysicsRayQueryParameters3D.create(raycastStart, raycastEnd)
-	var intersection = get_world_3d().direct_space_state.intersect_ray(newIntersection)
-	
-	#If the raycast has collide with something, return collision point transform properties
-	if !intersection.is_empty():
-		var collisionPoint = intersection.position
-		return collisionPoint 
-	#Else, return the end of the raycast (so nothing, because he hasn't collide with anything) 
-	else:
-		return raycastEnd 
-		
-func hitscanShot(pointOfCollisionHitscan : Vector3):
-	rng = RandomNumberGenerator.new()
-	
-	#set up weapon shot sprad 
-	var spread = Vector3(rng.randf_range(cW.minSpread, cW.maxSpread), rng.randf_range(cW.minSpread, cW.maxSpread), rng.randf_range(cW.minSpread, cW.maxSpread))
-	
-	#calculate direction of the hitscan bullet 
-	var hitscanBulletDirection = (pointOfCollisionHitscan - cW.weaponSlot.attackPoint.get_global_transform().origin).normalized()
-	
-	#create new intersection space to contain possibe collisions 
-	var newIntersection = PhysicsRayQueryParameters3D.create(cW.weaponSlot.attackPoint.get_global_transform().origin, pointOfCollisionHitscan + spread + hitscanBulletDirection * 2)
-	newIntersection.collide_with_areas = true
-	newIntersection.collide_with_bodies = true 
-	var hitscanBulletCollision = get_world_3d().direct_space_state.intersect_ray(newIntersection)
-	
-	#if the raycast has collide
-	if hitscanBulletCollision: 
-		var collider = hitscanBulletCollision.collider
-		var colliderPoint = hitscanBulletCollision.position
-		var colliderNormal = hitscanBulletCollision.normal 
-		var finalDamage : int
-		
-		if collider.is_in_group("Enemies") and collider.has_method("hitscanHit"):
-			finalDamage = cW.damagePerProj * cW.damageDropoff.sample(pointOfCollisionHitscan.distance_to(global_position) / cW.maxRange)
-			collider.hitscanHit(finalDamage, hitscanBulletDirection, hitscanBulletCollision.position)
-		
-		elif collider.is_in_group("EnemiesHead") and collider.has_method("hitscanHit"):
-				finalDamage = cW.damagePerProj * cW.headshotDamageMult * cW.damageDropoff.sample(pointOfCollisionHitscan.distance_to(global_position) / cW.maxRange)
-				collider.hitscanHit(finalDamage, hitscanBulletDirection, hitscanBulletCollision.position)
-		
-		elif collider.is_in_group("HitableObjects") and collider.has_method("hitscanHit"): 
-			finalDamage = cW.damagePerProj * cW.damageDropoff.sample(pointOfCollisionHitscan.distance_to(global_position) / cW.maxRange)
-			collider.hitscanHit(finalDamage/6.0, hitscanBulletDirection, hitscanBulletCollision.position)
-			weaponManager.displayBulletHole(colliderPoint, colliderNormal , collider)
-			
-		else:
-			weaponManager.displayBulletHole(colliderPoint, colliderNormal , collider)
-			
-func projectileShot(pointOfCollisionProjectile : Vector3):
-	rng = RandomNumberGenerator.new()
-	
-	#set up weapon shot sprad 
-	var spread = Vector3(rng.randf_range(cW.minSpread, cW.maxSpread), rng.randf_range(cW.minSpread, cW.maxSpread), rng.randf_range(cW.minSpread, cW.maxSpread))
-	
-	#Calculate direction of the projectile
-	var projectileDirection = ((pointOfCollisionProjectile - cW.weaponSlot.attackPoint.get_global_transform().origin).normalized() + spread)
-	
-	#Instantiate projectile
-	var projInstance = cW.projRef.instantiate()
-	
-	#set projectile properties 
-	projInstance.global_transform = cW.weaponSlot.attackPoint.global_transform
-	projInstance.direction = projectileDirection
-	projInstance.damage = cW.damagePerProj
-	projInstance.timeBeforeVanish = cW.projTimeBeforeVanish
-	projInstance.gravity_scale = cW.projGravityVal
-	projInstance.isExplosive = cW.isProjExplosive
-	
-	get_tree().get_root().add_child(projInstance)
-	
-	projInstance.set_linear_velocity(projectileDirection * cW.projMoveSpeed)
+func getCameraPOV(w_ref) -> Vector3:  
+    var camera = weaponManager.camera 
+    var window : Window = get_window()
+    var viewport_size : Vector2i
+    
+    match window.content_scale_mode:
+        window.CONTENT_SCALE_MODE_VIEWPORT: viewport_size = window.content_scale_size
+        window.CONTENT_SCALE_MODE_CANVAS_ITEMS: viewport_size = window.content_scale_size
+        _: viewport_size = window.get_size()
+            
+    var raycastStart = camera.project_ray_origin(viewport_size/2)
+    var raycastDir = camera.project_ray_normal(viewport_size/2)
+    var raycastEnd
+    
+    if w_ref.type == w_ref.types.HITSCAN: 
+        raycastEnd = raycastStart + raycastDir * w_ref.maxRange 
+    else: 
+        raycastEnd = raycastStart + raycastDir * 280 # Arbitrary large distance for projectiles
+    
+    var query = PhysicsRayQueryParameters3D.create(raycastStart, raycastEnd)
+    var intersection = get_world_3d().direct_space_state.intersect_ray(query)
+    
+    if not intersection.is_empty():
+        return intersection.position
+    else:
+        return raycastEnd 
+
+func hitscanShot(targetPoint : Vector3, w_ref):
+    # Calculate Spread
+    var spread_vec = Vector3(
+        rng.randf_range(w_ref.minSpread, w_ref.maxSpread), 
+        rng.randf_range(w_ref.minSpread, w_ref.maxSpread), 
+        rng.randf_range(w_ref.minSpread, w_ref.maxSpread)
+    )
+    
+    var attack_origin = w_ref.weaponSlot.attackPoint.get_global_transform().origin
+    var bulletDir = (targetPoint - attack_origin).normalized()
+    
+    # Apply spread to the target point logic (Simplified for consistency with your code)
+    var spreadTarget = targetPoint + spread_vec + bulletDir * 2
+    
+    var query = PhysicsRayQueryParameters3D.create(attack_origin, spreadTarget)
+    query.collide_with_areas = true
+    query.collide_with_bodies = true 
+    
+    var result = get_world_3d().direct_space_state.intersect_ray(query)
+    
+    if result: 
+        var collider = result.collider
+        var damage = w_ref.damagePerProj
+        
+        # Damage Dropoff Calculation
+        var dist = targetPoint.distance_to(global_position)
+        var dropoff_mult = 1.0
+        if w_ref.damageDropoff: # Safety check
+            dropoff_mult = w_ref.damageDropoff.sample(dist / w_ref.maxRange)
+            
+        damage *= dropoff_mult
+
+        if collider.is_in_group("Enemies") and collider.has_method("hitscanHit"):
+            collider.hitscanHit(damage, bulletDir, result.position)
+        
+        elif collider.is_in_group("EnemiesHead") and collider.has_method("hitscanHit"):
+            collider.hitscanHit(damage * w_ref.headshotDamageMult, bulletDir, result.position)
+        
+        elif collider.is_in_group("HitableObjects") and collider.has_method("hitscanHit"): 
+            collider.hitscanHit(damage / 6.0, bulletDir, result.position)
+            weaponManager.displayBulletHole(result.position, result.normal, collider)
+            
+        else:
+            weaponManager.displayBulletHole(result.position, result.normal, collider)
+
+func projectileShot(targetPoint : Vector3, w_ref):
+    # Calculate Spread
+    var spread_vec = Vector3(
+        rng.randf_range(w_ref.minSpread, w_ref.maxSpread), 
+        rng.randf_range(w_ref.minSpread, w_ref.maxSpread), 
+        rng.randf_range(w_ref.minSpread, w_ref.maxSpread)
+    )
+    
+    var attack_origin = w_ref.weaponSlot.attackPoint.get_global_transform().origin
+    
+    # Calculate Direction with spread added
+    var direction = ((targetPoint - attack_origin).normalized() + spread_vec).normalized()
+    
+    var projInstance = w_ref.projRef.instantiate()
+    
+    projInstance.global_transform = w_ref.weaponSlot.attackPoint.global_transform
+    projInstance.direction = direction
+    projInstance.damage = w_ref.damagePerProj
+    projInstance.timeBeforeVanish = w_ref.projTimeBeforeVanish
+    projInstance.gravity_scale = w_ref.projGravityVal
+    projInstance.isExplosive = w_ref.isProjExplosive
+    
+    # FIX: Add to current scene, not root (prevents memory leaks on scene change)
+    get_tree().current_scene.add_child(projInstance)
+    
+    if projInstance is RigidBody3D:
+        projInstance.set_linear_velocity(direction * w_ref.projMoveSpeed)
