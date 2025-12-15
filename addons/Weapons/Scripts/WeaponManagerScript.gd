@@ -406,8 +406,9 @@ func weaponSoundManagement(soundName : AudioStream, soundSpeed : float):
         audioIns.pitch_scale = soundSpeed * random_pitch
         
         audioIns.stream = soundName
-        audioIns.play()
         
+        audioIns.play()
+
 func forceAttackPointTransformValues(attackPoint : Marker3D):
     if attackPoint.rotation != Vector3.ZERO: 
         attackPoint.rotation = Vector3.ZERO
