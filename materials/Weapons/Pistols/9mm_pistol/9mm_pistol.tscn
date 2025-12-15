@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://brcgwmypj6akr"]
 
-[ext_resource type="ArrayMesh" uid="uid://xot0gls8il7v" path="res://materials/Weapons/Pistols/pistolCop/pistolcop.vox" id="1_a41ou"]
+[ext_resource type="ArrayMesh" uid="uid://xot0gls8il7v" path="res://materials/Weapons/Pistols/9mm_pistol/pistolcop.vox" id="1_a41ou"]
 [ext_resource type="Script" uid="uid://dmeh01c5ccjqc" path="res://addons/cogito/CogitoObjects/cogito_object.gd" id="1_beawo"]
 [ext_resource type="PackedScene" uid="uid://b20kvf66jy2oo" path="res://controllers/scripts/Compoenents/item_pickup.tscn" id="2_31j8f"]
 
@@ -13,6 +13,7 @@ collision_mask = 2441
 script = ExtResource("1_beawo")
 cogito_name = "9mm pistol"
 display_name = "9mm pistol"
+stack_count = 3
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(-2.1855694e-08, 0, -0.5, 0, 0.5, 0, 0.5, 0, -2.1855694e-08, 0, 0, 0)
@@ -23,8 +24,7 @@ transform = Transform3D(-2.1855694e-08, 0, -0.5, 0, 0.5, 0, 0.5, 0, -2.1855694e-
 shape = SubResource("ConvexPolygonShape3D_a41ou")
 
 [node name="ItemPickup" parent="." instance=ExtResource("2_31j8f")]
-item_id = "item_1764169325431"
+item_id = "weapon_9mm_pistol"
 
 [node name="AmmoPickup" parent="ItemPickup" instance=ExtResource("2_31j8f")]
-item_id = "ammo_1764360991992"
-stack_count = 3
+item_id = "ammo_light"

@@ -1,10 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://jaxyv821npli"]
+[gd_scene load_steps=6 format=3 uid="uid://dmdg81bv5coav"]
 
-[ext_resource type="Texture2D" uid="uid://b12bl7rm3d5ec" path="res://materials/Weapons/Pistols/ammo/ammo_pistols.png" id="1_047tk"]
-[ext_resource type="PackedScene" uid="uid://b20kvf66jy2oo" path="res://controllers/scripts/Compoenents/item_pickup.tscn" id="3_jydji"]
+[ext_resource type="Texture2D" uid="uid://u6w6n4jvbod0" path="res://materials/Weapons/Pistols/ammo/medium_ammo.png" id="1_qo35m"]
+[ext_resource type="PackedScene" uid="uid://b20kvf66jy2oo" path="res://controllers/scripts/Compoenents/item_pickup.tscn" id="2_21tyt"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lbso2"]
-albedo_texture = ExtResource("1_047tk")
+albedo_texture = ExtResource("1_qo35m")
 
 [sub_resource type="BoxMesh" id="BoxMesh_jrhah"]
 material = SubResource("StandardMaterial3D_lbso2")
@@ -24,7 +24,6 @@ mesh = SubResource("BoxMesh_jrhah")
 visible = false
 shape = SubResource("ConvexPolygonShape3D_q0jm5")
 
-[node name="ItemPickup" parent="." instance=ExtResource("3_jydji")]
-item_id = "ammo_1764360991992"
+[node name="ItemPickup" parent="." instance=ExtResource("2_21tyt")]
+item_id = "ammo_medium"
 stack_count = 10
-is_scannable = false

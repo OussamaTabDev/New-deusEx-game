@@ -31,7 +31,7 @@ mesh = SubResource("BoxMesh_863pi")
 shape = SubResource("ConvexPolygonShape3D_uxo6f")
 
 [node name="ItemPickup" parent="." instance=ExtResource("2_uxo6f")]
-item_id = "medkit_1764361004645"
+item_id = "item_medkit"
 stack_count = 10
 
 [node name="FlaotingComponent" type="Node3D" parent="." node_paths=PackedStringArray("rigid_body")]

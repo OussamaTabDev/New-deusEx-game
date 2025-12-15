@@ -1,63 +1,300 @@
 [
   {
-	"id": "item_1764169325431",
-	"display_name": "9mm Pistol",
-	"description": "A reliable sidearm",
-	"icon_path": "res://materials/Weapons/Pistols/pistolCop/pistol_cop.png",
-	"scene_path": "res://materials/Weapons/Pistols/pistolCop/pistol_cop.tscn",
-	"width": 3,
-	"height": 2,
-	"can_rotate": true,
-	"stackable": false,
-	"max_stack": 1,
-	"stack_count": 1,
-	"weight": 5.5,
-	"type": "weapon",
-	"equip_slot": "none",
-	"attributes": {
+    "id": "weapon_9mm_pistol",
+    "display_name": "9mm Service Pistol",
+    "description": "Standard Gen-2 police sidearm.",
+    "icon_path": "res://materials/weapons/pistols/9mm_pistol/9mm_pistol.png",
+    "scene_path": "res://materials/weapons/pistols/9mm_pistol/9mm_pistol.tscn",
+    "width": 3,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 5.5,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
 	  "weapon_id": 1,
-	  "damage": 25,
-	  "fire_rate": 0.5,
-	  "ammo_type": "LightAmmo",
-	  "mag_size": 10
-	}
+      "weapon_type": "pistol",
+      "damage": 25,
+      "fire_rate": 0.5,
+      "ammo_type": "LightAmmo",
+      "mag_size": 10
+    }
   },
+
   {
-	"id": "ammo_1764360991992",
-	"display_name": "Light Ammo (9mm)",
-	"description": "9mm rounds for pistols and SMGs",
-	"icon_path": "res://materials/Weapons/Pistols/ammo/ammo_pistols.png",
-	"scene_path": "res://materials/Weapons/Pistols/ammo/ammo_pistols.tscn",
-	"width": 2,
-	"height": 1,
-	"can_rotate": true,
-	"stackable": true,
-	"max_stack": 50,
-	"stack_count": 1,
-	"weight": 0.02,
-	"type": "ammo",
-	"equip_slot": "",
-	"attributes": {
-	  "ammo_type": "LightAmmo" 
-	}
+    "id": "weapon_machine_pistol",
+    "display_name": "Machine Pistol",
+    "description": "Compact automatic sidearm used by corporate agents.",
+    "icon_path": "res://materials/weapons/pistols/machine_pistol.png",
+    "scene_path": "res://materials/weapons/pistols/machine_pistol.tscn",
+    "width": 3,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 6.0,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
+      "weapon_type": "pistol",
+      "damage": 18,
+      "fire_rate": 0.1,
+      "ammo_type": "LightAmmo",
+      "mag_size": 20
+    }
   },
+
   {
-	"id": "medkit_1764361004645",
-	"display_name": "Medical Kit",
-	"description": "",
-	"icon_path": "res://materials/items/medicans/medkit/Medkit.png",
-	"scene_path": "res://materials/items/medicans/medkit/medkit.tscn",
-	"width": 2,
-	"height": 1,
-	"can_rotate": true,
-	"stackable": true,
-	"max_stack": 3,
-	"stack_count": 1,
-	"weight": 0.5,
-	"type": "consumable",
-	"equip_slot": "",
-	"attributes": {
-	  "heal_amount": 50
-	}
+    "id": "weapon_revolver",
+    "display_name": "Old Revolver",
+    "description": "Heavy-hitting human-made revolver.",
+    "icon_path": "res://materials/weapons/pistols/revolver.png",
+    "scene_path": "res://materials/weapons/pistols/revolver.tscn",
+    "width": 3,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 6.5,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
+      "weapon_type": "pistol",
+      "damage": 45,
+      "fire_rate": 1.2,
+      "ammo_type": "LightAmmo",
+      "mag_size": 6
+    }
+  },
+
+  {
+    "id": "weapon_police_smg",
+    "display_name": "Police SMG",
+    "description": "Burst-fire submachine gun for urban combat.",
+    "icon_path": "res://materials/weapons/smg/police_smg.png",
+    "scene_path": "res://materials/weapons/smg/police_smg.tscn",
+    "width": 4,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 8.0,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
+      "weapon_type": "smg",
+      "damage": 22,
+      "fire_rate": 0.12,
+      "ammo_type": "LightAmmo",
+      "mag_size": 30
+    }
+  },
+
+  {
+    "id": "weapon_assault_rifle",
+    "display_name": "Standard Assault Rifle",
+    "description": "Military-grade rifle used by wall forces.",
+    "icon_path": "res://materials/weapons/rifles/assault_rifle/assault_rifle.png",
+    "scene_path": "res://materials/weapons/rifles/assault_rifle/assault_rifle.tscn",
+    "width": 3,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 9.5,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
+	  "weapon_id":2,
+      "weapon_type": "rifle",
+      "damage": 35,
+      "fire_rate": 0.18,
+      "ammo_type": "MediumAmmo",
+      "mag_size": 30
+    }
+  },
+
+  {
+    "id": "weapon_pump_shotgun",
+    "display_name": "Pump Shotgun",
+    "description": "Close-range breaching weapon.",
+    "icon_path": "res://materials/weapons/shotguns/pump_shotgun.png",
+    "scene_path": "res://materials/weapons/shotguns/pump_shotgun.tscn",
+    "width": 5,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 10.0,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
+      "weapon_type": "shotgun",
+      "damage": 70,
+      "fire_rate": 1.0,
+      "ammo_type": "ShotgunShells",
+      "mag_size": 6
+    }
+  },
+
+  {
+    "id": "weapon_sniper_rifle",
+    "display_name": "Bolt-Action Sniper",
+    "description": "Long-range human resistance sniper rifle.",
+    "icon_path": "res://materials/weapons/snipers/sniper.png",
+    "scene_path": "res://materials/weapons/snipers/sniper.tscn",
+    "width": 6,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 12.0,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
+      "weapon_type": "sniper",
+      "damage": 95,
+      "fire_rate": 1.5,
+      "ammo_type": "HeavyAmmo",
+      "mag_size": 5
+    }
+  },
+
+  {
+    "id": "weapon_heavy_machine_gun",
+    "display_name": "Heavy Machine Gun",
+    "description": "Devastating suppressive fire weapon.",
+    "icon_path": "res://materials/weapons/heavy/hmg.png",
+    "scene_path": "res://materials/weapons/heavy/hmg.tscn",
+    "width": 6,
+    "height": 3,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 18.0,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
+      "weapon_type": "heavy",
+      "damage": 40,
+      "fire_rate": 0.08,
+      "ammo_type": "HeavyAmmo",
+      "mag_size": 100
+    }
+  },
+
+  {
+    "id": "weapon_unstable_beam_emitter",
+    "display_name": "Unstable Beam Emitter",
+    "description": "Gen-1 experimental energy weapon.",
+    "icon_path": "res://materials/weapons/energy/beam_emitter.png",
+    "scene_path": "res://materials/weapons/energy/beam_emitter.tscn",
+    "width": 4,
+    "height": 2,
+    "can_rotate": true,
+    "stackable": false,
+    "max_stack": 1,
+    "stack_count": 1,
+    "weight": 9.0,
+    "type": "weapon",
+    "equip_slot": "hand",
+    "attributes": {
+      "weapon_type": "energy",
+      "damage": 55,
+      "fire_rate": 0.6,
+      "ammo_type": "EnergyCell",
+      "overheat": true
+    }
+  },
+
+  {
+    "id": "ammo_light",
+    "display_name": "Light Ammo (9mm)",
+    "description": "Standard ammunition for pistols and SMGs.",
+    "icon_path": "res://materials/ammo/light_ammo.png",
+    "scene_path": "res://materials/ammo/light_ammo.tscn",
+    "width": 2,
+    "height": 1,
+    "can_rotate": true,
+    "stackable": true,
+    "max_stack": 50,
+    "stack_count": 1,
+    "weight": 0.02,
+    "type": "ammo",
+    "equip_slot": "",
+    "attributes": {
+      "ammo_type": "LightAmmo"
+    }
+  },
+
+  {
+    "id": "ammo_medium",
+    "display_name": "Medium Ammo",
+    "description": "Rifle-grade ammunition.",
+    "icon_path": "res://materials/ammo/medium_ammo.png",
+    "scene_path": "res://materials/ammo/medium_ammo.tscn",
+    "width": 2,
+    "height": 1,
+    "can_rotate": true,
+    "stackable": true,
+    "max_stack": 40,
+    "stack_count": 1,
+    "weight": 0.03,
+    "type": "ammo",
+    "equip_slot": "",
+    "attributes": {
+      "ammo_type": "MediumAmmo"
+    }
+  },
+
+  {
+    "id": "ammo_heavy",
+    "display_name": "Heavy Ammo",
+    "description": "Used by snipers and heavy weapons.",
+    "icon_path": "res://materials/ammo/heavy_ammo.png",
+    "scene_path": "res://materials/ammo/heavy_ammo.tscn",
+    "width": 2,
+    "height": 1,
+    "can_rotate": true,
+    "stackable": true,
+    "max_stack": 25,
+    "stack_count": 1,
+    "weight": 0.05,
+    "type": "ammo",
+    "equip_slot": "",
+    "attributes": {
+      "ammo_type": "HeavyAmmo"
+    }
+  },
+
+  {
+    "id": "item_medkit",
+    "display_name": "Medical Kit",
+    "description": "Restores health and stabilizes limbs.",
+    "icon_path": "res://materials/items/medical/medkit.png",
+    "scene_path": "res://materials/items/medical/medkit.tscn",
+    "width": 2,
+    "height": 1,
+    "can_rotate": true,
+    "stackable": true,
+    "max_stack": 3,
+    "stack_count": 1,
+    "weight": 0.5,
+    "type": "consumable",
+    "equip_slot": "",
+    "attributes": {
+      "heal_amount": 50,
+      "limb_repair": 1
+    }
   }
 ]

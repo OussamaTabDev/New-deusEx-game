@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d0bcdj7ru7k07"
-path="res://.godot/imported/pistol_cop.png-d712131798c344d39727f505a20f03cc.ctex"
+uid="uid://r0qes7hpq5t5"
+path="res://.godot/imported/assault_rifle.png-ba21c185c0a61cd54be53136820829c1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://materials/Weapons/Pistols/pistolCop/pistol_cop.png"
-dest_files=["res://.godot/imported/pistol_cop.png-d712131798c344d39727f505a20f03cc.ctex"]
+source_file="res://materials/Weapons/rifles/assault_rifle/assault_rifle.png"
+dest_files=["res://.godot/imported/assault_rifle.png-ba21c185c0a61cd54be53136820829c1.ctex"]
 
 [params]
 

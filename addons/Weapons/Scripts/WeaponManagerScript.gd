@@ -234,7 +234,7 @@ func _process(_delta : float):
 		displayStats()
 
 func weaponInputs():
-	if Input.is_action_just_pressed(shoot_action): 
+	if Input.is_action_pressed(shoot_action): 
 		shootManager.shoot()
 			
 	if Input.is_action_just_pressed(reload_action): 

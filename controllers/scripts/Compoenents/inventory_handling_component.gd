@@ -35,23 +35,14 @@ func _ready():
 
 func _add_test_items() -> void:
     """Add test items (remove in production)"""
-    var item =  ItemDatabase.create_item("item_1764169325431")
-    var item2 =  ItemDatabase.create_items("ammo_1764360991992", 75)
-    var item3 =  ItemDatabase.create_item("medkit_1764361004645", 6)
-    var item4 =  ItemDatabase.create_item("medkit_1764361004645")
-    var item5 =  ItemDatabase.create_item("medkit_1764361004645")
-    var item6 =  ItemDatabase.create_item("medkit_1764361004645")
-    var item7 =  ItemDatabase.create_item("medkit_1764361004645")
-    var item8 =  ItemDatabase.create_item("medkit_1764361004645")
+    var item =  ItemDatabase.create_item("weapon_9mm_pistol")
+    var item2 =  ItemDatabase.create_items("ammo_light", 75)
+    var item3 =  ItemDatabase.create_item("item_medkit", 6)
     
     inventory_component.add_item(item)
     inventory_component.add_items(item2)
     inventory_component.add_item(item3)
-    inventory_component.add_item(item4)
-    inventory_component.add_item(item5)
-    inventory_component.add_item(item6)
-    inventory_component.add_item(item7)
-    inventory_component.add_item(item8)
+
 
     # Give player pistol
     # var weapon_mgr = $'../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager'
