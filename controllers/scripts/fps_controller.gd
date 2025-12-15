@@ -243,7 +243,7 @@ func set_current_ladder(shape: CollisionShape3D, direction: Vector3) -> void:
 	current_ladder_shape = shape
 	current_ladder_up_direction = direction
 	on_ladder = true
-	print(current_ladder_shape , current_ladder_up_direction , on_ladder )
+	# print(current_ladder_shape , current_ladder_up_direction , on_ladder )
 
 func _get_input_direction() -> Vector2:
 	return _input_dir

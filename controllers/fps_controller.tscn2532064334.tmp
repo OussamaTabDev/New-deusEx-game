@@ -645,7 +645,6 @@ audio_component = NodePath("../Components/AudioController")
 camera_base = NodePath("CameraBase")
 camera_offset = NodePath("CameraBase/CameraOffset")
 CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
-enable_idle_shake = false
 MOUSE_SENSITIVITY = 0.2
 CONTROLLER_SENSITIVITY = 2.5
 LEAN_AMOUNT = 0.8

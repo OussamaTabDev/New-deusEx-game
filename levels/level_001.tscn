@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=48 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
@@ -24,6 +24,7 @@
 [ext_resource type="PackedScene" uid="uid://oju7w8p5onvo" path="res://materials/Mics/Doors/distroyed_door3.tscn" id="22_j8lij"]
 [ext_resource type="PackedScene" uid="uid://dhxl7bhixg0je" path="res://Characters/Player/player.glb" id="23_muos6"]
 [ext_resource type="Shader" uid="uid://cq4kh3b21rr5g" path="res://shaders/ps1Effects/post_processingPs1.gdshader" id="24_6gw0i"]
+[ext_resource type="PackedScene" uid="uid://brcgwmypj6akr" path="res://materials/Weapons/Pistols/pistolCop/pistol_cop.tscn" id="25_1wc0o"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -193,7 +194,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.04999997, 0, 0)
+uv1_offset = Vector3(22.089212, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -485,3 +486,7 @@ visible = false
 material_override = SubResource("ShaderMaterial_1wc0o")
 extra_cull_margin = 16384.0
 mesh = SubResource("QuadMesh_8dakf")
+
+[node name="9mm pistol" parent="." instance=ExtResource("25_1wc0o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.312254, 6.458037, 11.00125)
+stack_count = 3

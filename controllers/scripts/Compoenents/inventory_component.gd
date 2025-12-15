@@ -361,6 +361,19 @@ func get_all_items() -> Array[InventoryItem]:
                 seen[item] = true
     return items
 
+func get_all_display_name_items() -> Array[String]:
+    var items: Array[String] = []
+    var seen = {}
+    for key in grid.keys():
+        var cell = grid[key]
+        # Only process items at their origin cell to avoid duplicates
+        if cell.is_origin:
+            var item = cell.item
+            if not seen.has(item):
+                items.append(item.display_name)
+                seen[item] = true
+    return items
+
 ## Rotate item logic (Improved to handle the logic flow better)
 func rotate_item(item: InventoryItem) -> bool:
     if item.grid_x < 0 or item.grid_y < 0: return false # Item must be placed

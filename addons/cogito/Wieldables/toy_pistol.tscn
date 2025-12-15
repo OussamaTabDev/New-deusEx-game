@@ -70,7 +70,6 @@ mesh = SubResource("ArrayMesh_gjvni")
 skeleton = NodePath("")
 
 [node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
-bus = &"SFX"
 
 [node name="Bullet_Point" type="Node3D" parent="."]
 unique_name_in_owner = true

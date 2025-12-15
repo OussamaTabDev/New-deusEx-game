@@ -12,6 +12,28 @@ func getCurrentWeapon(currWeap):
 	cW = currWeap
 	
 func shoot():
+	if not can_shoot():
+		return
+	
+	# Check if we have ammo in magazine
+	if cW.totalAmmoInMag < cW.nbProjShotsAtSameTime:
+		# Try auto-reload if enabled
+		if cW.autoReload and weaponManager.reloadManager:
+			weaponManager.reloadManager.reload()
+		else:
+			print("Out of ammo! Reload needed.")
+		return
+	
+	# Check if ammo exists in inventory (immersive check)
+	if not has_ammo_in_inventory():
+		print("No %s ammo in inventory!" % cW.ammoType)
+		# Optionally: show UI warning
+		return
+	
+	
+	# Consume ammo from magazine
+	cW.totalAmmoInMag -= cW.nbProjShotsAtSameTime
+
 	if !cW.isShooting and (
 	#magazine isn't empty, and has >= ammo than the number of projectiles required for a shot
 	(cW.totalAmmoInMag > 0 and cW.totalAmmoInMag >= cW.nbProjShotsAtSameTime)
@@ -62,7 +84,46 @@ func shoot():
 				print("Not enought ammunitions to shoot")
 				
 		cW.isShooting = false
-		
+
+
+# func shoot():
+	
+	
+	# Your existing shooting logic here...
+	# (raycast, projectile spawning, effects, etc.)
+
+func can_shoot() -> bool:
+	if cW == null:
+		return false
+	
+	if cW.isShooting and not cW.canAutoShoot:
+		return false
+	
+	if cW.isReloading:
+		return false
+	
+	# Add your existing timing checks, etc.
+	
+	return true
+
+# NEW: Check if ammo type exists in inventory (immersive requirement)
+func has_ammo_in_inventory() -> bool:
+	if not weaponManager.ammoManager:
+		return true # Fallback
+	
+	# For magazine - we already have bullets loaded
+	if cW.totalAmmoInMag >= cW.nbProjShotsAtSameTime:
+		return true
+	
+	# Check if we have reserve ammo in inventory
+	return weaponManager.ammoManager.get_ammo_count(cW.ammoType) > 0
+
+# NEW: Display ammo warning
+func show_ammo_warning():
+	# You can trigger a HUD warning here
+	if weaponManager.hud and weaponManager.hud.has_method("show_ammo_warning"):
+		weaponManager.hud.show_ammo_warning(cW.ammoType)
+
 func getCameraPOV():  
 	var camera = weaponManager.camera 
 	var window : Window = get_window()

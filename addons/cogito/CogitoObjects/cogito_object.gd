@@ -19,7 +19,6 @@ enum PromptPositionMode{
 @export var prompt_pos_mode : PromptPositionMode = PromptPositionMode.ORIGIN
 @export var prompt_marker : Marker3D
 
-
 @export_group("Object Size and Shape")
 ## Set a custom shape used for calculating object size when dropping.
 @export var custom_aabb : AABB = AABB():
@@ -36,6 +35,8 @@ enum PromptPositionMode{
 			CogitoGlobals.draw_box_aabb(get_aabb(), Color.AQUA)
 		else:
 			CogitoGlobals.clear_debug_shape()
+
+@export var stack_count :int = 0
 
 var interaction_nodes : Array[Node]
 var cogito_properties : CogitoProperties = null
