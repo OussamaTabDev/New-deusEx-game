@@ -1,4 +1,4 @@
-# Modified WeaponManager.gd - Hotbar-Based Weapon Switching
+# Modified WeaponManager.gd - Hotbar-Based Weapon Switching + Hold F to Unequip
 
 extends Node3D
 class_name WeaponManager
@@ -16,9 +16,16 @@ var canUseWeapon : bool = true
 @export_group("Keybind variables")
 @export var shoot_action : String = "shoot"
 @export var reload_action : String = "reload"
+@export var interact_action : String = "interact"
+
+@export_group("Drop Settings")
+@export var drop_key: String = "drop_weapon"  # Set to "G" in Input Map
+@export var drop_force: float = 5.0
+@export var drop_forward_force: float = 3.0
+@export var drop_upward_force: float = 2.0
 
 @export_group("Nodes")
-@export var playChar : CharacterBody3D 
+@export var player : CharacterBody3D 
 @export var cameraHolder : CameraController
 @export var cameraRecoilHolder : Node3D 
 @export var camera : Camera3D 
@@ -46,6 +53,12 @@ var initial_container_rot : Vector3
 var procedural_recoil_pos : Vector3 = Vector3.ZERO
 var procedural_recoil_rot : Vector3 = Vector3.ZERO
 
+# Hold-to-unequip variables
+var is_holding_f: bool = false
+var f_hold_duration: float = 0.0
+const F_UNEQUIP_THRESHOLD: float = 0.3  # seconds
+
+
 func _ready():
     initialize()
     
@@ -67,6 +80,7 @@ func _ready():
     # Hide all weapons initially
     hide_all_weapons()
 
+
 func initialize():
     # Load all weapon resources into dictionary
     for weapon in weaponResources:
@@ -85,6 +99,7 @@ func initialize():
                 forceAttackPointTransformValues(weapon.weaponSlot.attackPoint)
                 weapon.bobPos = weapon.position
 
+
 func hide_all_weapons():
     """Hide all weapon models"""
     for weapon_id in weaponList.keys():
@@ -92,10 +107,20 @@ func hide_all_weapons():
         if weapon.weaponSlot and weapon.weaponSlot.model:
             weapon.weaponSlot.model.visible = false
 
+
 func _input(event):
     if not canChangeWeapons:
         return
     
+    # Handle F key press/release for unequip
+    if event is InputEventKey and event.keycode == InputActions.get_action_key_number(interact_action):
+        if event.pressed:
+            is_holding_f = true
+            f_hold_duration = 0.0
+        elif event.is_released():
+            is_holding_f = false
+            f_hold_duration = 0.0
+
     # Hotbar number keys (1-8)
     if event is InputEventKey and event.pressed:
         var slot = -1
@@ -121,6 +146,7 @@ func _input(event):
             elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
                 scroll_hotbar(1)
 
+
 func scroll_hotbar(direction: int):
     """Scroll through hotbar slots"""
     if not inventory_component:
@@ -144,6 +170,7 @@ func scroll_hotbar(direction: int):
         checked += 1
         if next_slot == start_slot:
             break
+
 
 func switch_to_hotbar_slot(slot: int):
     """Switch to weapon in specific hotbar slot"""
@@ -182,6 +209,7 @@ func switch_to_hotbar_slot(slot: int):
     else:
         enterWeapon(weapon_id, slot)
 
+
 func _on_hotbar_used(slot: int, item: InventoryItem):
     """When player uses hotbar item (press number key)"""
     if item.type == "weapon":
@@ -189,59 +217,168 @@ func _on_hotbar_used(slot: int, item: InventoryItem):
     elif item.type == "consumable":
         use_consumable(item)
 
-func exitWeapon(nextWeapon : int, nextSlot: int):
-    """Unequip current weapon"""
-    if not cW:
-        enterWeapon(nextWeapon, nextSlot)
+
+func exitWeapon(nextWeaponId: int, nextSlot: int):
+    """Unequip current weapon based on WeaponResource.unequipTime"""
+    if nextWeaponId == cW.weaponId :
         return
-    
+
     canChangeWeapons = false
     canUseWeapon = false
     
-    if cW.isShooting: 
-        cW.isShooting = false
-    if cW.isReloading: 
-        cW.isReloading = false
+    # 1. Cancel current actions
+    if cW.isShooting: cW.isShooting = false
+    if cW.isReloading: cW.isReloading = false
     
+    # 2. Play Animation
     if cW.unequipAnimName != "":
         animManager.playAnimation("UnequipAnim%s" % cW.weaponName, cW.unequipAnimSpeed, false)
+        if cW.unequipSound:
+            weaponSoundManagement(cW.unequipSound, cW.unequipSoundSpeed)
     
-    await get_tree().create_timer(cW.unequipTime).timeout
-    
-    # Hide current weapon
-    cWModel.visible = false
-    
-    enterWeapon(nextWeapon, nextSlot)
+    # 3. Wait for the EXACT time defined in WeaponResource
+    if cW.unequipTime > 0:
+        await get_tree().create_timer(cW.unequipTime).timeout
 
-func enterWeapon(nextWeapon : int, slot: int):
-    """Equip new weapon"""
-    cW = weaponList[nextWeapon]
+    # 4. Hide current model
+    if cWModel:
+        cWModel.visible = false
+    
+    # 5. Enter next weapon
+    enterWeapon(nextWeaponId, nextSlot)
+
+
+func enterWeapon(nextWeaponId: int, slot: int):
+    """Equip new weapon based on WeaponResource.equipTime"""
+    if player.is_graping():
+        return
+    # Load the new resource
+    cW = weaponList[nextWeaponId]
     currentHotbarSlot = slot
     cWModel = cW.weaponSlot.model
     
-    # Show weapon model
+    # 1. Make Visible
     cWModel.visible = true
     
+    # 2. Update Managers
     shootManager.getCurrentWeapon(cW)
     reloadManager.getCurrentWeapon(cW)
     animManager.getCurrentWeapon(cW, cWModel)
     
-    weaponSoundManagement(cW.equipSound, cW.equipSoundSpeed)
+    # 3. Play Sound & Animation
+    if cW.equipSound:
+        weaponSoundManagement(cW.equipSound, cW.equipSoundSpeed)
+        
     animPlayer.playback_default_blend_time = cW.animBlendTime
     
     if cW.equipAnimName != "":
         animManager.playAnimation("EquipAnim%s" % cW.weaponName, cW.equipAnimSpeed, false)
     
-    await get_tree().create_timer(cW.equipTime).timeout
-    
+    # 4. Wait for the EXACT time defined in WeaponResource
+    if cW.equipTime > 0:
+        await get_tree().create_timer(cW.equipTime).timeout
+
+    # 5. Enable control
     if cW.isShooting: cW.isShooting = false
     if cW.isReloading: cW.isReloading = false
+    
     canUseWeapon = true
     canChangeWeapons = true
     
     print("Equipped: %s (Slot %d)" % [cW.weaponName, slot + 1])
 
+
+# NEW: Direct unequip without switching to another weapon
+func _unequip_current_weapon():
+    """Unequips the current weapon and clears state."""
+    if not cW:
+        return
+
+    canChangeWeapons = false
+    canUseWeapon = false
+
+    # Cancel actions
+    cW.isShooting = false
+    cW.isReloading = false
+
+    # Play unequip anim/sound
+    if cW.unequipAnimName != "":
+        animManager.playAnimation("UnequipAnim%s" % cW.weaponName, cW.unequipAnimSpeed, false)
+        if cW.unequipSound:
+            weaponSoundManagement(cW.unequipSound, cW.unequipSoundSpeed)
+
+    # Wait for unequip time
+    if cW.unequipTime > 0:
+        await get_tree().create_timer(cW.unequipTime).timeout
+
+    # Hide model
+    if cWModel:
+        cWModel.visible = false
+
+    # Clear references
+    cW = null
+    cWModel = null
+    currentHotbarSlot = -1
+
+    # Re-enable controls
+    canUseWeapon = true
+    canChangeWeapons = true
+
+    print("Weapon unequipped (via F hold)")
+
+
+func has_weapon(weapon_id: int) -> bool:
+    """Helper to check if we already hold this unique weapon"""
+    if not inventory_component:
+        return false
+        
+    for item in inventory_component.get_all_items():
+        if item.type == "weapon" and item.attributes.get("weapon_id") == weapon_id:
+            return true
+    return false
+
+
+func attempt_pickup_unique(weapon_id: int) -> bool:
+    """
+    Call this function after your 'Hold Interact' is complete.
+    Returns TRUE if pickup successful.
+    Returns FALSE if player already has this unique weapon.
+    """
+    # 1. Check if valid weapon exists in our database
+    if not weaponList.has(weapon_id):
+        print("Error: Weapon ID %d does not exist in WeaponManager database." % weapon_id)
+        return false
+        
+    # 2. Check for Unique Duplicate
+    if has_weapon(weapon_id):
+        print("Cannot Pickup: You already have the %s!" % weaponList[weapon_id].weaponName)
+        return false
+    
+    # 3. Perform the Pickup
+    var success = pickup_weapon(weapon_id)
+    
+    if success:
+        # Optional: Auto-equip if we are holding nothing
+        if cW == null:
+            for i in range(inventory_component.hotbar_slots):
+                var item = inventory_component.hotbar[i]
+                if item and item.attributes.get("weapon_id") == weapon_id:
+                    switch_to_hotbar_slot(i)
+                    break
+                    
+    return success
+    
+
 func _process(delta : float):
+    # Handle F hold to unequip
+    if is_holding_f and cW != null:
+        f_hold_duration += delta
+        if f_hold_duration >= F_UNEQUIP_THRESHOLD and canChangeWeapons:
+            is_holding_f = false
+            f_hold_duration = 0.0
+            _unequip_current_weapon()
+    if player.is_graping():
+        _unequip_current_weapon()
     if cW != null and cWModel != null and canUseWeapon:
         weaponInputs()
         reloadManager.autoReload()
@@ -252,50 +389,46 @@ func _process(delta : float):
     if hud != null: 
         displayStats()
 
+
 # --- NEW: PROCEDURAL ANIMATION LOGIC ---
 func process_weapon_juice(delta):
     # 1. Weapon Kickback (Lerp back to zero)
-    # Adjust '10.0' to change how snappy the return is
     procedural_recoil_pos = procedural_recoil_pos.lerp(Vector3.ZERO, delta * 10.0)
     procedural_recoil_rot = procedural_recoil_rot.lerp(Vector3.ZERO, delta * 10.0)
     
-    # Apply to the Weapon Container (so it affects the gun model)
+    # Apply to the Weapon Container
     weaponContainer.position = initial_container_pos + procedural_recoil_pos
     weaponContainer.rotation = initial_container_rot + procedural_recoil_rot
     
-    # 2. FOV Recovery (Lerp back to default)
+    # 2. FOV Recovery
     if camera:
         camera.fov = lerp(camera.fov, default_fov, delta * 5.0)
 
 
 func apply_visual_recoil(kick_back: float, kick_up: float):
-    # Kick the gun backwards (Z axis)
     procedural_recoil_pos.z += kick_back 
-    # Rotate the gun up (X axis)
     procedural_recoil_rot.x += kick_up
-    # Add a tiny bit of random roll (Z axis twist) for realism
     procedural_recoil_rot.z += randf_range(-0.02, 0.02)
     
-    # "Punch" the FOV
     if camera:
-        camera.fov += 1.0 # Briefly widen view on shot
+        camera.fov += 1.0
 
-    
+
 func weaponInputs():
-    # --- FIX START ---
-    # Handle Auto vs Semi-Auto input logic here
-    if cW.canAutoShoot:
-        # Automatic: Fire as long as button is HELD
-        if Input.is_action_pressed(shoot_action): 
-            shootManager.shoot()
-    else:
-        # Semi-Auto: Fire only when button is JUST PRESSED
-        if Input.is_action_just_pressed(shoot_action): 
-            shootManager.shoot()
-    # --- FIX END ---
-            
-    if Input.is_action_just_pressed(reload_action): 
-        reloadManager.reload()
+    if Input.is_action_just_pressed(drop_key):
+        drop_current_weapon()
+    if cW:   
+        # Auto vs Semi-Auto input logic
+        if cW.canAutoShoot:
+            if Input.is_action_pressed(shoot_action): 
+                shootManager.shoot()
+        else:
+            if Input.is_action_just_pressed(shoot_action): 
+                shootManager.shoot()
+                
+        if Input.is_action_just_pressed(reload_action): 
+            reloadManager.reload()
+
 
 func displayStats():
     if not cW:
@@ -310,21 +443,23 @@ func displayStats():
     var total_ammo = ammoManager.get_ammo_count(cW.ammoType)
     hud.displayTotalAmmo(total_ammo, cW.nbProjShotsAtSameTime)
 
+
 func use_consumable(item: InventoryItem):
     if item.attributes.has("heal_amount"):
         var heal = item.attributes.heal_amount
-        if playChar.has_method("heal"):
-            playChar.heal(heal)
+        if player.has_method("heal"):
+            player.heal(heal)
         print("Healed %d HP" % heal)
     
     if item.attributes.has("stamina_amount"):
         var stamina = item.attributes.stamina_amount
-        if playChar.has_method("restore_stamina"):
-            playChar.restore_stamina(stamina)
+        if player.has_method("restore_stamina"):
+            player.restore_stamina(stamina)
     
     item.stack_count -= 1
     if item.stack_count <= 0:
         inventory_component.remove_item(item)
+
 
 # Pickup weapon - adds to inventory
 func pickup_weapon(weapon_id: int) -> bool:
@@ -357,13 +492,71 @@ func pickup_weapon(weapon_id: int) -> bool:
         "damage": weapon.damagePerProj
     }
     
-    # Add to inventory
     if inventory_component.add_item(item):
         print("Picked up: %s" % weapon.weaponName)
         print("Add to hotbar to use it!")
         return true
     
     return false
+
+func drop_current_weapon():
+    """Drop current weapon with CS:GO-style physics"""
+    
+    if not cW:
+        print("No weapon to drop!")
+        return
+    
+    if not inventory_component:
+        return
+    
+    # Can't drop while shooting or reloading
+    if cW.isShooting or cW.isReloading:
+        print("Can't drop weapon while using it!")
+        return
+    
+    var weapon_id = cW.weaponId
+    
+    # Find weapon item in inventory
+    var weapon_item = null
+    for item in inventory_component.get_all_items():
+        if item.type == "weapon" and item.attributes.get("weapon_id") == weapon_id:
+            weapon_item = item
+            break
+    
+    if not weapon_item:
+        print("Weapon not found in inventory!")
+        return
+    
+    # Store current ammo in magazine
+    var ammo_in_mag = cW.totalAmmoInMag
+    
+    # Remove from hotbar first
+    if currentHotbarSlot >= 0:
+        inventory_component.hotbar[currentHotbarSlot] = null
+    
+    # Remove from inventory
+    inventory_component.remove_item(weapon_item)
+    inventory_component.get_child(0).inventory_ui.refresh_display()
+    # Hide weapon model
+    if cWModel:
+        cWModel.visible = false
+    
+    # Spawn weapon in world
+    spawn_dropped_weapon(weapon_id, ammo_in_mag)
+    
+    # Switch to another weapon if available
+    cW = null
+    cWModel = null
+    currentHotbarSlot = -1
+    
+    # Find next weapon in hotbar
+    for i in range(inventory_component.hotbar_slots):
+        var item = inventory_component.hotbar[i]
+        if item and item.type == "weapon":
+            switch_to_hotbar_slot(i)
+            break
+    
+    print("Weapon dropped!")
 
 # Pickup ammo - adds to inventory
 func pickup_ammo(ammo_type: String, amount: int) -> bool:
@@ -372,17 +565,15 @@ func pickup_ammo(ammo_type: String, amount: int) -> bool:
     
     return ammoManager.add_ammo(ammo_type, amount)
 
+
 func displayMuzzleFlash():
     if cW.muzzleFlashRef != null:
         var muzzleFlashInstance = cW.muzzleFlashRef.instantiate()
         add_child(muzzleFlashInstance)
         muzzleFlashInstance.global_position = cW.weaponSlot.muzzleFlashSpawner.global_position
-        
-        # Sets the Visual Layer to 5
-        # Note: If this is 2D, change '.layers' to '.visibility_layer'
         muzzleFlashInstance.layers = 5 
-        
         muzzleFlashInstance.emitting = true
+
 
 func displayBulletHole(colliderPoint : Vector3, colliderNormal : Vector3 , collider : Object):
     var bulletDecalInstance = bulletDecal.instantiate()
@@ -395,6 +586,7 @@ func displayBulletHole(colliderPoint : Vector3, colliderNormal : Vector3 , colli
     bulletDecalInstance.look_at(colliderPoint - colliderNormal, Vector3.UP)
     bulletDecalInstance.rotate_object_local(Vector3(1.0, 0.0, 0.0), 90)
 
+
 # --- MODIFIED SOUND MANAGER ---
 func weaponSoundManagement(soundName : AudioStream, soundSpeed : float):
     var audioIns : AudioStreamPlayer3D = audioManager.instantiate()
@@ -404,16 +596,148 @@ func weaponSoundManagement(soundName : AudioStream, soundSpeed : float):
     if audioIns.is_inside_tree():
         audioIns.global_transform = cW.weaponSlot.attackPoint.global_transform
         audioIns.bus = "Sfx"
-        
-        # JUICE: Randomize the pitch slightly (0.9 to 1.1)
-        # This makes automatic fire sound less like a machine gun loop and more real
         var random_pitch = randf_range(0.95, 1.05)
         audioIns.pitch_scale = soundSpeed * random_pitch
-        
         audioIns.stream = soundName
-        
         audioIns.play()
+
 
 func forceAttackPointTransformValues(attackPoint : Marker3D):
     if attackPoint.rotation != Vector3.ZERO: 
         attackPoint.rotation = Vector3.ZERO
+
+
+
+func spawn_dropped_weapon(weapon_id: int, ammo_in_mag: int):
+    """Spawn weapon in world with CS:GO physics"""
+    
+    if not weaponList.has(weapon_id):
+        return
+    
+    var weapon_data = weaponList[weapon_id]
+    
+    # Create dropped weapon instance
+    var dropped_weapon = create_dropped_weapon_instance(weapon_id)
+    
+    if not dropped_weapon:
+        print("Failed to create dropped weapon instance!")
+        return
+    
+    # Add to world
+    get_tree().get_root().add_child(dropped_weapon)
+    
+    # Position in front of player (CS:GO style)
+    var drop_position = player.global_position
+    drop_position += player.global_transform.basis.z * -1.0  # Forward
+    drop_position.y += 1.0  # Slightly above ground
+    
+    dropped_weapon.global_position = drop_position
+    
+    # Apply CS:GO-style throw force
+    if dropped_weapon is RigidBody3D:
+        var forward = -player.global_transform.basis.z
+        var drop_velocity = Vector3.ZERO
+        
+        # Forward throw
+        drop_velocity += forward * drop_forward_force
+        
+        # Upward arc
+        drop_velocity.y = drop_upward_force
+        
+        # Add player's velocity (feels more realistic)
+        if player is CharacterBody3D:
+            drop_velocity += player.velocity * 0.3
+        
+        dropped_weapon.linear_velocity = drop_velocity
+        
+        # Add slight spin (CS:GO weapons spin when dropped)
+        dropped_weapon.angular_velocity = Vector3(
+            randf_range(-2, 2),
+            randf_range(-3, 3),
+            randf_range(-2, 2)
+        )
+
+func create_dropped_weapon_instance(weapon_id: int) -> RigidBody3D:
+    """Create a RigidBody3D instance of the dropped weapon"""
+    
+    # Check if weapon has a scene path in inventory item
+    var weapon_item_scene = get_weapon_scene_path(weapon_id)
+    
+    if weapon_item_scene:
+        # Use the scene from inventory item
+        var weapon_scene = load(weapon_item_scene)
+        var instance = weapon_scene.instantiate()
+
+        if instance is RigidBody3D:
+            
+            return instance
+    
+    return null
+        
+
+func get_weapon_scene_path(weapon_id: int) -> String:
+    """Get scene path from inventory item"""
+    for item in ItemDatabase.items.values():
+        if item.type == "weapon" and item.attributes.get("weapon_id") == weapon_id:
+            return item.scene_path
+    return ""
+
+
+# func wrap_model_in_world_weapon(model: Node3D, weapon_id: int, weapon_data: WeaponResource, ammo_in_mag: int) -> WorldWeapon:
+#     """Wrap a visual model in a WorldWeapon RigidBody3D"""
+    
+#     var world_weapon = WorldWeapon.new()
+#     world_weapon.weapon_id = weapon_id
+#     world_weapon.weapon_name = weapon_data.weaponName
+#     world_weapon.ammo_in_mag = ammo_in_mag
+    
+#     # Add model as child
+#     world_weapon.add_child(model)
+    
+#     # Add collision shape
+#     var collision = CollisionShape3D.new()
+#     var shape = BoxShape3D.new()
+#     shape.size = Vector3(0.2, 0.2, 0.8)  # Approximate weapon size
+#     collision.shape = shape
+#     world_weapon.add_child(collision)
+    
+#     # Add label
+#     var label = Label3D.new()
+#     label.text = "[E] Pick up %s" % weapon_data.weaponName
+#     label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+#     label.position = Vector3(0, 0.3, 0)
+#     label.hide()
+#     world_weapon.add_child(label)
+    
+#     return world_weapon
+
+# func create_world_weapon_from_slot(weapon_id: int, weapon_data: WeaponResource, ammo_in_mag: int) -> WorldWeapon:
+#     """Create WorldWeapon using weapon slot model as reference"""
+    
+#     var world_weapon = WorldWeapon.new()
+#     world_weapon.weapon_id = weapon_id
+#     world_weapon.weapon_name = weapon_data.weaponName
+#     world_weapon.ammo_in_mag = ammo_in_mag
+    
+#     # Clone the weapon model from slot
+#     if weapon_data.weaponSlot and weapon_data.weaponSlot.model:
+#         var model_clone = weapon_data.weaponSlot.model.duplicate()
+#         model_clone.visible = true
+#         world_weapon.add_child(model_clone)
+    
+#     # Add collision
+#     var collision = CollisionShape3D.new()
+#     var shape = BoxShape3D.new()
+#     shape.size = Vector3(0.2, 0.2, 0.8)
+#     collision.shape = shape
+#     world_weapon.add_child(collision)
+    
+#     # Add label
+#     var label = Label3D.new()
+#     label.text = "[E] Pick up %s" % weapon_data.weaponName
+#     label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+#     label.position = Vector3(0, 0.3, 0)
+#     label.hide()
+#     world_weapon.add_child(label)
+    
+#     return world_weapon

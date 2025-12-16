@@ -60,13 +60,6 @@
 [ext_resource type="FontFile" uid="uid://bwr73i28ligrq" path="res://addons/Arts/Fonts/Ticketing.ttf" id="58_0mih5"]
 [ext_resource type="Texture2D" uid="uid://jwucel52ti1u" path="res://addons/Weapons/Images/Crosshair.png" id="59_1hfpd"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
-size = Vector3(0.1, 0.1, 0.1)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_xno33"]
-margin = 1.034
-size = Vector3(0.6, 0.65, 1.4)
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ius01"]
 shader = ExtResource("18_tnfk2")
 shader_parameter/line_count = 2.0
@@ -77,6 +70,13 @@ shader_parameter/mask_edge = 0.195
 shader_parameter/animation_speed = 20.0
 shader_parameter/blur_strength = 0.01
 shader_parameter/effect_power = 0.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
+size = Vector3(0.1, 0.1, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xno33"]
+margin = 1.034
+size = Vector3(0.6, 0.65, 1.4)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
 radius = 0.3
@@ -575,16 +575,16 @@ pickup_interaction = NodePath("../../ItemsInteractionComponent")
 
 [node name="PlayerInteractionComponent" parent="Components" node_paths=PackedStringArray("interaction_raycast", "carryable_position") instance=ExtResource("25_bjwns")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
-interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
-carryable_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
+interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/InteractionRaycast")
+carryable_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/CarryablePosition")
 
 [node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("interaction_raycast", "inventory_handler", "camera_controller", "hold_position", "cyber_scanner", "player", "interact_control", "primary_action_label", "secondary_action_label")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35666072, 0)
 script = ExtResource("8_kaa6b")
-interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractionRaycast")
+interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/InteractionRaycast")
 inventory_handler = NodePath("../InventoryComponent/InventoryHandlingComponent")
 camera_controller = NodePath("../../CameraController")
-hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/CarryablePosition")
+hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/CarryablePosition")
 cyber_scanner = NodePath("../../Effects/ScannerEffect")
 player = NodePath("../..")
 interact_control = NodePath("../../Control/UI/InteractControl")
@@ -666,43 +666,6 @@ script = ExtResource("17_i5pff")
 physics_interpolation_mode = 1
 cull_mask = 1048559
 
-[node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D" instance=ExtResource("4_rcx31")]
-visible = false
-target_position = Vector3(0, 0, -2.1)
-collision_mask = 2184
-
-[node name="CarryablePosition" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
-
-[node name="ItemDropShapeCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-visible = false
-shape = SubResource("BoxShape3D_57us7")
-target_position = Vector3(0, 0, -2)
-collision_mask = 3
-debug_shape_custom_color = Color(1, 0.368977, 0.687569, 1)
-script = ExtResource("5_rcx31")
-
-[node name="Anim" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-
-[node name="crossHair anim" type="AnimationPlayer" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
-root_node = NodePath("../..")
-
-[node name="CrossHAirTree" type="AnimationTree" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
-root_node = NodePath("../..")
-
-[node name="CameraAnim" type="AnimationPlayer" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
-
-[node name="CameraTree" type="AnimationTree" parent="CameraController/CameraBase/CameraOffset/Camera3D/Anim"]
-
-[node name="ItemsIntectionCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025275946, -1.3016729)
-visible = false
-shape = SubResource("BoxShape3D_xno33")
-exclude_parent = false
-target_position = Vector3(0, 0, 0)
-collision_mask = 128
-
 [node name="Effects" type="CanvasLayer" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 
 [node name="Control" type="Control" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects"]
@@ -754,10 +717,10 @@ grow_vertical = 2
 
 [node name="WeaponComponenet" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 
-[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("playChar", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "inventory_component") instance=ExtResource("19_3qkg6")]
+[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("player", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "inventory_component") instance=ExtResource("19_3qkg6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.03999996, -0.25337216)
 shoot_action = "fire"
-playChar = NodePath("../../../../../..")
+player = NodePath("../../../../../..")
 cameraHolder = NodePath("../../../../..")
 cameraRecoilHolder = NodePath("../../..")
 camera = NodePath("../..")
@@ -789,6 +752,35 @@ raycast = NodePath("../../WeaponCollider")
 [node name="WeaponCollider" type="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14458162, -0.10382497, 0)
 target_position = Vector3(0, 0, -0.5)
+
+[node name="InteractCasts" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+
+[node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts" instance=ExtResource("4_rcx31")]
+visible = false
+target_position = Vector3(0, 0, -2.1)
+collision_mask = 2184
+
+[node name="CarryablePosition" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
+
+[node name="ItemDropShapeCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts"]
+visible = false
+shape = SubResource("BoxShape3D_57us7")
+target_position = Vector3(0, 0, -2)
+collision_mask = 3
+debug_shape_custom_color = Color(1, 0.368977, 0.687569, 1)
+script = ExtResource("5_rcx31")
+
+[node name="Anim" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts"]
+
+[node name="ItemsIntectionCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025275946, -1.3016729)
+visible = false
+shape = SubResource("BoxShape3D_xno33")
+exclude_parent = false
+target_position = Vector3(0, 0, 0)
+collision_mask = 128
 
 [node name="Raycasters" type="Node3D" parent="CameraController"]
 visible = false

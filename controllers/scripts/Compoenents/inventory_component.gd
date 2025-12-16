@@ -327,7 +327,17 @@ func unequip_item(slot: String) -> bool:
 func set_hotbar_slot(slot: int, item: InventoryItem) -> bool:
     if slot < 0 or slot >= hotbar_slots: return false
     hotbar[slot] = item
+    get_child(0).inventory_ui.refresh_display()
     return true
+
+func set_on_empty_hotbar_slot(item: InventoryItem) -> bool:
+    if item  in hotbar: return false
+    for i in hotbar_slots:
+        if hotbar[i] == null:
+            hotbar[i] = item
+            get_child(0).inventory_ui.refresh_display()
+            return true
+    return false
 
 ## Use hotbar slot
 func use_hotbar_slot(slot: int):

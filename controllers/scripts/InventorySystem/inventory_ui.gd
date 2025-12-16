@@ -383,6 +383,34 @@ func _update_weight_label():
 func _input(event):
     if not visible: return
     
+    # Hotkey assignment: 1-9, 0 to assign hovered item to hotbar slot
+    if event is InputEventKey and event.pressed and not is_dragging:
+        var hotbar_index = -1
+        match event.keycode:
+            KEY_1: hotbar_index = 0
+            KEY_2: hotbar_index = 1
+            KEY_3: hotbar_index = 2
+            KEY_4: hotbar_index = 3
+            KEY_5: hotbar_index = 4
+            KEY_6: hotbar_index = 5
+            KEY_7: hotbar_index = 6
+            KEY_8: hotbar_index = 7
+            KEY_9: hotbar_index = 8
+            KEY_0: hotbar_index = 9  # Maps to 10th slot (index 9)
+
+        if hotbar_index >= 0 and hotbar_index < inventory_component.hotbar_slots:
+            var hovered_item = _get_hovered_item_under_mouse()
+            if hovered_item and _can_assign_to_hotbar(hovered_item):
+                # Clear any previous instance of this item in hotbar
+                for i in range(inventory_component.hotbar.size()):
+                    if inventory_component.hotbar[i] == hovered_item:
+                        inventory_component.hotbar[i] = null
+
+                # Assign to new slot
+                inventory_component.hotbar[hotbar_index] = hovered_item
+                refresh_display()
+                get_viewport().set_input_as_handled()
+                
     # Switch to controller mode on input
     if event is InputEventJoypadButton or event is InputEventJoypadMotion:
         if not is_controller_mode:
@@ -417,6 +445,28 @@ func _input(event):
         if event is InputEventMouseButton:
             if event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
                 _end_drag()
+
+func _get_hovered_item_under_mouse() -> InventoryItem:
+    if not is_inventory_open():
+        return null
+    var mouse_pos = get_global_mouse_position()
+    # Check player grid
+    if player_grid.get_global_rect().has_point(mouse_pos):
+        var local = player_grid.get_global_transform().affine_inverse() * mouse_pos
+        var col = int(local.x / (cell_size + CELL_SPACING))
+        var row = int(local.y / (cell_size + CELL_SPACING))
+        return inventory_component.get_item_at(col, row)
+    # Check container grid
+    if current_container and container_grid.get_global_rect().has_point(mouse_pos):
+        var local = container_grid.get_global_transform().affine_inverse() * mouse_pos
+        var col = int(local.x / (cell_size + CELL_SPACING))
+        var row = int(local.y / (cell_size + CELL_SPACING))
+        return current_container.inventory.get_item_at(col, row)
+    return null
+
+func _can_assign_to_hotbar(item: InventoryItem) -> bool:
+    print("item:" , item.display_name , " , type :" , item.type)
+    return item.type in ["weapon", "medkit", "tool"]
 
 func _handle_controller_input(event):
     var current_time = Time.get_ticks_msec()
@@ -1009,7 +1059,10 @@ func _on_context_menu_item_selected(id: int):
     match id:
         0: _use_item(context_menu_item)
         1: 
-            if context_menu_item.equip_slot != "none":
+            if _can_assign_to_hotbar(context_menu_item):
+                inventory_component.set_on_empty_hotbar_slot(context_menu_item)
+
+            elif context_menu_item.equip_slot != "none":
                 inv.remove_item(context_menu_item)
                 inventory_component.equip_item(context_menu_item, context_menu_item.equip_slot)
         2: inventory_component.unequip_item(context_menu_item.equip_slot)
