@@ -1,8 +1,8 @@
 extends Node3D
 
 @export var raycast : RayCast3D
-@export var max_retraction_dist : float = 0.5 # Maximum distance the gun can move back
-@export var smooth_speed : float = 8.0 # How fast the gun reacts (higher = snappier)
+@export var max_retraction_dist : float = 0.1 # Maximum distance the gun can move back
+@export var smooth_speed : float = 4.0 # How fast the gun reacts (higher = snappier)
 @export var weapon_manager : WeaponManager
 
 var original_position := Vector3.ZERO
@@ -16,7 +16,7 @@ var cw = null :
 var attack_point_z : float :
 	get:
 		if cw:
-			return cw.weaponSlot.attackPoint.global_position.z
+			return cw.weaponSlot.attackPoint.position.z
 		return ray_length
 
 ## now we need to adapt each weapon with this code by using the attackPoint (because it postion in last of weapon)
@@ -54,6 +54,9 @@ func _process(delta: float) -> void:
 
 func raycast_setup():
 	if cw and not raycast.is_colliding():
-		#print(raycast.target_position)
-		raycast.target_position.z = -(raycast.global_position.z -attack_point_z + .2)
+		if abs(attack_point_z) < 0.6:
+			raycast.target_position.z = -abs(attack_point_z + 0.1) # Slight offset to avoid clipping
+		else:
+			raycast.target_position.z = -abs(attack_point_z - 1.) # Slight offset to avoid clipping
+			
 		ray_length = abs(raycast.target_position.z)

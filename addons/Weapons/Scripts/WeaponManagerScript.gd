@@ -377,6 +377,11 @@ func displayMuzzleFlash():
         var muzzleFlashInstance = cW.muzzleFlashRef.instantiate()
         add_child(muzzleFlashInstance)
         muzzleFlashInstance.global_position = cW.weaponSlot.muzzleFlashSpawner.global_position
+        
+        # Sets the Visual Layer to 5
+        # Note: If this is 2D, change '.layers' to '.visibility_layer'
+        muzzleFlashInstance.layers = 5 
+        
         muzzleFlashInstance.emitting = true
 
 func displayBulletHole(colliderPoint : Vector3, colliderNormal : Vector3 , collider : Object):

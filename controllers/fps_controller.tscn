@@ -634,8 +634,8 @@ injury_effects = NodePath("../PlayerHealthComponent/MovementInjuryEffects")
 [node name="LinkComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("ammoManager", "weaponManager")]
 unique_name_in_owner = true
 script = ExtResource("15_7gkfl")
-ammoManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager/AmmunitionManager")
-weaponManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager")
+ammoManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager/AmmunitionManager")
+weaponManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
 
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_base", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
@@ -752,40 +752,43 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D" node_paths=PackedStringArray("playChar", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "inventory_component") instance=ExtResource("19_3qkg6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.04, -0.239)
+[node name="WeaponComponenet" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+
+[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("playChar", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "inventory_component") instance=ExtResource("19_3qkg6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.03999996, -0.25337216)
 shoot_action = "fire"
-playChar = NodePath("../../../../..")
-cameraHolder = NodePath("../../../..")
-cameraRecoilHolder = NodePath("../..")
-camera = NodePath("..")
-weaponContainer = NodePath("WeaponContainer")
+playChar = NodePath("../../../../../..")
+cameraHolder = NodePath("../../../../..")
+cameraRecoilHolder = NodePath("../../..")
+camera = NodePath("../..")
+weaponContainer = NodePath("WeaponBase/WeaponContainer")
 shootManager = NodePath("ShootManager")
 reloadManager = NodePath("ReloadManager")
 ammoManager = NodePath("AmmunitionManager")
 animPlayer = NodePath("AnimationPlayer")
 animManager = NodePath("AnimationManager")
-hud = NodePath("../../../../../HUD")
-linkComponent = NodePath("../../../../../Components/LinkComponent")
-inventory_component = NodePath("../../../../../Components/InventoryComponent")
+hud = NodePath("../../../../../../HUD")
+linkComponent = NodePath("../../../../../../Components/LinkComponent")
+inventory_component = NodePath("../../../../../../Components/InventoryComponent")
 
-[node name="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1996198, -0.1340586, -0.0030822158)
-
-[node name="WeaponContainer" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="1" node_paths=PackedStringArray("weapon_manager")]
-weapon_manager = NodePath("..")
-
-[node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="2" node_paths=PackedStringArray("weaponManager")]
+[node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="0" node_paths=PackedStringArray("weaponManager")]
 weaponManager = NodePath("..")
 
-[node name="ReloadManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="3" node_paths=PackedStringArray("weaponManager")]
+[node name="ReloadManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="1" node_paths=PackedStringArray("weaponManager")]
 weaponManager = NodePath("..")
 
-[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager" index="5" node_paths=PackedStringArray("cameraHolder", "playChar", "animPlayer", "weaponManager")]
-cameraHolder = NodePath("../../../../..")
-playChar = NodePath("../../../../../..")
+[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="3" node_paths=PackedStringArray("cameraHolder", "playChar", "animPlayer", "weaponManager")]
+cameraHolder = NodePath("../../../../../..")
+playChar = NodePath("../../../../../../..")
 animPlayer = NodePath("../AnimationPlayer")
 weaponManager = NodePath("..")
+
+[node name="WeaponBase" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="5" node_paths=PackedStringArray("raycast")]
+raycast = NodePath("../../WeaponCollider")
+
+[node name="WeaponCollider" type="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14458162, -0.10382497, 0)
+target_position = Vector3(0, 0, -0.5)
 
 [node name="Raycasters" type="Node3D" parent="CameraController"]
 visible = false
@@ -971,7 +974,6 @@ render_target_update_mode = 4
 [node name="ViewportCam" type="Camera3D" parent="SubViewportContainer/SubViewport" node_paths=PackedStringArray("cam")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.540581, 0)
 cull_mask = 16
-fov = 90.0
 near = 0.01
 script = ExtResource("53_ius01")
 cam = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D")
@@ -1387,4 +1389,4 @@ grow_vertical = 2
 texture = ExtResource("59_1hfpd")
 expand_mode = 1
 
-[editable path="CameraController/CameraBase/CameraOffset/Camera3D/WeaponManager"]
+[editable path="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]
