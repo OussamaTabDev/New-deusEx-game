@@ -1,4 +1,4 @@
-[gd_scene load_steps=84 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=87 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -31,6 +31,7 @@
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
 [ext_resource type="Script" uid="uid://cnpa03x4ajc8b" path="res://addons/PlayerCharacter/Scripts/Misc/LinkComponentScript.gd" id="15_7gkfl"]
 [ext_resource type="Script" uid="uid://dmfp4audscxl3" path="res://controllers/scripts/StateMchinePlayer/movement_stats_provider.gd" id="15_mn68o"]
+[ext_resource type="Script" uid="uid://tfhqf8y2bt6e" path="res://controllers/scripts/StateMchinePlayer/CameraStateMachine/camera_recoil_componenet.gd" id="16_0mih5"]
 [ext_resource type="Script" uid="uid://clhcimphoqlp5" path="res://controllers/scripts/StateMchinePlayer/ladder_climb_state.gd" id="16_h7h5r"]
 [ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
 [ext_resource type="Script" uid="uid://bjjqmr27j3eg8" path="res://controllers/scripts/StateMchinePlayer/swimming_state.gd" id="17_5b0ob"]
@@ -54,7 +55,9 @@
 [ext_resource type="Texture2D" uid="uid://cumvdin6jmyh1" path="res://textures/Images/UI/main_pause.png" id="32_xno33"]
 [ext_resource type="Script" uid="uid://c3tv7kqkyftel" path="res://controllers/debugs/hand_d_debug.gd" id="42_ius01"]
 [ext_resource type="Script" uid="uid://bgjtlul6bmw6u" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gd" id="43_teryj"]
+[ext_resource type="Script" uid="uid://d2k0wiwesmehx" path="res://addons/RadialMenu/RadialMenu.gd" id="44_1hfpd"]
 [ext_resource type="Shader" uid="uid://bragsbfphgcjf" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gdshader" id="44_b6iva"]
+[ext_resource type="Script" uid="uid://colxmwot5x3a1" path="res://controllers/scripts/InventorySystem/weapon_wheel_Controller.gd" id="44_xodnv"]
 [ext_resource type="Script" uid="uid://ba0b0ekmy1qub" path="res://addons/PlayerCharacter/Scripts/Camera/ViewportCameraScript.gd" id="53_ius01"]
 [ext_resource type="Script" uid="uid://dx02l6p6behb8" path="res://addons/PlayerCharacter/Scripts/UI/HUDScript.gd" id="57_ty5lw"]
 [ext_resource type="FontFile" uid="uid://bwr73i28ligrq" path="res://addons/Arts/Fonts/Ticketing.ttf" id="58_0mih5"]
@@ -637,6 +640,9 @@ script = ExtResource("15_7gkfl")
 ammoManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager/AmmunitionManager")
 weaponManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
 
+[node name="CameraRecoilComponenet" type="Node3D" parent="Components/LinkComponent"]
+script = ExtResource("16_0mih5")
+
 [node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_base", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 script = ExtResource("3_uovkr")
@@ -981,7 +987,6 @@ mouse_filter = 1
 script = ExtResource("16_tg6sc")
 player = NodePath("..")
 state_machine = NodePath("../StateMachine")
-enable_debug = true
 
 [node name="UI" type="Control" parent="Control"]
 layout_mode = 1
@@ -1048,7 +1053,16 @@ currentPreset = 1
 visible = false
 layout_mode = 1
 
-[node name="BottomPanel" type="MarginContainer" parent="Control/UI"]
+[node name="WeaponControl" type="Control" parent="Control/UI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BottomPanel" type="MarginContainer" parent="Control/UI/WeaponControl"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -1062,22 +1076,66 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 450
 theme_override_constants/margin_bottom = 30
 
-[node name="PanelContainer" type="PanelContainer" parent="Control/UI/BottomPanel"]
+[node name="PanelContainer" type="PanelContainer" parent="Control/UI/WeaponControl/BottomPanel"]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Control/UI/BottomPanel/PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/UI/WeaponControl/BottomPanel/PanelContainer"]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="Label" type="Label" parent="Control/UI/BottomPanel/PanelContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="Control/UI/WeaponControl/BottomPanel/PanelContainer/VBoxContainer"]
 layout_mode = 2
 text = "Hotbar [1-8]"
 horizontal_alignment = 1
 
-[node name="Hotbar" type="HBoxContainer" parent="Control/UI/BottomPanel/PanelContainer/VBoxContainer"]
+[node name="Hotbar" type="HBoxContainer" parent="Control/UI/WeaponControl/BottomPanel/PanelContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 5
 alignment = 1
+
+[node name="WeaponWheelBackground" type="ColorRect" parent="Control/UI/WeaponControl" node_paths=PackedStringArray("weapon_wheel_ui", "inventory_ui", "weapon_manager")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.090457015, 0, 0.25528768, 0.55200005)
+script = ExtResource("44_xodnv")
+weapon_wheel_ui = NodePath("WeaponWheel")
+inventory_ui = NodePath("../../InventoryUI")
+weapon_manager = NodePath("../../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
+
+[node name="WeaponWheel" type="Control" parent="Control/UI/WeaponControl/WeaponWheelBackground"]
+custom_minimum_size = Vector2(600, 600)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -300.0
+offset_right = 300.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(300, 300)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("44_1hfpd")
+radius = 300
+width = 200
+center_radius = 100
+gap_size = 0.0
+selector_position = 2
+decorator_ring_position = 2
+circle_coverage = 1.0
+center_angle = 2.46045
+show_animation = true
+animation_speed_factor = 0.18000000000000002
+outside_selection_factor = 3.5
 
 [node name="PauseMenu" type="Control" parent="Control"]
 visible = false
@@ -1102,6 +1160,7 @@ grow_vertical = 2
 texture = ExtResource("32_xno33")
 
 [node name="HandDDebug" type="Control" parent="Control" node_paths=PackedStringArray("player", "health_component", "healing_manager")]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1380,5 +1439,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("59_1hfpd")
 expand_mode = 1
+
+[connection signal="item_selected" from="Control/UI/WeaponControl/WeaponWheelBackground/WeaponWheel" to="Control/UI/WeaponControl/WeaponWheelBackground" method="_on_weapon_wheel_item_selected"]
 
 [editable path="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]

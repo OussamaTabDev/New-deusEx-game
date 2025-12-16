@@ -22,7 +22,6 @@ totalAmmoInMagRef = 10
 ammoType = "LightAmmo"
 equipTime = 0.2
 unequipTime = 0.2
-canAutoShoot = true
 nbProjShotsAtSameTime = 1
 nbProjShots = 1
 minSpread = -0.01

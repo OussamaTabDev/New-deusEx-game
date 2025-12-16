@@ -12,6 +12,7 @@ signal container_closed()
 const GRID_PADDING = 10
 const TOOLTIP_OFFSET = Vector2(15, 15)
 
+
 # --- CONFIGURATION ---
 @export var hotbar_always_visible: bool = true
 
@@ -27,8 +28,8 @@ const COLOR_GAMEPAD_CURSOR = Color(1.0, 0.8, 0.2, 0.4) # Gold highlight for cont
 @onready var equipment_panel: PanelContainer = $MarginContainer/HBoxContainer/EquipmentPanel
 @onready var container_panel: PanelContainer = $MarginContainer/HBoxContainer/ContainerPanel
 
-@onready var hotbar_panel: PanelContainer = $"../BottomPanel/PanelContainer"
-@onready var hotbar_container: HBoxContainer = $"../BottomPanel/PanelContainer/VBoxContainer/Hotbar"
+@onready var hotbar_panel: PanelContainer = $"../WeaponControl/BottomPanel/PanelContainer"
+@onready var hotbar_container: HBoxContainer = $"../WeaponControl/BottomPanel/PanelContainer/VBoxContainer/Hotbar"
 
 @onready var tooltip: PanelContainer = $Tooltip
 @onready var context_menu: PopupMenu = $ContextMenu

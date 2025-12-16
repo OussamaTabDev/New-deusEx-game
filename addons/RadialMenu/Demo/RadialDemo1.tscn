@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=3 uid="uid://cvk15wv8stgp5"]
+
+[ext_resource type="Script" uid="uid://d2k0wiwesmehx" path="res://addons/RadialMenu/RadialMenu.gd" id="1"]
+[ext_resource type="Script" uid="uid://640vgwnjhp26" path="res://addons/RadialMenu/Demo/RadialDemo1.gd" id="2"]
+
+[node name="RadialDemo1" type="ColorRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.123112, 0.168494, 0.207031, 1)
+script = ExtResource("2")
+
+[node name="Instructions" type="Label" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 5
+text = "Open the radial menu with a right mouse button click"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RadialMenu" type="Control" parent="."]
+custom_minimum_size = Vector2(248, 248)
+anchors_preset = 0
+offset_right = 248.0
+offset_bottom = 248.0
+pivot_offset = Vector2(124, 124)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("1")
+radius = 124
+width = 61
+center_radius = 42
+gap_size = 8.5
+circle_coverage = 1.0
+center_angle = 4.7463999999999995
+show_animation = true
+animation_speed_factor = 0.5700000000000001
+outside_selection_factor = 4.0
+arc_count = null

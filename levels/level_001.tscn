@@ -196,7 +196,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.1340001, 0, 0)
+uv1_offset = Vector3(0.7509939, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -471,7 +471,7 @@ shape = SubResource("CapsuleShape3D_ye0g1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.366645, 1.9368432, 0.5774557)
 
 [node name="Door" parent="." instance=ExtResource("20_lqhs4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.0076485, 1.0816828, 5.917161)
+transform = Transform3D(8, 0, 0, 0, 2.045, 0, 0, 0, 4.17, -7.008, 2.977, 5.917)
 
 [node name="Door2" parent="." instance=ExtResource("21_j8lij")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -11.039531, -0.018317223, 6.364714)

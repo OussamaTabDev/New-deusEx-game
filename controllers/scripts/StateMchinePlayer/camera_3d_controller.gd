@@ -15,6 +15,7 @@ extends Node3D
 @export var camera_base: Node3D
 @export var camera_offset: Node3D
 @export var CAMERA_CONTROLLER: Camera3D
+@export var recoil_component: CameraRecoilComponent # <--- ADD THIS
 ### self[camera_base[camera_offset[CAMERA_CONTROLLER]]] as childs of each others
 
 # ============================================================
@@ -672,3 +673,8 @@ func trigger_dash_shake(intensity: float = 0.4, duration: float = 0.2) -> void:
     # Reset frequency after a moment (handled in update loop logic mostly, 
     # but strictly we should reset it here via timer or just use a separate shake var. 
     # For now, standard shake is fine)
+
+## 4. WEAPON RECOIL
+func apply_weapon_recoil(recoil_amount: Vector3, shake: float = 0.1) -> void:
+    if recoil_component:
+        recoil_component.apply_recoil(recoil_amount, shake)

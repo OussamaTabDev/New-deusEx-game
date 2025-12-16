@@ -1174,9 +1174,8 @@ libraries = {
 &"": SubResource("AnimationLibrary_tt46u")
 }
 
-[node name="WeaponBase" type="Node3D" parent="." node_paths=PackedStringArray("raycast", "weapon_manager")]
+[node name="WeaponBase" type="Node3D" parent="." node_paths=PackedStringArray("weapon_manager")]
 script = ExtResource("8_1upsk")
-raycast = NodePath("")
 weapon_manager = NodePath("..")
 
 [node name="WeaponContainer" type="Node3D" parent="WeaponBase"]
