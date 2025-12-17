@@ -1,4 +1,4 @@
-[gd_scene load_steps=89 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=94 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -15,10 +15,14 @@
 [ext_resource type="Script" uid="uid://c5g8japvwt4hb" path="res://controllers/scripts/Compoenents/inventory_handling_component.gd" id="6_uefoi"]
 [ext_resource type="Script" uid="uid://bkbq0qu5e2cnw" path="res://controllers/scripts/StateMchinePlayer/running_state.gd" id="7_fyafc"]
 [ext_resource type="Script" uid="uid://xpvs6y0bnisd" path="res://controllers/scripts/Compoenents/items_interaction_component.gd" id="8_kaa6b"]
+[ext_resource type="Script" uid="uid://jmt0ns7eyp3e" path="res://controllers/scripts/Compoenents/grab_interaction_handler.gd" id="8_rhee3"]
 [ext_resource type="Script" uid="uid://bhr4wvq73b3ov" path="res://controllers/scripts/StateMchinePlayer/jumping_state.gd" id="8_tg6sc"]
+[ext_resource type="Script" uid="uid://duw1k2ow40iq5" path="res://controllers/scripts/Compoenents/loot_interaction_handler.gd" id="9_1br7g"]
 [ext_resource type="Script" uid="uid://6mg8etp0rcd2" path="res://controllers/scripts/HeathAndDamageSystem/player_health_component.gd" id="9_b6iva"]
+[ext_resource type="Script" uid="uid://d1o0ni26ddq2q" path="res://controllers/scripts/Compoenents/small_grab_interaction_handler.gd" id="9_k8xwc"]
 [ext_resource type="Script" uid="uid://cxxvkcg48u2d" path="res://controllers/scripts/StateMchinePlayer/falling_state.gd" id="9_yvtcv"]
 [ext_resource type="Script" uid="uid://4thtivtrpy4n" path="res://controllers/scripts/StateMchinePlayer/crouch_state.gd" id="10_h7h5r"]
+[ext_resource type="Script" uid="uid://b25jw6vlx1mbf" path="res://controllers/scripts/Compoenents/interactable_interaction_handler.gd" id="10_k8xwc"]
 [ext_resource type="Script" uid="uid://cgxjwtj0l6grg" path="res://controllers/scripts/HeathAndDamageSystem/armor_module.gd" id="10_sy8o7"]
 [ext_resource type="Script" uid="uid://raajygfbuuyd" path="res://controllers/scripts/StateMchinePlayer/crouch_walking_state.gd" id="11_fdopr"]
 [ext_resource type="Script" uid="uid://dbcsitmcbiri2" path="res://controllers/scripts/HeathAndDamageSystem/bleeding_system.gd" id="11_pxa28"]
@@ -75,6 +79,9 @@ shader_parameter/mask_edge = 0.195
 shader_parameter/animation_speed = 20.0
 shader_parameter/blur_strength = 0.01
 shader_parameter/effect_power = 0.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_1br7g"]
+size = Vector3(0.115, 0.11, 0.075)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
 size = Vector3(0.1, 0.1, 0.1)
@@ -583,7 +590,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
 interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/InteractionRaycast")
 carryable_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/CarryablePosition")
 
-[node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("interaction_raycast", "inventory_handler", "camera_controller", "hold_position", "cyber_scanner", "player", "interact_control", "primary_action_label", "secondary_action_label")]
+[node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("interaction_raycast", "inventory_handler", "camera_controller", "hold_position", "cyber_scanner", "player", "loot_handler", "grab_handler", "small_grab_handler", "interactable_handler", "interact_control", "primary_action_label", "secondary_action_label")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35666072, 0)
 script = ExtResource("8_kaa6b")
 interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/InteractionRaycast")
@@ -592,6 +599,10 @@ camera_controller = NodePath("../../CameraController")
 hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/CarryablePosition")
 cyber_scanner = NodePath("../../Effects/ScannerEffect")
 player = NodePath("../..")
+loot_handler = NodePath("LootInteractionHandler")
+grab_handler = NodePath("GrabInteractionHandler")
+small_grab_handler = NodePath("GrabInteractionHandler/SmallGrabInteractionHandler")
+interactable_handler = NodePath("InteractableInteractionHandler")
 interact_control = NodePath("../../Control/UI/InteractControl")
 primary_action_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/PickupLabel")
 secondary_action_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/GrapLabel")
@@ -601,6 +612,23 @@ throw_force = 25.0
 [node name="DropMarker" type="Marker3D" parent="Components/ItemsInteractionComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9155706, -1.4331703)
 visible = false
+
+[node name="GrabInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent"]
+script = ExtResource("8_rhee3")
+
+[node name="SmallGrabInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent/GrabInteractionHandler" node_paths=PackedStringArray("hand_marker")]
+script = ExtResource("9_k8xwc")
+hand_marker = NodePath("../../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/GrapMarker")
+grab_offset = Vector3(-0.59, -0.09, -0.785)
+override_rotation = Vector3(-0.075, -0.3, -0.1)
+override_scale = Vector3(0.69, 0.57, 0.635)
+scale_interp_speed = 1.0
+
+[node name="LootInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent"]
+script = ExtResource("9_1br7g")
+
+[node name="InteractableInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent"]
+script = ExtResource("10_k8xwc")
 
 [node name="PlayerHealthComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
 script = ExtResource("9_b6iva")
@@ -771,6 +799,14 @@ raycast = NodePath("../../WeaponCollider")
 [node name="WeaponCollider" type="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14458162, -0.10382497, 0)
 target_position = Vector3(0, 0, -0.5)
+
+[node name="GrapMarker" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.175, -0.065660715, -0.196)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/GrapMarker"]
+visible = false
+layers = 16
+mesh = SubResource("BoxMesh_1br7g")
 
 [node name="InteractCasts" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 
