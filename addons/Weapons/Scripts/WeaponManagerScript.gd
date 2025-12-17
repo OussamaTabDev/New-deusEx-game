@@ -20,6 +20,7 @@ var currentHotbarSlot : int = -1 # Current active hotbar slot
 
 var canChangeWeapons : bool = true
 var canUseWeapon : bool = true
+var unequipped_weapon : bool = false 
 
 @export_group("Keybind variables")
 @export var shoot_action : String = "shoot"
@@ -153,7 +154,16 @@ func _input(event):
                 scroll_hotbar(-1)
             elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
                 scroll_hotbar(1)
+    
+    # if  event is InputEventKey:
+    #     if event.pressed:
+    #         if event.keycode == InputActions.get_action_key_number("wheel_key"):
+    #             _equip_previous_weapon()
 
+    if event is InputEventMouseButton :
+        if event.pressed:
+            if (event.button_index == MOUSE_BUTTON_LEFT and unequipped_weapon):
+                _equip_previous_weapon()
 
 func scroll_hotbar(direction: int):
     """Scroll through hotbar slots"""
@@ -243,7 +253,8 @@ func exitWeapon(nextWeaponId: int, nextSlot: int):
 
     canChangeWeapons = false
     canUseWeapon = false
-    
+    unequipped_weapon = true
+
     # 1. Cancel current actions
     if cW.isShooting: cW.isShooting = false
     if cW.isReloading: cW.isReloading = false
@@ -266,7 +277,6 @@ func exitWeapon(nextWeaponId: int, nextSlot: int):
     enterWeapon(nextWeaponId, nextSlot)
 
 
-## REPLACE enterWeapon() FUNCTION
 func enterWeapon(nextWeaponId: int, slot: int):
     """Equip new weapon based on WeaponResource.equipTime"""
     
@@ -309,11 +319,23 @@ func enterWeapon(nextWeaponId: int, slot: int):
     if cW.isShooting: cW.isShooting = false
     if cW.isReloading: cW.isReloading = false
     
+    unequipped_weapon = false
     canUseWeapon = true
     canChangeWeapons = true
     
     print("Equipped: %s (Slot %d)" % [cW.weaponName, slot + 1])
 
+func _equip_previous_weapon():
+    """Re-equip the previous weapon if available"""
+    print("Re-equipping previous weapon...")
+    print(pW)
+    if pW:
+        var weapon_id = pW.weaponId
+        for i in range(inventory_component.hotbar_slots):
+            var item = inventory_component.hotbar[i]
+            if item and item.type == "weapon" and item.attributes.get("weapon_id") == weapon_id:
+                switch_to_hotbar_slot(i)
+                return
 
 # NEW: Direct unequip without switching to another weapon
 func _unequip_current_weapon():
@@ -321,6 +343,8 @@ func _unequip_current_weapon():
     if not cW:
         return
 
+    pW = cW
+    unequipped_weapon = true
     canChangeWeapons = false
     canUseWeapon = false
 
@@ -401,8 +425,7 @@ func attempt_pickup_unique(weapon_id: int) -> bool:
                     break
                     
     return success
-    
-## ADD THESE NEW HELPER FUNCTIONS
+  
 func _can_equip_weapon() -> bool:
     """Check if player can equip weapons based on arm health"""
     if not combat_health:
@@ -415,7 +438,7 @@ func _show_arm_damaged_message():
     if hud and hud.has_method("show_message"):
         hud.show_message("⚠️ Right arm too damaged to use weapons!")
     else:
-        print("⚠️ RIGHT ARM TOO DAMAGED - HEAL TO 30%+ TO USE WEAPONS")
+        print("⚠️ RIGHT ARM TOO DAMAGED - HEAL TO 5%+ TO USE WEAPONS")
 
 func _process(delta : float):
     # Handle F hold to unequip
@@ -428,6 +451,7 @@ func _process(delta : float):
     
     if player.is_graping():
         _unequip_current_weapon()
+    
     
     # NEW: Continuously check if we can still use weapons
     if cW != null:
@@ -771,5 +795,3 @@ func get_weapon_scene_path(weapon_id: int) -> String:
         if item.type == "weapon" and item.attributes.get("weapon_id") == weapon_id:
             return item.scene_path
     return ""
-
-
