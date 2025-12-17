@@ -195,7 +195,8 @@ func _process(delta: float):
     
     # 2. Kick player out of illegal states
     _enforce_state_constraints()
-    
+
+    _check_active_state_validity() 
     # 3. Handle Timers & Random Events
     _update_timers(delta)
     _update_injury_events(delta)
@@ -207,6 +208,24 @@ func _process(delta: float):
     # 5. Notify stats provider
     if movement_stats_provider and movement_stats_provider.has_method("update_stats"):
         movement_stats_provider.update_stats()
+
+## Monitors the current state continuously to kick player out if conditions worsen mid-state
+func _check_active_state_validity():
+    if not state_machine: return
+    
+    var current = state_machine.get_current_state_name()
+    if current == "": return
+    
+    # If the state we are currently in is no longer allowed:
+    if not can_enter_state(current):
+        # Ask for a fallback
+        var fallback = get_fallback_state(current)
+        if fallback != "":
+            # Force the transition immediately
+            state_machine.force_transition(fallback)
+        else:
+            # Fallback to a safe default if no mapping exists
+            state_machine.force_transition("IdleState")
 
 func _update_health_cache():
     if health_component.has_method("get_limb_health_percent"):
@@ -555,3 +574,60 @@ func consume_instant_stamina(amount: float) -> bool:
         stamina_changed.emit(_current_stamina, base_stamina)
         return true
     return false
+
+## Checks if a specific state is physically possible given current injuries
+func can_enter_state(state_name: String) -> bool:
+    var state_lower = state_name.to_lower()
+    
+    # 1. IMMOBILIZED / FALLEN
+    if _is_fallen:
+        # Only allow recovery states or lying down states
+        return state_lower in ["fallingstate", "crouchwalkingstate", "immobilizedstate"]
+
+    # 2. LEG DAMAGE (Must Crawl)
+    if not _can_walk:
+        # Block all standing states
+        var standing_states = [
+            "idlestate","walkingstate", "sprintingstate", "jumpingstate", 
+            "dashstate", "wallrunstate", "ladderclimbstate"
+        ]
+        if state_lower in standing_states:
+            return false
+
+    # 3. SPRINT BLOCK
+    if not _can_sprint:
+        if state_lower in ["sprintingstate", "sprintswimingstate", "wallrunstate"]:
+            return false
+
+    # 4. CLIMB BLOCK
+    if not _can_climb:
+        if state_lower in ["climbstate", "ladderclimbstate", "wallrunstate"]:
+            return false
+
+    # 5. SWIM BLOCK (Optional)
+    if not _can_swim:
+        if state_lower in ["swimmingstate", "sprintswimingstate"]:
+            return false
+
+    return true
+
+## Returns a valid alternative state if the requested one is blocked
+## e.g. If trying to Sprint but leg broken -> Return "WalkingState"
+func get_fallback_state(blocked_state_name: String) -> String:
+    var state_lower = blocked_state_name.to_lower()
+    
+    if _is_fallen:
+        return "CrouchWalkingState" # Or "ProneState"
+        
+    if not _can_walk:
+        # If trying to stand/walk/run but legs broken -> Crawl
+        return "CrouchWalkingState"
+        
+    if not _can_sprint:
+        # If trying to sprint -> Walk
+        if state_lower == "sprintingstate":
+            return "WalkingState"
+        if state_lower == "sprintswimingstate":
+            return "SwimmingState"
+            
+    return "" # No specific fallback, just block the input

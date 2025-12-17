@@ -1,4 +1,4 @@
-[gd_scene load_steps=87 format=3 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=89 format=3 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -31,6 +31,7 @@
 [ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
 [ext_resource type="Script" uid="uid://cnpa03x4ajc8b" path="res://addons/PlayerCharacter/Scripts/Misc/LinkComponentScript.gd" id="15_7gkfl"]
 [ext_resource type="Script" uid="uid://dmfp4audscxl3" path="res://controllers/scripts/StateMchinePlayer/movement_stats_provider.gd" id="15_mn68o"]
+[ext_resource type="Script" uid="uid://b7x0it4c5g5m" path="res://controllers/scripts/WeaponsSystem/combat_health_modifier.gd" id="15_t2gqn"]
 [ext_resource type="Script" uid="uid://tfhqf8y2bt6e" path="res://controllers/scripts/StateMchinePlayer/CameraStateMachine/camera_recoil_componenet.gd" id="16_0mih5"]
 [ext_resource type="Script" uid="uid://clhcimphoqlp5" path="res://controllers/scripts/StateMchinePlayer/ladder_climb_state.gd" id="16_h7h5r"]
 [ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
@@ -58,6 +59,7 @@
 [ext_resource type="Script" uid="uid://d2k0wiwesmehx" path="res://addons/RadialMenu/RadialMenu.gd" id="44_1hfpd"]
 [ext_resource type="Shader" uid="uid://bragsbfphgcjf" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gdshader" id="44_b6iva"]
 [ext_resource type="Script" uid="uid://colxmwot5x3a1" path="res://controllers/scripts/InventorySystem/weapon_wheel_Controller.gd" id="44_xodnv"]
+[ext_resource type="Script" uid="uid://bttqruj5f5vj" path="res://controllers/scripts/HeathAndDamageSystem/health_debug.gd" id="50_t2gqn"]
 [ext_resource type="Script" uid="uid://ba0b0ekmy1qub" path="res://addons/PlayerCharacter/Scripts/Camera/ViewportCameraScript.gd" id="53_ius01"]
 [ext_resource type="Script" uid="uid://dx02l6p6behb8" path="res://addons/PlayerCharacter/Scripts/UI/HUDScript.gd" id="57_ty5lw"]
 [ext_resource type="FontFile" uid="uid://bwr73i28ligrq" path="res://addons/Arts/Fonts/Ticketing.ttf" id="58_0mih5"]
@@ -634,6 +636,12 @@ script = ExtResource("15_mn68o")
 player = NodePath("../..")
 injury_effects = NodePath("../PlayerHealthComponent/MovementInjuryEffects")
 
+[node name="CombatHealthModifier" type="Node" parent="Components/MovementStatsProvider" node_paths=PackedStringArray("player_health", "weapon_manager", "camera_holder")]
+script = ExtResource("15_t2gqn")
+player_health = NodePath("../../PlayerHealthComponent")
+weapon_manager = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
+camera_holder = NodePath("../../../CameraController")
+
 [node name="LinkComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("ammoManager", "weaponManager")]
 unique_name_in_owner = true
 script = ExtResource("15_7gkfl")
@@ -673,6 +681,7 @@ physics_interpolation_mode = 1
 cull_mask = 1048559
 
 [node name="Effects" type="CanvasLayer" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+follow_viewport_enabled = true
 
 [node name="Control" type="Control" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects"]
 visible = false
@@ -723,8 +732,9 @@ grow_vertical = 2
 
 [node name="WeaponComponenet" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 
-[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("player", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "inventory_component") instance=ExtResource("19_3qkg6")]
+[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("combat_health", "player", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "inventory_component") instance=ExtResource("19_3qkg6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.03999996, -0.25337216)
+combat_health = NodePath("../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
 shoot_action = "fire"
 player = NodePath("../../../../../..")
 cameraHolder = NodePath("../../../../..")
@@ -740,17 +750,20 @@ hud = NodePath("../../../../../../HUD")
 linkComponent = NodePath("../../../../../../Components/LinkComponent")
 inventory_component = NodePath("../../../../../../Components/InventoryComponent")
 
-[node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="0" node_paths=PackedStringArray("weaponManager")]
+[node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="0" node_paths=PackedStringArray("weaponManager", "combat_health")]
 weaponManager = NodePath("..")
+combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
 
-[node name="ReloadManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="1" node_paths=PackedStringArray("weaponManager")]
+[node name="ReloadManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="1" node_paths=PackedStringArray("weaponManager", "combat_health")]
 weaponManager = NodePath("..")
+combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
 
-[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="3" node_paths=PackedStringArray("cameraHolder", "playChar", "animPlayer", "weaponManager")]
+[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="3" node_paths=PackedStringArray("cameraHolder", "player", "animPlayer", "weaponManager", "combat_health")]
 cameraHolder = NodePath("../../../../../..")
-playChar = NodePath("../../../../../../..")
+player = NodePath("../../../../../../..")
 animPlayer = NodePath("../AnimationPlayer")
 weaponManager = NodePath("..")
+combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
 
 [node name="WeaponBase" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="5" node_paths=PackedStringArray("raycast")]
 raycast = NodePath("../../WeaponCollider")
@@ -1094,6 +1107,7 @@ theme_override_constants/separation = 5
 alignment = 1
 
 [node name="WeaponWheelBackground" type="ColorRect" parent="Control/UI/WeaponControl" node_paths=PackedStringArray("weapon_wheel_ui", "inventory_ui", "weapon_manager")]
+process_mode = 3
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -1108,6 +1122,8 @@ inventory_ui = NodePath("../../InventoryUI")
 weapon_manager = NodePath("../../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
 
 [node name="WeaponWheel" type="Control" parent="Control/UI/WeaponControl/WeaponWheelBackground"]
+process_mode = 3
+visible = false
 custom_minimum_size = Vector2(600, 600)
 layout_mode = 1
 anchors_preset = 8
@@ -1134,7 +1150,7 @@ decorator_ring_position = 2
 circle_coverage = 1.0
 center_angle = 2.46045
 show_animation = true
-animation_speed_factor = 0.18000000000000002
+animation_speed_factor = 0.001
 outside_selection_factor = 3.5
 
 [node name="PauseMenu" type="Control" parent="Control"]
@@ -1169,9 +1185,15 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("42_ius01")
 player = NodePath("../..")
-auto_find_player = false
 health_component = NodePath("../../Components/PlayerHealthComponent")
 healing_manager = NodePath("../../Components/HealingManager")
+
+[node name="HealthDebug" type="Control" parent="Control"]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("50_t2gqn")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

@@ -50,7 +50,7 @@ enum Position { off, inside, outside }
 ## slow down frequent users of your software.
 @export var show_animation := false
 
-@export_range(0.01, 1.0, 0.01) var animation_speed_factor := 0.2 
+@export_range(0.001, 1.0, 0.01) var animation_speed_factor := 0.2 
 ## This defines how far outside the ring the mouse will still select a ring segment, as a 
 ## as a multiplication factor of the radius.
 @export_range(0, 10, 0.5) var outside_selection_factor := 3.0 

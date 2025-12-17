@@ -1,23 +1,34 @@
-# Modified ReloadManager.gd - Direct Inventory Ammo Consumption
+## ============================================
+## SMOOTH RELOAD MANAGER
+## ============================================
 
 extends Node3D
 class_name ReloadManager
 
-var reloadTime : float
-var startReloadTimer : bool = false
-var currentPartIndex : int
-var playSoundAndAnim : bool
-var forceReloadStop : bool = false
+var reloadTime: float
+var startReloadTimer: bool = false
+var currentPartIndex: int
+var playSoundAndAnim: bool
+var forceReloadStop: bool = false
 
-var cW # current weapon
-@export var weaponManager : WeaponManager = %WeaponManager
+var cW
+@export var weaponManager: WeaponManager
+@export var combat_health: CombatHealthComponent
+
+## Smooth settings
+@export var use_smooth_reload: bool = true
+var _cached_reload_mult: float = 1.0
 
 func getCurrentWeapon(currentWeapon):
 	cW = currentWeapon
-	
-func _process(delta : float):
+
+func _process(delta: float):
 	if not cW:
-		return		
+		return
+	
+	# Update cached modifier smoothly
+	if use_smooth_reload and combat_health:
+		_cached_reload_mult = lerp(_cached_reload_mult, combat_health.get_reload_speed_multiplier(), 5.0 * delta)
 	
 	if cW.isReloading and startReloadTimer and !forceReloadStop:
 		reloadFollow(delta)
@@ -26,47 +37,45 @@ func _process(delta : float):
 		startReloadTimer = false
 		return
 
-		
 func reload():
+	if not _can_reload():
+		return
 	reloadStart()
-	
+
 func reloadStart():
 	if cW.hasToReload:
-		# Check ammo directly from inventory
 		var available_ammo = weaponManager.ammoManager.get_ammo_count(cW.ammoType)
 		
-		if (!cW.isReloading and \
-		available_ammo > cW.nbProjShotsAtSameTime and \
-		cW.totalAmmoInMag != cW.totalAmmoInMagRef and \
-		!cW.isShooting): 
+		if (!cW.isReloading and available_ammo > cW.nbProjShotsAtSameTime and 
+		cW.totalAmmoInMag != cW.totalAmmoInMagRef and !cW.isShooting):
 			cW.isReloading = true
 			
 			if (cW.totalAmmoInMagRef % cW.nbPartsNeeded) != 0:
-				push_error("The number of parts set is not correct, cannot insert %d of ammunition" % (cW.nbPartsNeeded / cW.totalAmmoInMagRef))
 				cW.isReloading = false
 			else:
 				currentPartIndex = 0
-				reloadTime = cW.reloadTimePerPart
+				
+				# Smooth reload time
+				var base_time = cW.reloadTimePerPart
+				reloadTime = base_time / _cached_reload_mult
+				
 				forceReloadStop = false
 				playSoundAndAnim = true
 				startReloadTimer = true
-		else:
-			if available_ammo <= 0:
-				print("No ammo in inventory for ", cW.ammoType)
-	else:
-		print("No need to reload")
-		
-func reloadFollow(delta : float):
+
+func reloadFollow(delta: float):
 	if playSoundAndAnim:
 		playSoundAndAnim = false
-		weaponManager.weaponSoundManagement(cW.reloadSound, cW.reloadSoundSpeed)
+		
+		# Smooth sound speed
+		var sound_speed = cW.reloadSoundSpeed * _cached_reload_mult
+		weaponManager.weaponSoundManagement(cW.reloadSound, sound_speed)
 		
 		if cW.shootAnimName != "":
-			weaponManager.animManager.playAnimation("ReloadAnim%s" % cW.weaponName, cW.reloadAnimSpeed, true)
-		else:
-			print("%s doesn't have a reload animation" % cW.weaponName)
-			
-	if reloadTime > 0.0: 
+			var anim_speed = cW.reloadAnimSpeed * _cached_reload_mult
+			weaponManager.animManager.playAnimation("ReloadAnim%s" % cW.weaponName, anim_speed, true)
+	
+	if reloadTime > 0.0:
 		reloadTime -= delta
 	else:
 		if currentPartIndex < cW.nbPartsNeeded:
@@ -74,63 +83,54 @@ func reloadFollow(delta : float):
 				onePartReloadCalculus()
 			else:
 				multiPartReloadCalculus()
-				
+			
 			currentPartIndex += 1
 			
 			if currentPartIndex < cW.nbPartsNeeded:
-				reloadTime = cW.reloadTimePerPart
+				var base_time = cW.reloadTimePerPart
+				reloadTime = base_time / _cached_reload_mult
 				playSoundAndAnim = true
 			else:
-				print("Reload complete")
 				cW.isReloading = false
 		else:
-			print("Reload complete")
 			cW.isReloading = false
-			
+
 func onePartReloadCalculus():
-	# Calculate how much ammo we need
 	var ammo_needed = cW.totalAmmoInMagRef - cW.totalAmmoInMag
 	var available_ammo = weaponManager.ammoManager.get_ammo_count(cW.ammoType)
-	
-	# Take the minimum of what we need and what's available
 	var nbAmmoToRefill = min(ammo_needed, available_ammo)
 	
 	if nbAmmoToRefill >= cW.nbProjShotsAtSameTime:
-		# Consume ammo directly from inventory
 		if weaponManager.ammoManager.consume_ammo(cW.ammoType, nbAmmoToRefill):
-			# Add to magazine
 			cW.totalAmmoInMag += nbAmmoToRefill
-			print("Reloaded %d rounds from inventory" % nbAmmoToRefill)
 		else:
-			print("Failed to consume ammo from inventory")
 			forceReloadStop = true
 	else:
-		print("Not enough ammo to reload")
 		forceReloadStop = true
-		
+
 func multiPartReloadCalculus():
 	var nbAmmoToRefill = cW.totalAmmoInMagRef / cW.nbPartsNeeded
 	var available_ammo = weaponManager.ammoManager.get_ammo_count(cW.ammoType)
 	
-	if available_ammo >= nbAmmoToRefill and \
-	cW.totalAmmoInMag <= cW.totalAmmoInMagRef - nbAmmoToRefill:
-		# Consume ammo directly from inventory
+	if available_ammo >= nbAmmoToRefill and cW.totalAmmoInMag <= cW.totalAmmoInMagRef - nbAmmoToRefill:
 		if weaponManager.ammoManager.consume_ammo(cW.ammoType, nbAmmoToRefill):
-			# Add to magazine
 			cW.totalAmmoInMag += nbAmmoToRefill
-			print("Reloaded %d rounds (part %d/%d)" % [nbAmmoToRefill, currentPartIndex + 1, cW.nbPartsNeeded])
 		else:
-			print("Failed to consume ammo from inventory")
 			forceReloadStop = true
 	else:
-		print("Not enough ammunition in inventory, or magazine complete")
 		forceReloadStop = true
-		
+
 func autoReload():
-	# Check if we have any ammo in inventory
 	var available_ammo = weaponManager.ammoManager.get_ammo_count(cW.ammoType)
-	
-	if cW.autoReload and !cW.isReloading and \
-	available_ammo > 0 and \
-	cW.totalAmmoInMag <= 0: 
+	if cW.autoReload and !cW.isReloading and available_ammo > 0 and cW.totalAmmoInMag <= 0:
 		reload()
+
+func _can_reload() -> bool:
+	if not combat_health or not combat_health.player_health:
+		return true
+	
+	var right_arm = combat_health.player_health.get_limb(LimbData.BodyPart.RIGHT_ARM)
+	var left_arm = combat_health.player_health.get_limb(LimbData.BodyPart.LEFT_ARM)
+	
+	return not (right_arm.is_destroyed() and left_arm.is_destroyed())
+

@@ -179,28 +179,28 @@ func _build_control_panel() -> Control:
 		var btn_small = Button.new()
 		btn_small.text = "-10"
 		btn_small.custom_minimum_size = Vector2(50, 0)
-		btn_small.pressed.connect(_on_damage_limb.bind(limb, 10.0, DamageTypes.Type.BULLET))
+		btn_small.pressed.connect(_on_damage_limb.bind(limb, 3.0, DamageTypes.Type.BULLET))
 		hbox.add_child(btn_small)
 		
 		# Medium damage
 		var btn_med = Button.new()
 		btn_med.text = "-30"
 		btn_med.custom_minimum_size = Vector2(50, 0)
-		btn_med.pressed.connect(_on_damage_limb.bind(limb, 30.0, DamageTypes.Type.BULLET))
+		btn_med.pressed.connect(_on_damage_limb.bind(limb, 5.0, DamageTypes.Type.BULLET))
 		hbox.add_child(btn_med)
 		
 		# Large damage
 		var btn_large = Button.new()
 		btn_large.text = "-50"
 		btn_large.custom_minimum_size = Vector2(50, 0)
-		btn_large.pressed.connect(_on_damage_limb.bind(limb, 50.0, DamageTypes.Type.EXPLOSION))
+		btn_large.pressed.connect(_on_damage_limb.bind(limb, 10.0, DamageTypes.Type.EXPLOSION))
 		hbox.add_child(btn_large)
 		
 		# Critical damage
 		var btn_crit = Button.new()
 		btn_crit.text = "CRIT"
 		btn_crit.custom_minimum_size = Vector2(50, 0)
-		btn_crit.pressed.connect(_on_damage_limb.bind(limb, 80.0, DamageTypes.Type.EXPLOSION))
+		btn_crit.pressed.connect(_on_damage_limb.bind(limb, 50.0, DamageTypes.Type.EXPLOSION))
 		hbox.add_child(btn_crit)
 		
 		vbox.add_child(hbox)

@@ -5,8 +5,16 @@ class_name WeaponManager
 
 var weaponList : Dictionary = {} # All weapon resources
 @export var weaponResources : Array[WeaponResource]
+## ADD THIS EXPORT AT THE TOP
+@export var combat_health: CombatHealthComponent  # NEW!
 
 var cW = null # current weapon
+var pW = null : # previous weapon
+    get : return pW
+    set(value) : 
+        if value != null and value != pW:
+            pW = value
+
 var cWModel = null
 var currentHotbarSlot : int = -1 # Current active hotbar slot
 
@@ -172,8 +180,16 @@ func scroll_hotbar(direction: int):
             break
 
 
+## REPLACE switch_to_hotbar_slot() FUNCTION
 func switch_to_hotbar_slot(slot: int):
     """Switch to weapon in specific hotbar slot"""
+    
+    # NEW: Check if able to equip weapons
+    if not _can_equip_weapon():
+        print("❌ Cannot equip weapon - Right arm too damaged!")
+        _show_arm_damaged_message()
+        return
+    
     if not inventory_component:
         return
     
@@ -192,7 +208,7 @@ func switch_to_hotbar_slot(slot: int):
         return
     
     var weapon_id = int(item.attributes.weapon_id)
-    print(weapon_id)
+    # print(weapon_id)
     
     # Check if weapon exists
     if not weaponList.has(weapon_id):
@@ -222,6 +238,8 @@ func exitWeapon(nextWeaponId: int, nextSlot: int):
     """Unequip current weapon based on WeaponResource.unequipTime"""
     if nextWeaponId == cW.weaponId :
         return
+    
+    pW = cW
 
     canChangeWeapons = false
     canUseWeapon = false
@@ -248,10 +266,19 @@ func exitWeapon(nextWeaponId: int, nextSlot: int):
     enterWeapon(nextWeaponId, nextSlot)
 
 
+## REPLACE enterWeapon() FUNCTION
 func enterWeapon(nextWeaponId: int, slot: int):
     """Equip new weapon based on WeaponResource.equipTime"""
+    
+    # NEW: Check if physically able to equip weapons
+    if not _can_equip_weapon():
+        print("❌ Cannot equip weapon - Right arm too damaged!")
+        canChangeWeapons = true
+        return
+    
     if player.is_graping():
         return
+    
     # Load the new resource
     cW = weaponList[nextWeaponId]
     currentHotbarSlot = slot
@@ -342,8 +369,15 @@ func attempt_pickup_unique(weapon_id: int) -> bool:
     """
     Call this function after your 'Hold Interact' is complete.
     Returns TRUE if pickup successful.
-    Returns FALSE if player already has this unique weapon.
+    Returns FALSE if player already has this unique weapon or can't equip.
     """
+    
+    # NEW: Check if able to use weapons
+    if not _can_equip_weapon():
+        print("❌ Cannot pickup weapon - Right arm too damaged!")
+        _show_arm_damaged_message()
+        return false
+    
     # 1. Check if valid weapon exists in our database
     if not weaponList.has(weapon_id):
         print("Error: Weapon ID %d does not exist in WeaponManager database." % weapon_id)
@@ -368,6 +402,20 @@ func attempt_pickup_unique(weapon_id: int) -> bool:
                     
     return success
     
+## ADD THESE NEW HELPER FUNCTIONS
+func _can_equip_weapon() -> bool:
+    """Check if player can equip weapons based on arm health"""
+    if not combat_health:
+        return true  # No health system, allow everything
+    
+    return combat_health.can_equip_weapon()
+
+func _show_arm_damaged_message():
+    """Show message about damaged arm preventing weapon use"""
+    if hud and hud.has_method("show_message"):
+        hud.show_message("⚠️ Right arm too damaged to use weapons!")
+    else:
+        print("⚠️ RIGHT ARM TOO DAMAGED - HEAL TO 30%+ TO USE WEAPONS")
 
 func _process(delta : float):
     # Handle F hold to unequip
@@ -377,8 +425,17 @@ func _process(delta : float):
             is_holding_f = false
             f_hold_duration = 0.0
             _unequip_current_weapon()
+    
     if player.is_graping():
         _unequip_current_weapon()
+    
+    # NEW: Continuously check if we can still use weapons
+    if cW != null:
+        if not _can_equip_weapon():
+            print("⚠️ Right arm too damaged - dropping weapon!")
+            drop_current_weapon()
+            return
+    
     if cW != null and cWModel != null and canUseWeapon:
         weaponInputs()
         reloadManager.autoReload()
@@ -389,7 +446,22 @@ func _process(delta : float):
     if hud != null: 
         displayStats()
 
-
+func get_weapon_restriction_status() -> String:
+    """Get current weapon restriction status for HUD"""
+    if not combat_health or not combat_health.player_health:
+        return ""
+    
+    var right_arm = combat_health.player_health.get_limb(LimbData.BodyPart.RIGHT_ARM)
+    
+    if right_arm.is_destroyed():
+        return "⚠️ RIGHT ARM DESTROYED - CANNOT USE WEAPONS"
+    elif right_arm.get_health_percent() < 0.3:
+        return "⚠️ RIGHT ARM CRITICAL (%.0f%%) - HEAL TO 30%+ TO USE WEAPONS" % (right_arm.get_health_percent() * 100)
+    elif right_arm.get_health_percent() < 0.5:
+        return "⚠️ Right Arm Damaged (%.0f%%) - Reduced effectiveness" % (right_arm.get_health_percent() * 100)
+    
+    return ""
+    
 # --- NEW: PROCEDURAL ANIMATION LOGIC ---
 func process_weapon_juice(delta):
     # 1. Weapon Kickback (Lerp back to zero)
@@ -414,9 +486,17 @@ func apply_visual_recoil(kick_back: float, kick_up: float):
         camera.fov += 1.0
 
 
+## REPLACE weaponInputs() FUNCTION
 func weaponInputs():
+    # NEW: Check if able to use weapons before any input
+    if not _can_equip_weapon() and cW != null:
+        # Force drop if we somehow have a weapon equipped
+        drop_current_weapon()
+        return
+    
     if Input.is_action_just_pressed(drop_key):
         drop_current_weapon()
+    
     if cW:   
         # Auto vs Semi-Auto input logic
         if cW.canAutoShoot:
@@ -435,6 +515,11 @@ func displayStats():
         hud.displayWeaponName("No Weapon")
         hud.displayTotalAmmoInMag(0, 1)
         hud.displayTotalAmmo(0, 1)
+        
+        # NEW: Show why weapon can't be equipped
+        var restriction = get_weapon_restriction_status()
+        if restriction != "" and hud.has_method("show_restriction"):
+            hud.show_restriction(restriction)
         return
     
     hud.displayWeaponName(cW.weaponName)
@@ -442,6 +527,11 @@ func displayStats():
     
     var total_ammo = ammoManager.get_ammo_count(cW.ammoType)
     hud.displayTotalAmmo(total_ammo, cW.nbProjShotsAtSameTime)
+    
+    # NEW: Show arm damage warning
+    var restriction = get_weapon_restriction_status()
+    if restriction != "" and hud.has_method("show_restriction"):
+        hud.show_restriction(restriction)
 
 
 func use_consumable(item: InventoryItem):
