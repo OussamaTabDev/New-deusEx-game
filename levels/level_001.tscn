@@ -1,10 +1,11 @@
-[gd_scene load_steps=50 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=53 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
 [ext_resource type="Texture2D" uid="uid://ivvpsi314b34" path="res://textures/grid.jpg" id="3_yfwkt"]
 [ext_resource type="PackedScene" uid="uid://c3ffql15mo0aj" path="res://controllers/fps_controller.tscn" id="4_liofc"]
 [ext_resource type="Script" uid="uid://m2fvd5j6jd46" path="res://addons/stairs/stairs.gd" id="5_po88e"]
+[ext_resource type="PackedScene" uid="uid://d27xhk2ygjsbr" path="res://addons/Targets/Scenes/HitableBoxScene.tscn" id="7_u5dcv"]
 [ext_resource type="PackedScene" uid="uid://i7fum2jx3ac3" path="res://addons/cogito/PackedScenes/ladder.tscn" id="7_wtxts"]
 [ext_resource type="ArrayMesh" uid="uid://cx3vocju624c7" path="res://levels/vox/room.vox" id="8_jrmpr"]
 [ext_resource type="PackedScene" uid="uid://cthjccyccbg5k" path="res://environment/Scenes/Systems/Cameras/camera.tscn" id="9_3l7at"]
@@ -26,7 +27,9 @@
 [ext_resource type="Shader" uid="uid://cq4kh3b21rr5g" path="res://shaders/ps1Effects/post_processingPs1.gdshader" id="24_6gw0i"]
 [ext_resource type="PackedScene" uid="uid://brcgwmypj6akr" path="res://materials/Weapons/Pistols/9mm_pistol/9mm_pistol.tscn" id="25_1wc0o"]
 [ext_resource type="PackedScene" uid="uid://bh1mbqjc5sirx" path="res://materials/Weapons/rifles/assault_rifle/assault_rifle.tscn" id="26_8dakf"]
-[ext_resource type="PackedScene" uid="uid://dmdg81bv5coav" path="res://materials/Weapons/Pistols/ammo/medium_ammo.tscn" id="27_qhkng"]
+[ext_resource type="PackedScene" uid="uid://dmdg81bv5coav" path="res://materials/Weapons/ammo/medium_ammo.tscn" id="27_qhkng"]
+[ext_resource type="PackedScene" uid="uid://cw7av03royukr" path="res://materials/Weapons/Shotguns/shotgun_p/pump_shotgun.tscn" id="29_0rmec"]
+[ext_resource type="PackedScene" uid="uid://j6qdm8btt2bt" path="res://materials/Weapons/ammo/shotgun_shells.tscn" id="30_exsf3"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -196,7 +199,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.7509939, 0, 0)
+uv1_offset = Vector3(0.07999998, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -390,6 +393,10 @@ skeleton = NodePath("../..")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="env/crouch5/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_vp4dy")
 
+[node name="HitableBox" parent="env" instance=ExtResource("7_u5dcv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.198538, 1.6992412, 8.172595)
+can_take_damage = true
+
 [node name="Camera" parent="." instance=ExtResource("9_3l7at")]
 transform = Transform3D(-0.99864954, 0, -0.05195257, 0, 1, 0, 0.05195257, 0, -0.99864954, -3.0955064, 1.7173475, 10.616892)
 fov_radius = 5.4
@@ -410,16 +417,21 @@ shape = SubResource("ConcavePolygonShape3D_jrmpr")
 [node name="CarriableBox" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.922946, 4.212637, 19.55983)
 mass = 8.0
+can_take_damage = true
 
 [node name="CarriableBox4" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.69495, 4.6370106, 19.60511)
 mass = 8.0
+can_take_damage = true
 
 [node name="CarriableBox2" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8218937, 17.021685, -11.548423)
+can_take_damage = true
 
 [node name="CarriableBox3" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.310474, 5.1843534, -6.4322205)
+mass = 1.0
+can_take_damage = true
 
 [node name="Ladder" parent="." instance=ExtResource("11_a4ax1")]
 transform = Transform3D(1, 0, 1.3909089e-08, 0, 1, 0, -1.3909089e-08, 0, 1, 14.666445, 1.1633949, 4.8890133)
@@ -471,7 +483,7 @@ shape = SubResource("CapsuleShape3D_ye0g1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.366645, 1.9368432, 0.5774557)
 
 [node name="Door" parent="." instance=ExtResource("20_lqhs4")]
-transform = Transform3D(8, 0, 0, 0, 2.045, 0, 0, 0, 4.17, -7.008, 2.977, 5.917)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.008, 1.2588034, 5.917)
 
 [node name="Door2" parent="." instance=ExtResource("21_j8lij")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -11.039531, -0.018317223, 6.364714)
@@ -500,3 +512,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.50816, 0.05668278, -1.452
 
 [node name="AmmoPistol2" parent="." instance=ExtResource("27_qhkng")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.234922, 0.056681827, 9.387376)
+
+[node name="pump_shotgun" parent="." instance=ExtResource("29_0rmec")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.123205, 0.33333004, -8.012908)
+
+[node name="AmmoPistol3" parent="." instance=ExtResource("30_exsf3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6130238, 0.05668278, -6.391365)

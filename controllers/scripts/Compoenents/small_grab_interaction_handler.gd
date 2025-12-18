@@ -3,8 +3,7 @@ extends Node
 
 ## JUICY Small Object Handler - Arkane Style (Dishonored/Deathloop)
 ## Features: Spring-damping motion, movement sway, procedural tilt,
-## configurable rotation/scale/offset, full collision disabling while held,
-## and smooth grab-in interpolation with tunable speed.
+## smooth scale/rotation interpolation, and full collision disabling while held.
 
 # ============================================================================ 
 # SIGNALS 
@@ -29,7 +28,7 @@ signal small_object_thrown(object: RigidBody3D, velocity: Vector3)
 
 @export_group("Grab Transform Overrides")
 @export var grab_offset: Vector3 = Vector3(0, 0, -0.1)      # Local offset from hand
-@export var override_rotation: Vector3 = Vector3.ZERO      # Euler angles (radians)
+@export var override_rotation: Vector3 = Vector3.ZERO      # Euler angles (radians); e.g. (0, PI/4, 0)
 @export var override_scale: Vector3 = Vector3.ONE          # Scale multiplier
 
 @export_group("Juice & Feel")
@@ -38,9 +37,8 @@ signal small_object_thrown(object: RigidBody3D, velocity: Vector3)
 @export var sway_amount: float = 1.5        # How much the object lags behind movement
 @export var tilt_amount: float = 0.05       # How much the object tilts when strafing
 @export var max_sway_distance: float = 0.2
-@export var rotation_interp_speed: float = 15.0   # Rotation slerp speed
-@export var scale_interp_speed: float = 10.0      # Scale lerp speed
-@export var grab_interpolation_speed: float = 20.0  # Grab-in animation speed (higher = faster)
+@export var rotation_interp_speed: float = 15.0  # Rotation lerp (slerp) speed
+@export var scale_interp_speed: float = 10.0     # Scale lerp speed
 
 # ============================================================================ 
 # STATE 
@@ -52,6 +50,7 @@ var original_parent: Node = null
 var original_gravity_scale: float = 1.0
 var original_linear_damp: float = 0.0
 var original_angular_damp: float = 0.0
+var original_scale: Vector3 = Vector3.ONE  # <-- NEW: store original object scale
 
 # Procedural Animation State
 var current_velocity: Vector3 = Vector3.ZERO
@@ -63,10 +62,6 @@ var original_visibility_layers: Dictionary = {}
 var original_collision_layer: int = 1
 var original_collision_mask: int = 1
 var disabled_shapes: Array = []
-
-# Grab-in animation state
-var is_in_grab_transition: bool = false
-var grab_transition_progress: float = 0.0
 
 # ============================================================================ 
 # INITIALIZATION 
@@ -116,6 +111,7 @@ func grab_small_object(rb: RigidBody3D) -> void:
 	held_small_object = rb
 	is_holding_small = true
 	original_parent = rb.get_parent()
+	original_scale = rb.scale  # <-- Store original scale
 	
 	# --- DISABLE COLLISIONS ---
 	original_collision_layer = rb.collision_layer
@@ -141,12 +137,15 @@ func grab_small_object(rb: RigidBody3D) -> void:
 	var global_trans = rb.global_transform
 	rb.get_parent().remove_child(rb)
 	hand_marker.add_child(rb)
+	rb.global_transform = global_trans
 	
-	# Start smooth grab-in
-	is_in_grab_transition = true
-	grab_transition_progress = 0.0
+	# Reset visual transform for smooth animation
+	# Note: We do not reset scale here—let lerp start from original or current
+	# But for consistency, we allow smooth transition from current to override
+	rb.transform.basis = Basis.IDENTITY
+	rb.position = hand_marker.to_local(global_trans.origin)
 	
-	# Keep collision exceptions (safe but optional)
+	# Keep collision exceptions
 	if main_component.player:
 		main_component.player.add_collision_exception_with(rb)
 		rb.add_collision_exception_with(main_component.player)
@@ -175,6 +174,7 @@ func drop_small_object() -> void:
 		main_component.get_tree().root.add_child(obj)
 	
 	obj.global_transform = global_trans
+	obj.scale = original_scale  # <-- Restore original scale
 	obj.gravity_scale = original_gravity_scale
 	obj.linear_damp = original_linear_damp
 	obj.angular_damp = original_angular_damp
@@ -191,13 +191,13 @@ func drop_small_object() -> void:
 	small_object_dropped.emit(obj)
 	held_small_object = null
 	is_holding_small = false
-	is_in_grab_transition = false
 
 func throw_small_object() -> void:
 	if not is_holding_small or not held_small_object or not main_component: return
+	
 	var thrown_obj = held_small_object
 	var dir = -hand_marker.global_transform.basis.z
-	drop_small_object()
+	drop_small_object()  # This restores scale and reparents
 	thrown_obj.apply_central_impulse(dir * small_throw_force)
 	small_object_thrown.emit(thrown_obj, dir * small_throw_force)
 
@@ -208,37 +208,6 @@ func update_physics(delta: float) -> void:
 	if not is_holding_small or not held_small_object or not hand_marker: return
 	if not is_instance_valid(held_small_object):
 		is_holding_small = false
-		is_in_grab_transition = false
-		return
-
-	# --- SMOOTH GRAB-IN ANIMATION ---
-	if is_in_grab_transition:
-		grab_transition_progress = min(1.0, grab_transition_progress + grab_interpolation_speed * delta)
-		
-		# Target transform in hand space
-		var target_local_pos = grab_offset
-		var target_local_basis = Basis(Quaternion.from_euler(override_rotation))
-		var target_local_scale = override_scale
-		
-		# Interpolate from current to target
-		var current_local = held_small_object.transform
-		var new_pos = current_local.origin.lerp(target_local_pos, grab_transition_progress)
-		var new_basis = current_local.basis.slerp(target_local_basis, grab_transition_progress)
-		var new_scale = current_local.basis.get_scale().lerp(target_local_scale, grab_transition_progress)
-		
-		# Apply interpolated transform
-		held_small_object.transform = Transform3D(new_basis.scaled(new_scale), new_pos)
-		
-		# End transition
-		if grab_transition_progress >= 1.0:
-			is_in_grab_transition = false
-			current_velocity = Vector3.ZERO
-			sway_offset = Vector3.ZERO
-			last_hand_pos = hand_marker.global_position
-		
-		# Suppress physics
-		held_small_object.linear_velocity = Vector3.ZERO
-		held_small_object.angular_velocity = Vector3.ZERO
 		return
 
 	# 1. SWAY
@@ -266,7 +235,7 @@ func update_physics(delta: float) -> void:
 	var current_rot = held_small_object.transform.basis.get_rotation_quaternion()
 	held_small_object.transform.basis = Basis(current_rot.slerp(target_rot, delta * rotation_interp_speed))
 
-	# 4. SCALE
+	# 4. SMOOTH SCALE INTERPOLATION
 	held_small_object.scale = held_small_object.scale.lerp(override_scale, delta * scale_interp_speed)
 
 	# 5. ZERO PHYSICS FEEDBACK

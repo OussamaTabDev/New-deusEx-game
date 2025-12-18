@@ -10,6 +10,11 @@ signal object_exits_tree()
 ## Name that will displayed when interacting. Leave blank to hide
 @export var display_name : String
 
+@export var can_apply_force : bool = true
+@export var can_take_damage : bool = true
+@export var hit_force_component: HiteffectComponenent
+
+@export var damageable_component: Node3D
 enum PromptPositionMode{
 	ORIGIN, ## at the objects origin point. Recommended for smaller objects.
 	MARKER, ## at the position of an assigned Marker3D node. Will throw an error if no marker is assigned. Recommended for big objects/doors.

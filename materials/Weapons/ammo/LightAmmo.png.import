@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b12bl7rm3d5ec"
-path.s3tc="res://.godot/imported/LightAmmo.png-6de7621c663c0a38e0e40a41bd6ea301.s3tc.ctex"
+path.s3tc="res://.godot/imported/LightAmmo.png-1ff08d660b48d59a76ad360dc5547d40.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://materials/Weapons/Pistols/ammo/LightAmmo.png"
-dest_files=["res://.godot/imported/LightAmmo.png-6de7621c663c0a38e0e40a41bd6ea301.s3tc.ctex"]
+source_file="res://materials/Weapons/ammo/LightAmmo.png"
+dest_files=["res://.godot/imported/LightAmmo.png-1ff08d660b48d59a76ad360dc5547d40.s3tc.ctex"]
 
 [params]
 

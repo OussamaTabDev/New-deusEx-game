@@ -987,6 +987,9 @@ func _end_drag():
             var drop_source = drag_source
             source_inv.remove_item(item_to_drop)
             source_inv.drop_item(item_to_drop, drop_source) 
+            ## add remove from hotbar logic
+            print("Dropping item: " , item_to_drop.display_name , " from source: " , drop_source)
+            inventory_component.remove_from_hotbar(item_to_drop) # Remove from hotbar if dropped
             success = true
 
     _cancel_drag(success)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://dmdg81bv5coav"]
 
-[ext_resource type="Texture2D" uid="uid://u6w6n4jvbod0" path="res://materials/Weapons/Pistols/ammo/medium_ammo.png" id="1_qo35m"]
+[ext_resource type="Texture2D" uid="uid://u6w6n4jvbod0" path="res://materials/Weapons/ammo/medium_ammo.png" id="1_qo35m"]
 [ext_resource type="PackedScene" uid="uid://b20kvf66jy2oo" path="res://controllers/scripts/Compoenents/item_pickup.tscn" id="2_21tyt"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lbso2"]

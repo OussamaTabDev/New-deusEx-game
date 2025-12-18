@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://defr2eae7l2nu"]
+
+[ext_resource type="Script" uid="uid://cudexn4iuuiah" path="res://Scripts/Components/hiteffect_componenent.gd" id="1_i5k7c"]
+
+[node name="HiteffectComponenent" type="Node3D" node_paths=PackedStringArray("rigid_body")]
+script = ExtResource("1_i5k7c")
+rigid_body = NodePath("")

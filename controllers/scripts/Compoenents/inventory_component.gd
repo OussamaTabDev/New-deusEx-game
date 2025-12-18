@@ -339,6 +339,13 @@ func set_on_empty_hotbar_slot(item: InventoryItem) -> bool:
             return true
     return false
 
+func remove_from_hotbar(item: InventoryItem) -> bool:
+    for i in hotbar_slots:
+        if hotbar[i] == item:
+            hotbar[i] = null
+            get_child(0).inventory_ui.refresh_display()
+            return true
+    return false
 ## Use hotbar slot
 func use_hotbar_slot(slot: int):
     if slot < 0 or slot >= hotbar_slots: return

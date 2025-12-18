@@ -621,8 +621,7 @@ script = ExtResource("9_k8xwc")
 hand_marker = NodePath("../../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/GrapMarker")
 grab_offset = Vector3(-0.59, -0.09, -0.785)
 override_rotation = Vector3(-0.075, -0.3, -0.1)
-override_scale = Vector3(0.69, 0.57, 0.635)
-scale_interp_speed = 1.0
+override_scale = Vector3(0.5, 0.5, 0.5)
 
 [node name="LootInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent"]
 script = ExtResource("9_1br7g")
@@ -760,9 +759,8 @@ grow_vertical = 2
 
 [node name="WeaponComponenet" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 
-[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("combat_health", "player", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "inventory_component") instance=ExtResource("19_3qkg6")]
+[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("player", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "combat_health", "interaction_raycast", "inventory_component") instance=ExtResource("19_3qkg6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.03999996, -0.25337216)
-combat_health = NodePath("../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
 shoot_action = "fire"
 player = NodePath("../../../../../..")
 cameraHolder = NodePath("../../../../..")
@@ -776,6 +774,8 @@ animPlayer = NodePath("AnimationPlayer")
 animManager = NodePath("AnimationManager")
 hud = NodePath("../../../../../../HUD")
 linkComponent = NodePath("../../../../../../Components/LinkComponent")
+combat_health = NodePath("../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
+interaction_raycast = NodePath("../../InteractCasts/InteractionRaycast")
 inventory_component = NodePath("../../../../../../Components/InventoryComponent")
 
 [node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="0" node_paths=PackedStringArray("weaponManager", "combat_health")]
@@ -804,7 +804,6 @@ target_position = Vector3(0, 0, -0.5)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.175, -0.065660715, -0.196)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/GrapMarker"]
-visible = false
 layers = 16
 mesh = SubResource("BoxMesh_1br7g")
 

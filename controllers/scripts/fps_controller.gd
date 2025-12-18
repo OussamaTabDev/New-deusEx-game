@@ -277,9 +277,9 @@ func _push_away_rigid_bodies():
 			c.get_collider().apply_impulse(push_dir * velocity_diff_in_push_dir * push_force, c.get_position() - c.get_collider().global_position)
 
 func is_graping():
-	return rigidbody_interaction_component.is_holding()
+	return rigidbody_interaction_component.is_holding_big()
 
 func unhold_object():
-	if rigidbody_interaction_component.is_holding():
+	if rigidbody_interaction_component.is_holding_big():
 			rigidbody_interaction_component.force_drop()
 	

@@ -47,6 +47,7 @@ signal pickup_failed(reason: String)
 @export_group("Detection Settings")
 @export var interact_action: String = "interact"
 @export var throw_action: String = "throw"
+@export var throw_action_alt: String = "throw_alt"
 @export var max_interaction_distance: float = 3.0
 @export var hold_threshold: float = 0.3
 @export var is_scan_enabled: bool = false
@@ -252,14 +253,19 @@ func _clear_target() -> void:
 func _handle_input(delta: float) -> void:
 	# Check if holding any object (big or small)
 	var is_holding_any = grab_handler.is_holding() or small_grab_handler.is_holding()
-	
+	var is_holding_alt = small_grab_handler.is_holding()
 	if Input.is_action_just_pressed(throw_action) and is_holding_any:
 		if grab_handler.is_holding():
 			grab_handler.throw_object()
-		elif small_grab_handler.is_holding():
+		# elif small_grab_handler.is_holding():
+		# 	small_grab_handler.throw_small_object()
+		return
+
+	if Input.is_action_just_pressed(throw_action_alt) and is_holding_alt:
+		if small_grab_handler.is_holding():
 			small_grab_handler.throw_small_object()
 		return
-	
+
 	if Input.is_action_pressed(interact_action):
 		if not is_holding_input:
 			is_holding_input = true
@@ -271,9 +277,10 @@ func _handle_input(delta: float) -> void:
 		if is_holding_any:
 			if grab_handler.is_holding():
 				grab_handler.drop_object()
-			elif small_grab_handler.is_holding():
+				return
+			elif small_grab_handler.is_holding() and not current_target:
 				small_grab_handler.drop_small_object()
-		elif current_target:
+		if current_target:
 			if input_hold_time < hold_threshold:
 				_handle_press_interaction()
 			else:
@@ -421,8 +428,14 @@ func get_current_target() -> Node:
 func get_target_type() -> TargetType:
 	return target_type
 
-func is_holding() -> bool:
+func is_holding_any() -> bool:
 	return grab_handler.is_holding() or small_grab_handler.is_holding()
+
+func is_holding_big() -> bool:
+	return grab_handler.is_holding()
+
+func is_holding_small() -> bool:
+	return small_grab_handler.is_holding()
 
 func force_drop() -> void:
 	if grab_handler.is_holding():

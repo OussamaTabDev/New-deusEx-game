@@ -23,7 +23,6 @@ func _ready() -> void:
 		return
 
 	weapon_wheel_ui.hide()
-	# We still connect signals for non-hold mode (e.g. click-to-select)
 	weapon_wheel_ui.item_selected.connect(_on_wheel_item_selected)
 	weapon_wheel_ui.canceled.connect(_on_wheel_canceled)
 
@@ -31,7 +30,6 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed(open_key):
 		_open_wheel()
 	elif with_hold and event.is_action_released(open_key):
-		# ✅ COMMIT on release — no click needed
 		_commit_and_close_wheel()
 
 func _process(_delta: float) -> void:
@@ -76,16 +74,16 @@ func _commit_and_close_wheel() -> void:
 	if not is_wheel_open:
 		return
 
-	# ✅ Get the currently hovered item index (from mouse direction)
-	var selected_index = weapon_wheel_ui.selected  # This is auto-updated by _physics_process
-
+	# ✅ Use FRESH mouse position to determine selection at release time
+	var selected_index = weapon_wheel_ui.get_selected_by_mouse()
 	_close_wheel()
 
-	# Switch weapon only if a valid slot is selected
+	# Only switch if a valid hotbar slot is selected
 	if selected_index >= 0:
 		weapon_manager.switch_to_hotbar_slot(selected_index)
+	# Otherwise: do nothing (avoid reverting to previous weapon)
 
-# --- Close without committing (e.g. ESC or cancel) ---
+# --- Close without committing ---
 func _close_wheel() -> void:
 	if not is_wheel_open:
 		return
@@ -96,16 +94,17 @@ func _close_wheel() -> void:
 	Engine.time_scale = original_time_scale
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	hide()
-# --- Signal handlers (used in NON-hold mode or explicit click) ---
+
+# --- Signal handlers (for non-hold mode or explicit click) ---
 func _on_wheel_item_selected(id: int, _position: Vector2) -> void:
-	# This is for click-to-select (when with_hold = false)
 	_close_wheel()
-	weapon_manager.switch_to_hotbar_slot(id)
-	
+	if id >= 0:
+		weapon_manager.switch_to_hotbar_slot(id)
+
 func _on_wheel_canceled() -> void:
 	_close_wheel()
 
-# --- Auto-hover selection ---
+# --- Auto-hover selection (for visual feedback while open) ---
 func _physics_process(_delta: float) -> void:
 	if not is_wheel_open:
 		return
@@ -113,4 +112,3 @@ func _physics_process(_delta: float) -> void:
 	var selected_index = weapon_wheel_ui.get_selected_by_mouse()
 	if selected_index != weapon_wheel_ui.selected:
 		weapon_wheel_ui.set_selected_item(selected_index)
-		

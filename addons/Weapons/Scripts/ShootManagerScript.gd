@@ -211,8 +211,8 @@ func hitscanShot(targetPoint: Vector3, w_ref):
 			collider.hitscanHit(damage, bulletDir, result.position)
 		elif collider.is_in_group("EnemiesHead") and collider.has_method("hitscanHit"):
 			collider.hitscanHit(damage * w_ref.headshotDamageMult, bulletDir, result.position)
-		elif collider.is_in_group("HitableObjects") and collider.has_method("hitscanHit"):
-			collider.hitscanHit(damage / 6.0, bulletDir, result.position)
+		elif collider.is_in_group("HitableObjects") and collider.hit_force_component:
+			collider.hit_force_component.hitscanHit(damage / 6.0, bulletDir, result.position)
 			weaponManager.displayBulletHole(result.position, result.normal, collider)
 		else:
 			weaponManager.displayBulletHole(result.position, result.normal, collider)

@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://d27xhk2ygjsbr"]
+[gd_scene load_steps=7 format=3 uid="uid://d27xhk2ygjsbr"]
 
-[ext_resource type="Script" uid="uid://coyv53xc2grb0" path="res://addons/Targets/Scripts/HitableBoxScript.gd" id="1_2ye1w"]
 [ext_resource type="Texture2D" uid="uid://jf3s2u74wsp0" path="res://addons/Maps/Textures/kenney_prototype_textures/red/texture_04.png" id="1_87js6"]
+[ext_resource type="Script" uid="uid://dmeh01c5ccjqc" path="res://addons/cogito/CogitoObjects/cogito_object.gd" id="1_wqlms"]
+[ext_resource type="PackedScene" uid="uid://defr2eae7l2nu" path="res://Scripts/Components/HitEffectComponenent.tscn" id="3_wqlms"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l7y00"]
 albedo_texture = ExtResource("1_87js6")
@@ -13,12 +14,15 @@ uv1_triplanar = true
 [sub_resource type="BoxShape3D" id="BoxShape3D_88vs1"]
 size = Vector3(1.01, 1.01, 1.01)
 
-[node name="HitableBox" type="RigidBody3D" groups=["HitableObjects"]]
+[node name="HitableBox" type="RigidBody3D" node_paths=PackedStringArray("hit_force_component") groups=["HitableObjects"]]
 collision_layer = 16
 collision_mask = 31
 mass = 0.5
 continuous_cd = true
-script = ExtResource("1_2ye1w")
+script = ExtResource("1_wqlms")
+cogito_name = "HitableBox"
+can_take_damage = false
+hit_force_component = NodePath("HiteffectComponenent")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 material_override = SubResource("StandardMaterial3D_l7y00")
@@ -26,3 +30,6 @@ mesh = SubResource("BoxMesh_rhfyy")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_88vs1")
+
+[node name="HiteffectComponenent" parent="." node_paths=PackedStringArray("rigid_body") instance=ExtResource("3_wqlms")]
+rigid_body = NodePath("..")

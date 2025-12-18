@@ -6,7 +6,6 @@ class_name WeaponManager
 var weaponList : Dictionary = {} # All weapon resources
 @export var weaponResources : Array[WeaponResource]
 ## ADD THIS EXPORT AT THE TOP
-@export var combat_health: CombatHealthComponent  # NEW!
 
 var cW = null # current weapon
 var pW = null : # previous weapon
@@ -14,7 +13,7 @@ var pW = null : # previous weapon
     set(value) : 
         if value != null and value != pW:
             pW = value
-
+        # pW = null
 var cWModel = null
 var currentHotbarSlot : int = -1 # Current active hotbar slot
 
@@ -48,6 +47,8 @@ var unequipped_weapon : bool = false
 @onready var bulletDecal : PackedScene = preload("../../Weapons/Scenes/BulletDecalScene.tscn")
 @export var hud : CanvasLayer 
 @export var linkComponent : Node3D = %LinkComponent
+@export var combat_health: CombatHealthComponent  
+@export var interaction_raycast: RayCast3D  
 
 # Inventory integration
 @export_group("Inventory Integration")
@@ -67,6 +68,7 @@ var is_holding_f: bool = false
 var f_hold_duration: float = 0.0
 const F_UNEQUIP_THRESHOLD: float = 0.3  # seconds
 
+var ignore_next_shoot: bool = false
 
 func _ready():
     initialize()
@@ -123,7 +125,7 @@ func _input(event):
     
     # Handle F key press/release for unequip
     if event is InputEventKey and event.keycode == InputActions.get_action_key_number(interact_action):
-        if event.pressed:
+        if event.pressed and not interaction_raycast.is_colliding():
             is_holding_f = true
             f_hold_duration = 0.0
         elif event.is_released():
@@ -160,9 +162,10 @@ func _input(event):
     #         if event.keycode == InputActions.get_action_key_number("wheel_key"):
     #             _equip_previous_weapon()
 
-    if event is InputEventMouseButton :
+    if event is InputEventMouseButton:
         if event.pressed:
             if (event.button_index == MOUSE_BUTTON_LEFT and unequipped_weapon):
+                ignore_next_shoot = true
                 _equip_previous_weapon()
 
 func scroll_hotbar(direction: int):
@@ -322,6 +325,7 @@ func enterWeapon(nextWeaponId: int, slot: int):
     unequipped_weapon = false
     canUseWeapon = true
     canChangeWeapons = true
+    ignore_next_shoot = false
     
     print("Equipped: %s (Slot %d)" % [cW.weaponName, slot + 1])
 
@@ -524,10 +528,10 @@ func weaponInputs():
     if cW:   
         # Auto vs Semi-Auto input logic
         if cW.canAutoShoot:
-            if Input.is_action_pressed(shoot_action): 
+            if Input.is_action_pressed(shoot_action) and !ignore_next_shoot:
                 shootManager.shoot()
         else:
-            if Input.is_action_just_pressed(shoot_action): 
+            if Input.is_action_just_pressed(shoot_action) and !ignore_next_shoot:
                 shootManager.shoot()
                 
         if Input.is_action_just_pressed(reload_action): 
@@ -627,7 +631,9 @@ func drop_current_weapon():
     if cW.isShooting or cW.isReloading:
         print("Can't drop weapon while using it!")
         return
-    
+    if cW == pW:
+        pW = null
+
     var weapon_id = cW.weaponId
     
     # Find weapon item in inventory
