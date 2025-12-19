@@ -7,6 +7,13 @@ var state_machine: StateMachine
 var CAMERA_CONTROLLER: CameraController
 var movement_stats_provider : MovementStatsProvider
 
+@export_group("Weapon Permissions")
+@export var can_shoot: bool = true
+@export var can_reload: bool = true
+@export var hide_weapon: bool = false
+@export var weapon_bob_multiplier: float = 1.0
+@export var weapon_offset: Vector3 = Vector3.ZERO # For lowering gun while sprinting
+
 func _ready():
 	# Wait for state machine to be ready
 	await owner.ready

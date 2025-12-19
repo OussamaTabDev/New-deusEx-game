@@ -26,7 +26,7 @@ func get_ammo_count(ammo_type: String) -> int:
 		if item.type == "ammo" and item.attributes.get("ammo_type") == ammo_type:
 			total += item.stack_count
 	
-	return total
+	return total 
 
 # NEW: Consume ammo from inventory
 func consume_ammo(ammo_type: String, amount: int) -> bool:

@@ -12,7 +12,7 @@ signal object_exits_tree()
 
 @export var can_apply_force : bool = true
 @export var can_take_damage : bool = true
-@export var hit_force_component: HiteffectComponenent
+@export var hit_force_component: HitEffectComponent
 
 @export var damageable_component: Node3D
 enum PromptPositionMode{

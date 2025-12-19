@@ -804,6 +804,7 @@ target_position = Vector3(0, 0, -0.5)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.175, -0.065660715, -0.196)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/GrapMarker"]
+visible = false
 layers = 16
 mesh = SubResource("BoxMesh_1br7g")
 

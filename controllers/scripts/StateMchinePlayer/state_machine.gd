@@ -12,9 +12,9 @@ var states: Dictionary = {}
 
 func _ready():
 	await owner.ready
-	
 	for child in get_children():
 		if child is State:
+			print(child.name)
 			states[child.name.to_lower()] = child
 			# Optional: Inject dependencies into states automatically
 			if "player" in child: child.player = player

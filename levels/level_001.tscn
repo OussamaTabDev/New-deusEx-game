@@ -199,7 +199,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.07999998, 0, 0)
+uv1_offset = Vector3(6.9617395, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -518,3 +518,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.123205, 0.33333004, -8.012
 
 [node name="AmmoPistol3" parent="." instance=ExtResource("30_exsf3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6130238, 0.05668278, -6.391365)
+
+[node name="AmmoPistol7" parent="." instance=ExtResource("30_exsf3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6130238, 0.05668278, -8.133095)
+
+[node name="AmmoPistol4" parent="." instance=ExtResource("27_qhkng")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.643356, 0.05668278, 3.2409387)
+
+[node name="AmmoPistol5" parent="." instance=ExtResource("27_qhkng")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.60106, 0.0566829, 4.295231)
+
+[node name="AmmoPistol6" parent="." instance=ExtResource("27_qhkng")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.332144, 0.05668278, 3.8720458)

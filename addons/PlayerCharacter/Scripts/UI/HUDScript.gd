@@ -38,7 +38,8 @@ func displayTotalAmmoInMag(totalAmmoInMag : int, nbProjShotsAtSameTime : int):
 	totalAmmoInMagLabelText.set_text(str(totalAmmoInMag/nbProjShotsAtSameTime))
 	
 func displayTotalAmmo(totalAmmo : int, nbProjShotsAtSameTime : int):
-	totalAmmoLabelText.set_text(str(totalAmmo/nbProjShotsAtSameTime))
+	#was totalAmmoLabelText.set_text(str(totalAmmo/nbProjShotsAtSameTime))
+	totalAmmoLabelText.set_text(str(totalAmmo))
 	
 	
 	
