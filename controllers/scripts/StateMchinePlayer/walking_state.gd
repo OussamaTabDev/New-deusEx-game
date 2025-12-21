@@ -58,7 +58,7 @@ func check_transitions() -> State:
 	
 	
 	# Check for sprint
-	if Input.is_action_pressed("sprint"):
+	if Input.is_action_just_pressed("sprint"):
 		return state_machine.get_state("SprintingState")
 	
 	# Check if stopped moving

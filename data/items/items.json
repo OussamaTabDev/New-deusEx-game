@@ -140,6 +140,7 @@
       "weapon_type": "shotgun",
       "weapon_id":3,
       "damage": 70,
+      "hand_requirement": "dual",
       "fire_rate": 1.0,
       "ammo_type": "ShotgunShells",
       "mag_size": 6

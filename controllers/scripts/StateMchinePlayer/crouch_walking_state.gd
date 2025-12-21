@@ -91,7 +91,7 @@ func check_transitions() -> State:
 		if _can_stand_up():
 			var input_dir = Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 			if input_dir.length() > 0.1:
-				if Input.is_action_pressed("sprint"):
+				if Input.is_action_just_pressed("sprint"):
 					return state_machine.get_state("SprintingState")
 				else:
 					return state_machine.get_state("WalkingState")

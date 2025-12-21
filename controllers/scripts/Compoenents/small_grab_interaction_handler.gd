@@ -4,23 +4,25 @@ extends Node
 ## JUICY Small Object Handler - Arkane Style (Dishonored/Deathloop)
 ## Features: Spring-damping motion, movement sway, procedural tilt,
 ## smooth scale/rotation interpolation, and full collision disabling while held.
+##
+## Now includes: 0.3s long-press toggle to switch from small grab → big grab.
 
-# ============================================================================ 
+# ============================================================================
 # SIGNALS 
-# ============================================================================ 
+# ============================================================================
 signal small_object_grabbed(object: RigidBody3D)
 signal small_object_dropped(object: RigidBody3D)
 signal small_object_thrown(object: RigidBody3D, velocity: Vector3)
 
-# ============================================================================ 
+# ============================================================================
 # REFERENCES 
-# ============================================================================ 
+# ============================================================================
 @export_group("Small Grab References")
 @export var hand_marker: Node3D 
 
-# ============================================================================ 
+# ============================================================================
 # JUICY SETTINGS
-# ============================================================================ 
+# ============================================================================
 @export_group("Small Grab Settings")
 @export var max_small_mass: float = 1.0 
 @export var max_small_volume: float = 0.125
@@ -40,9 +42,12 @@ signal small_object_thrown(object: RigidBody3D, velocity: Vector3)
 @export var rotation_interp_speed: float = 15.0  # Rotation lerp (slerp) speed
 @export var scale_interp_speed: float = 10.0     # Scale lerp speed
 
-# ============================================================================ 
+@export_group("Toggle Settings")
+@export var long_press_duration: float = 0.3  # Seconds to hold to switch to big grab
+
+# ============================================================================
 # STATE 
-# ============================================================================ 
+# ============================================================================
 var main_component: UnifiedInteractionComponent
 var held_small_object: RigidBody3D = null
 var is_holding_small: bool = false
@@ -63,9 +68,13 @@ var original_collision_layer: int = 1
 var original_collision_mask: int = 1
 var disabled_shapes: Array = []
 
-# ============================================================================ 
+# Long-press toggle state
+var hold_duration: float = 0.0
+var is_long_press_triggered: bool = false
+
+# ============================================================================
 # INITIALIZATION 
-# ============================================================================ 
+# ============================================================================
 func initialize(component: UnifiedInteractionComponent) -> void:
 	main_component = component
 	_validate_hand_marker()
@@ -76,9 +85,9 @@ func _validate_hand_marker() -> void:
 	if not hand_marker:
 		push_error("SmallGrabInteractionHandler: hand_marker not assigned!")
 
-# ============================================================================ 
+# ============================================================================
 # VALIDATION 
-# ============================================================================ 
+# ============================================================================
 func can_small_grab(rb: RigidBody3D) -> bool:
 	if not rb: return false
 	if rb.mass <= max_small_mass: return true
@@ -98,9 +107,9 @@ func handle_small_grab_target(target: Node, component: UnifiedInteractionCompone
 	else:
 		component._update_ui("Grab", "", target.name + " (Small)")
 
-# ============================================================================ 
+# ============================================================================
 # GRAB ACTIONS 
-# ============================================================================ 
+# ============================================================================
 func grab_small_object(rb: RigidBody3D) -> void:
 	if not rb or not main_component or not hand_marker: return
 	if not can_small_grab(rb): return
@@ -140,8 +149,6 @@ func grab_small_object(rb: RigidBody3D) -> void:
 	rb.global_transform = global_trans
 	
 	# Reset visual transform for smooth animation
-	# Note: We do not reset scale here—let lerp start from original or current
-	# But for consistency, we allow smooth transition from current to override
 	rb.transform.basis = Basis.IDENTITY
 	rb.position = hand_marker.to_local(global_trans.origin)
 	
@@ -151,6 +158,9 @@ func grab_small_object(rb: RigidBody3D) -> void:
 		rb.add_collision_exception_with(main_component.player)
 	
 	small_object_grabbed.emit(rb)
+
+	# Reset long-press state
+	_reset_long_press_state()
 
 func drop_small_object() -> void:
 	if not is_holding_small or not held_small_object: return
@@ -174,7 +184,7 @@ func drop_small_object() -> void:
 		main_component.get_tree().root.add_child(obj)
 	
 	obj.global_transform = global_trans
-	obj.scale = original_scale  # <-- Restore original scale
+	obj.scale = original_scale
 	obj.gravity_scale = original_gravity_scale
 	obj.linear_damp = original_linear_damp
 	obj.angular_damp = original_angular_damp
@@ -191,23 +201,64 @@ func drop_small_object() -> void:
 	small_object_dropped.emit(obj)
 	held_small_object = null
 	is_holding_small = false
+	_reset_long_press_state()
 
 func throw_small_object() -> void:
 	if not is_holding_small or not held_small_object or not main_component: return
 	
 	var thrown_obj = held_small_object
 	var dir = -hand_marker.global_transform.basis.z
-	drop_small_object()  # This restores scale and reparents
+	drop_small_object()
 	thrown_obj.apply_central_impulse(dir * small_throw_force)
 	small_object_thrown.emit(thrown_obj, dir * small_throw_force)
 
-# ============================================================================ 
+# ============================================================================
+# TOGGLE LOGIC (Small → Big Grab)
+# ============================================================================
+func _on_grab_button_held(delta: float) -> void:
+	if not is_holding_small or not held_small_object:
+		_reset_long_press_state()
+		return
+
+	hold_duration += delta
+
+	if not is_long_press_triggered and hold_duration >= long_press_duration:
+		is_long_press_triggered = true
+		_promote_to_big_grab()
+
+func _on_grab_button_released() -> void:
+	_reset_long_press_state()
+
+func _reset_long_press_state() -> void:
+	hold_duration = 0.0
+	is_long_press_triggered = false
+
+func _promote_to_big_grab() -> void:
+	if not is_holding_small or not held_small_object:
+		return
+
+	var obj = held_small_object
+
+	# Fully restore object from small grab
+	drop_small_object()
+
+	# Hand off to big grab handler
+	if main_component and main_component.grab_handler:
+		if obj.mass <= main_component.max_pickup_mass:
+			main_component.grab_handler.grab_object(obj)
+		else:
+			push_warning("Object too heavy to promote to big grab!")
+	else:
+		push_error("Big grab handler not found in main_component!")
+
+# ============================================================================
 # JUICY PHYSICS UPDATE
-# ============================================================================ 
+# ============================================================================
 func update_physics(delta: float) -> void:
 	if not is_holding_small or not held_small_object or not hand_marker: return
 	if not is_instance_valid(held_small_object):
 		is_holding_small = false
+		_reset_long_press_state()
 		return
 
 	# 1. SWAY
@@ -242,9 +293,9 @@ func update_physics(delta: float) -> void:
 	held_small_object.linear_velocity = Vector3.ZERO
 	held_small_object.angular_velocity = Vector3.ZERO
 
-# ============================================================================ 
+# ============================================================================
 # HELPERS 
-# ============================================================================ 
+# ============================================================================
 func _store_and_set_visibility_layers(node: Node, new_layer: int) -> void:
 	original_visibility_layers.clear()
 	_collect_mesh_visibility(node, node)
@@ -271,9 +322,9 @@ func _disable_collision_shapes(node: Node) -> void:
 	for child in node.get_children():
 		_disable_collision_shapes(child)
 
-# ============================================================================ 
+# ============================================================================
 # PUBLIC API 
-# ============================================================================ 
+# ============================================================================
 func is_holding() -> bool:
 	return is_holding_small
 

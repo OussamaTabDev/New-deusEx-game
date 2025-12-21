@@ -21,19 +21,25 @@ var canChangeWeapons : bool = true
 var canUseWeapon : bool = true
 var unequipped_weapon : bool = false 
 
+# state-based offsets
+var state_procedural_offset: Vector3 = Vector3.ZERO
+
 @export_group("Keybind variables")
-@export var shoot_action : String = "shoot"
+@export var shoot_action : String = "fire"
+@export var shoot_alt_action : String = "fire_alt" ## second hand action (fire or throw) or zoom shoot
 @export var reload_action : String = "reload"
 @export var interact_action : String = "interact"
+@export var throw_action : String = "throw" ## throw action for grenades, etc.
 
 @export_group("Drop Settings")
-@export var drop_key: String = "drop_weapon"  # Set to "G" in Input Map
+@export var drop_key: String = "drop_weapon"  # Input action for dropping weapon
 @export var drop_force: float = 5.0
 @export var drop_forward_force: float = 3.0
 @export var drop_upward_force: float = 2.0
 
 @export_group("Nodes")
-@export var player : CharacterBody3D 
+@export var player : CharacterBody3D
+@export var state_machine: StateMachine # Assign in Inspector
 @export var cameraHolder : CameraController
 @export var cameraRecoilHolder : Node3D 
 @export var camera : Camera3D 
@@ -492,6 +498,12 @@ func get_weapon_restriction_status() -> String:
     
 # --- NEW: PROCEDURAL ANIMATION LOGIC ---
 func process_weapon_juice(delta):
+    var target_offset = Vector3.ZERO
+    if state_machine.current_state:
+        target_offset = state_machine.current_state.weapon_offset
+    
+    state_procedural_offset = state_procedural_offset.lerp(target_offset, delta * 10.0)
+
     # 1. Weapon Kickback (Lerp back to zero)
     procedural_recoil_pos = procedural_recoil_pos.lerp(Vector3.ZERO, delta * 10.0)
     procedural_recoil_rot = procedural_recoil_rot.lerp(Vector3.ZERO, delta * 10.0)
@@ -503,7 +515,6 @@ func process_weapon_juice(delta):
     # 2. FOV Recovery
     if camera:
         camera.fov = lerp(camera.fov, default_fov, delta * 5.0)
-
 
 func apply_visual_recoil(kick_back: float, kick_up: float):
     procedural_recoil_pos.z += kick_back 
@@ -524,7 +535,13 @@ func weaponInputs():
     
     if Input.is_action_just_pressed(drop_key):
         drop_current_weapon()
-    
+
+    var current_state = state_machine.current_state
+    # 1. Check State Permissions
+    if not current_state.can_shoot:
+        #shootManager.cancel_fire() # If you have a continuous fire mode
+        return
+        
     if cW:   
         # Auto vs Semi-Auto input logic
         if cW.canAutoShoot:

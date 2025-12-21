@@ -199,7 +199,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(6.9617395, 0, 0)
+uv1_offset = Vector3(0.7909934, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -417,21 +417,17 @@ shape = SubResource("ConcavePolygonShape3D_jrmpr")
 [node name="CarriableBox" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.922946, 4.212637, 19.55983)
 mass = 8.0
-can_take_damage = true
 
 [node name="CarriableBox4" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.69495, 4.6370106, 19.60511)
 mass = 8.0
-can_take_damage = true
 
 [node name="CarriableBox2" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8218937, 17.021685, -11.548423)
-can_take_damage = true
 
 [node name="CarriableBox3" parent="." instance=ExtResource("11_ckv7w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.310474, 5.1843534, -6.4322205)
 mass = 1.0
-can_take_damage = true
 
 [node name="Ladder" parent="." instance=ExtResource("11_a4ax1")]
 transform = Transform3D(1, 0, 1.3909089e-08, 0, 1, 0, -1.3909089e-08, 0, 1, 14.666445, 1.1633949, 4.8890133)
@@ -487,6 +483,45 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.008, 1.2588034, 5.917)
 
 [node name="Door2" parent="." instance=ExtResource("21_j8lij")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -11.039531, -0.018317223, 6.364714)
+
+[node name="Door6" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -12.058273, -0.018317223, 6.364714)
+
+[node name="Door7" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -13.087131, -0.018317223, 6.364714)
+
+[node name="Door8" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -14.091742, -0.018317223, 6.364714)
+
+[node name="Door3" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -9.988788, -0.018317223, 6.364714)
+
+[node name="Door4" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -8.931313, -0.018317223, 6.364714)
+
+[node name="Door5" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -7.820588, -0.018317223, 6.364714)
+
+[node name="Door9" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -11.039531, 1.9606919, 6.364714)
+
+[node name="Door10" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -12.058273, 1.9606919, 6.364714)
+
+[node name="Door11" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -13.087131, 1.9606919, 6.364714)
+
+[node name="Door12" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -14.091742, 1.9606919, 6.364714)
+
+[node name="Door13" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -9.988788, 1.9606919, 6.364714)
+
+[node name="Door14" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -8.931313, 1.9606919, 6.364714)
+
+[node name="Door15" parent="." instance=ExtResource("21_j8lij")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -7.820588, 1.9606919, 6.364714)
 
 [node name="Node3D" parent="." instance=ExtResource("22_j8lij")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5755415, -0.018317223, 12.81916)

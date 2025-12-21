@@ -34,8 +34,8 @@ func _process(delta: float):
 			_update_smooth_injury_effects(delta)
 		
 		weaponTilt(player._input_dir, delta)
-		weaponSway(Vector2(cameraHolder._processed_yaw_input, cameraHolder._processed_pitch_input), delta)
-		weaponBob(player.velocity.length(), delta)
+		weaponSway(Vector2(cameraHolder._processed_yaw_input, cameraHolder._processed_pitch_input)*3, delta)
+		weaponBob(player.velocity.length() , delta)
 
 ## ============================================
 ## SMOOTH INJURY EFFECTS

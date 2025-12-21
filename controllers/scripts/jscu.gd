@@ -68,7 +68,7 @@ func _update_camera(delta):
     _tilt_input = 0.0
 
 func _update_speed(delta):
-    if Input.is_action_pressed("sprint"):
+    if Input.is_action_just_pressed("sprint"):
         SPEED = lerp(SPEED, SPRINT_SPEED, 3.0 * delta)
     else:
         SPEED = lerp(SPEED, WALK_SPEED, 2.5 * delta)

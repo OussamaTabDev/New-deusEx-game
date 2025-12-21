@@ -1,0 +1,1504 @@
+[gd_scene load_steps=94 format=3 uid="uid://c3ffql15mo0aj"]
+
+[ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
+[ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
+[ext_resource type="Material" uid="uid://b4gwd5h7ixvct" path="res://materials/player.tres" id="2_gldw4"]
+[ext_resource type="Script" uid="uid://dxus6jilwiaws" path="res://controllers/scripts/StateMchinePlayer/CameraStateMachine/player_audio_component.gd" id="3_ou6tx"]
+[ext_resource type="Script" uid="uid://eav1hnyrhu2x" path="res://controllers/scripts/StateMchinePlayer/camera_3d_controller.gd" id="3_uovkr"]
+[ext_resource type="PackedScene" uid="uid://iwlpamd20oko" path="res://addons/customizableCrosshair/crosshair/crosshair.tscn" id="4_5w0k0"]
+[ext_resource type="Script" uid="uid://bdhoyf88f6a32" path="res://controllers/scripts/StateMchinePlayer/state_machine.gd" id="4_l8yvu"]
+[ext_resource type="PackedScene" uid="uid://cbd2ojah4nun6" path="res://addons/cogito/Components/interaction_raycast.tscn" id="4_rcx31"]
+[ext_resource type="Script" uid="uid://bc8u73fnova3m" path="res://controllers/scripts/StateMchinePlayer/idle_state.gd" id="5_5w0k0"]
+[ext_resource type="Script" uid="uid://bfb43ifks0aqc" path="res://controllers/scripts/Compoenents/inventory_component.gd" id="5_12ia1"]
+[ext_resource type="Script" uid="uid://ua63m2y35w46" path="res://addons/cogito/Scripts/item_drop_shape_cast.gd" id="5_rcx31"]
+[ext_resource type="Script" uid="uid://btcgpxc6bsf7a" path="res://controllers/scripts/StateMchinePlayer/walking_state.gd" id="6_3og01"]
+[ext_resource type="Script" uid="uid://c5g8japvwt4hb" path="res://controllers/scripts/Compoenents/inventory_handling_component.gd" id="6_uefoi"]
+[ext_resource type="Script" uid="uid://bkbq0qu5e2cnw" path="res://controllers/scripts/StateMchinePlayer/running_state.gd" id="7_fyafc"]
+[ext_resource type="Script" uid="uid://xpvs6y0bnisd" path="res://controllers/scripts/Compoenents/items_interaction_component.gd" id="8_kaa6b"]
+[ext_resource type="Script" uid="uid://jmt0ns7eyp3e" path="res://controllers/scripts/Compoenents/grab_interaction_handler.gd" id="8_rhee3"]
+[ext_resource type="Script" uid="uid://bhr4wvq73b3ov" path="res://controllers/scripts/StateMchinePlayer/jumping_state.gd" id="8_tg6sc"]
+[ext_resource type="Script" uid="uid://duw1k2ow40iq5" path="res://controllers/scripts/Compoenents/loot_interaction_handler.gd" id="9_1br7g"]
+[ext_resource type="Script" uid="uid://6mg8etp0rcd2" path="res://controllers/scripts/HeathAndDamageSystem/player_health_component.gd" id="9_b6iva"]
+[ext_resource type="Script" uid="uid://d1o0ni26ddq2q" path="res://controllers/scripts/Compoenents/small_grab_interaction_handler.gd" id="9_k8xwc"]
+[ext_resource type="Script" uid="uid://cxxvkcg48u2d" path="res://controllers/scripts/StateMchinePlayer/falling_state.gd" id="9_yvtcv"]
+[ext_resource type="Script" uid="uid://4thtivtrpy4n" path="res://controllers/scripts/StateMchinePlayer/crouch_state.gd" id="10_h7h5r"]
+[ext_resource type="Script" uid="uid://b25jw6vlx1mbf" path="res://controllers/scripts/Compoenents/interactable_interaction_handler.gd" id="10_k8xwc"]
+[ext_resource type="Script" uid="uid://cgxjwtj0l6grg" path="res://controllers/scripts/HeathAndDamageSystem/armor_module.gd" id="10_sy8o7"]
+[ext_resource type="Script" uid="uid://raajygfbuuyd" path="res://controllers/scripts/StateMchinePlayer/crouch_walking_state.gd" id="11_fdopr"]
+[ext_resource type="Script" uid="uid://dbcsitmcbiri2" path="res://controllers/scripts/HeathAndDamageSystem/bleeding_system.gd" id="11_pxa28"]
+[ext_resource type="Script" uid="uid://hn8vcj011s76" path="res://controllers/scripts/StateMchinePlayer/leaning_state.gd" id="12_5b0ob"]
+[ext_resource type="Script" uid="uid://cpkigexm6snot" path="res://controllers/scripts/HeathAndDamageSystem/injuredSystem/movement_injury_effects.gd" id="12_t14so"]
+[ext_resource type="Script" uid="uid://dep5unsc4y374" path="res://controllers/scripts/HeathAndDamageSystem/healing_manager.gd" id="12_xikej"]
+[ext_resource type="Script" uid="uid://bhp7r288x1giv" path="res://controllers/scripts/StateMchinePlayer/sliding_state.gd" id="13_l8yvu"]
+[ext_resource type="Script" uid="uid://boyrl6hfbog6l" path="res://controllers/scripts/HeathAndDamageSystem/injuredSystem/camera_injury_effects.gd" id="13_tnfk2"]
+[ext_resource type="Script" uid="uid://4prbyxtm4pjg" path="res://controllers/scripts/StateMchinePlayer/wall_run_state.gd" id="14_fyafc"]
+[ext_resource type="Script" uid="uid://kf2urfbivfbg" path="res://controllers/scripts/MICS/h_cast.gd" id="15_3og01"]
+[ext_resource type="Script" uid="uid://cnpa03x4ajc8b" path="res://addons/PlayerCharacter/Scripts/Misc/LinkComponentScript.gd" id="15_7gkfl"]
+[ext_resource type="Script" uid="uid://dmfp4audscxl3" path="res://controllers/scripts/StateMchinePlayer/movement_stats_provider.gd" id="15_mn68o"]
+[ext_resource type="Script" uid="uid://b7x0it4c5g5m" path="res://controllers/scripts/WeaponsSystem/combat_health_modifier.gd" id="15_t2gqn"]
+[ext_resource type="Script" uid="uid://tfhqf8y2bt6e" path="res://controllers/scripts/StateMchinePlayer/CameraStateMachine/camera_recoil_componenet.gd" id="16_0mih5"]
+[ext_resource type="Script" uid="uid://clhcimphoqlp5" path="res://controllers/scripts/StateMchinePlayer/ladder_climb_state.gd" id="16_h7h5r"]
+[ext_resource type="Script" uid="uid://d2oij6ihobehb" path="res://controllers/scripts/MICS/player_DebugUI.gd" id="16_tg6sc"]
+[ext_resource type="Script" uid="uid://bjjqmr27j3eg8" path="res://controllers/scripts/StateMchinePlayer/swimming_state.gd" id="17_5b0ob"]
+[ext_resource type="Script" uid="uid://k7djd8c1xge2" path="res://addons/Weapons/Scripts/Camera/CameraRecoilHolderScript.gd" id="17_i5pff"]
+[ext_resource type="Script" uid="uid://c2ehk8a60pir7" path="res://controllers/scripts/StateMchinePlayer/sprint_swiming_state.gd" id="18_bygp4"]
+[ext_resource type="Shader" uid="uid://bidtqalywrkra" path="res://shaders/uis/DistortionSpeedLines.gdshader" id="18_tnfk2"]
+[ext_resource type="PackedScene" uid="uid://ihkgdms5wjsu" path="res://addons/Weapons/Scenes/WeaponManagerScene.tscn" id="19_3qkg6"]
+[ext_resource type="Script" uid="uid://bn3kmp5jtydid" path="res://controllers/scripts/StateMchinePlayer/surface_swimming_state.gd" id="19_rcx31"]
+[ext_resource type="PackedScene" uid="uid://dy3tudla5p2nc" path="res://addons/cogito/Components/PlayerInteractionComponent.tscn" id="25_bjwns"]
+[ext_resource type="AudioStream" uid="uid://up2hfhgq1qx6" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep00.ogg" id="25_qmwy2"]
+[ext_resource type="Script" uid="uid://bp6772kuop4lm" path="res://controllers/scripts/StateMchinePlayer/static_state.gd" id="25_uefoi"]
+[ext_resource type="AudioStream" uid="uid://crj07wq4oocwi" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep01.ogg" id="26_bjwns"]
+[ext_resource type="AudioStream" uid="uid://dewyukd562k37" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep02.ogg" id="27_ou6tx"]
+[ext_resource type="AudioStream" uid="uid://c5kfw4o57foju" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep03.ogg" id="28_stri7"]
+[ext_resource type="AudioStream" uid="uid://b4mt1tuxo2144" path="res://addons/cogito/Assets/Audio/Kenney/Footsteps/footstep04.ogg" id="29_adv5w"]
+[ext_resource type="PackedScene" uid="uid://bxsf0qmy824bd" path="res://controllers/UI/inventory_ui.tscn" id="29_thp3d"]
+[ext_resource type="Script" uid="uid://b1qja1tbw5e1j" path="res://addons/cogito/DynamicFootstepSystem/Scripts/footstep_surface_detector.gd" id="30_x2s2x"]
+[ext_resource type="AudioStream" uid="uid://dc03jiw2a6y3j" path="res://addons/cogito/DynamicFootstepSystem/FootstepProfiles/generic_footstep_profile.tres" id="31_12ia1"]
+[ext_resource type="Shader" uid="uid://cckhr4i3nubjv" path="res://controllers/UI/shaders/birdges.gdshader" id="32_kaa6b"]
+[ext_resource type="Resource" uid="uid://ca0q2t6w08ubh" path="res://addons/cogito/DynamicFootstepSystem/FootstepMaterialLibrary/sample_footstep_material_library.tres" id="32_uefoi"]
+[ext_resource type="Texture2D" uid="uid://cumvdin6jmyh1" path="res://textures/Images/UI/main_pause.png" id="32_xno33"]
+[ext_resource type="Script" uid="uid://c3tv7kqkyftel" path="res://controllers/debugs/hand_d_debug.gd" id="42_ius01"]
+[ext_resource type="Script" uid="uid://bgjtlul6bmw6u" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gd" id="43_teryj"]
+[ext_resource type="Script" uid="uid://d2k0wiwesmehx" path="res://addons/RadialMenu/RadialMenu.gd" id="44_1hfpd"]
+[ext_resource type="Shader" uid="uid://bragsbfphgcjf" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gdshader" id="44_b6iva"]
+[ext_resource type="Script" uid="uid://colxmwot5x3a1" path="res://controllers/scripts/InventorySystem/weapon_wheel_Controller.gd" id="44_xodnv"]
+[ext_resource type="Script" uid="uid://bttqruj5f5vj" path="res://controllers/scripts/HeathAndDamageSystem/health_debug.gd" id="50_t2gqn"]
+[ext_resource type="Script" uid="uid://ba0b0ekmy1qub" path="res://addons/PlayerCharacter/Scripts/Camera/ViewportCameraScript.gd" id="53_ius01"]
+[ext_resource type="Script" uid="uid://dx02l6p6behb8" path="res://addons/PlayerCharacter/Scripts/UI/HUDScript.gd" id="57_ty5lw"]
+[ext_resource type="FontFile" uid="uid://bwr73i28ligrq" path="res://addons/Arts/Fonts/Ticketing.ttf" id="58_0mih5"]
+[ext_resource type="Texture2D" uid="uid://jwucel52ti1u" path="res://addons/Weapons/Images/Crosshair.png" id="59_1hfpd"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ius01"]
+shader = ExtResource("18_tnfk2")
+shader_parameter/line_count = 2.0
+shader_parameter/distortion_power = 0.034
+shader_parameter/line_falloff = 1.0
+shader_parameter/mask_size = 0.175
+shader_parameter/mask_edge = 0.195
+shader_parameter/animation_speed = 20.0
+shader_parameter/blur_strength = 0.01
+shader_parameter/effect_power = 0.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_1br7g"]
+size = Vector3(0.115, 0.11, 0.075)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_57us7"]
+size = Vector3(0.1, 0.1, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xno33"]
+margin = 1.034
+size = Vector3(0.6, 0.65, 1.4)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_5w0k0"]
+radius = 0.3
+
+[sub_resource type="Animation" id="Animation_l8yvu"]
+resource_name = "Crouching"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CollisionShape3D:shape:height")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1, 1.4666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [2.0, 1.5, 0.5]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1, 1.4666667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 1, 0), Vector3(0, 0.75, 0), Vector3(0, 0.2, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = false
+tracks/2/path = NodePath("CameraController:position")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1.5, 0), Vector3(0, 1, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("CameraController/CameraBase/CameraOffset:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, -0.5, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Raycasters/HeadCast:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 3.089416, 0), Vector3(0, 2.5, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_12ia1"]
+resource_name = "Pronning"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CollisionShape3D:shape:height")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.99),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [1.5, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.99),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0.75, 0), Vector3(0, 0.5, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = false
+tracks/2/path = NodePath("CameraController:position")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.99),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1, 0), Vector3(0, 1, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("CameraController/CameraBase/CameraOffset:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.99),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, -0.5, 0), Vector3(0, -0.75, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Raycasters/HeadCast:position")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 2.5, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_5w0k0"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CollisionShape3D:shape:height")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [2.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("CameraController:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1.5, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Raycasters/HeadCast:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 3.089416, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("CameraController:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("StateMachine/SlidingState:slide_speed")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [10.0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("CameraController:FOV_CHANGE")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.5]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("CameraController/CameraBase/CameraOffset/Camera3D:position")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("CameraController/CameraBase/CameraOffset/Camera3D:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("CameraController/CameraBase/CameraOffset:position")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_3og01"]
+resource_name = "Sliding"
+length = 5.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CollisionShape3D:shape:height")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1, 11.966666),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [2.0, 1.0, 1.5]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CollisionShape3D:position")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1, 11.966666),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 1, 0), Vector3(0, 0.5, 0), Vector3(0, 0.75, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = false
+tracks/2/path = NodePath("CameraController:position")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1.5, 0), Vector3(0, 1, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("CameraController:rotation")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(-0.6666667, 0.5, 3, 5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0), Vector3(0, 0, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("CameraController:FOV_CHANGE")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.7466211, 5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [1.5, 3.0, 1.5]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Raycasters/HeadCast:position")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 3.089416, 0), Vector3(0, 2.939, 0)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("StateMachine/SlidingState:slide_speed")
+tracks/6/interp = 2
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(1, 5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [10.0, 4.0]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("CameraController/CameraBase/CameraOffset:position")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, -0.5, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_5w0k0"]
+_data = {
+&"Crouching": SubResource("Animation_l8yvu"),
+&"Pronning": SubResource("Animation_12ia1"),
+&"RESET": SubResource("Animation_5w0k0"),
+&"Sliding": SubResource("Animation_3og01")
+}
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_12ia1"]
+size = Vector3(1, 0.25, 0.945)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_l8yvu"]
+radius = 0.4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5w0k0"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fyafc"]
+size = Vector3(0.99, 0.815, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3og01"]
+size = Vector3(1, 1.535, 1.255)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tg6sc"]
+size = Vector3(1, 1.5, 1.255)
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5w0k0"]
+albedo_color = Color(1, 0.30345234, 0.20271397, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_3og01"]
+material = SubResource("ORMMaterial3D_5w0k0")
+radius = 0.05
+height = 0.1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_teryj"]
+shader = ExtResource("32_kaa6b")
+shader_parameter/line_width = 0.0010000000475
+shader_parameter/segment_count = 3
+shader_parameter/segment_length = 0.2
+shader_parameter/tail_lag = 0.4
+shader_parameter/line_colour = Color(1, 1, 0, 1)
+shader_parameter/head_size_multiplier = 10.0
+shader_parameter/head_colour = Color(1, 1, 0, 1)
+shader_parameter/line_count = 15
+shader_parameter/line_lifetime = 6.2390002726025
+shader_parameter/start_direction_degrees = 0.0
+shader_parameter/random_start_direction = true
+shader_parameter/only_on_colour = false
+shader_parameter/apply_colour = Color(0, 0, 0, 1)
+shader_parameter/use_albedo_texture = false
+shader_parameter/albedo_modulate = Color(1, 1, 1, 1)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u6tj1"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6tv51"]
+material = ExtResource("2_gldw4")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_ssunb"]
+streams_count = 5
+stream_0/stream = ExtResource("25_qmwy2")
+stream_1/stream = ExtResource("26_bjwns")
+stream_2/stream = ExtResource("27_ou6tx")
+stream_3/stream = ExtResource("28_stri7")
+stream_4/stream = ExtResource("29_adv5w")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sy8o7"]
+shader = ExtResource("44_b6iva")
+shader_parameter/scanning_progress = 0.0
+shader_parameter/visibility = 1.0
+shader_parameter/color = Color(0, 1, 0, 1)
+shader_parameter/initial_outline_pixel_size = 32.0
+shader_parameter/final_outline_pixel_size = 2.0
+shader_parameter/initial_fill_transparency = 2.0
+shader_parameter/final_fill_transparency = 0.15
+shader_parameter/initial_pixelize_power = 9.0
+shader_parameter/final_pixelize_power = 1.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_xodnv"]
+line_spacing = 5.0
+font = ExtResource("58_0mih5")
+font_size = 30
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_mvol4"]
+line_spacing = 5.0
+font = ExtResource("58_0mih5")
+font_size = 30
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "h_cast", "h_cast_up", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler") groups=["Player"]]
+collision_layer = 2
+collision_mask = 2319
+platform_on_leave = 2
+script = ExtResource("1_pgc1p")
+JUMP_VELOCITY = 4.8
+CAMERA_CONTROLLER = NodePath("CameraController")
+state_machine = NodePath("StateMachine")
+anim_player = NodePath("CameraController/AnimationPlayer")
+head_Cast = NodePath("Raycasters/HeadCast")
+h_cast = NodePath("Raycasters/ClimbingCasts/H_cast")
+h_cast_up = NodePath("Raycasters/ClimbingCasts/H_cast_up")
+chest_Cast = NodePath("Raycasters/ClimbingCasts/ChestCast")
+mid_chest_Cast = NodePath("Raycasters/ClimbingCasts/midChestCast")
+upperchestCastNode = NodePath("Raycasters/ClimbingCasts/upperChestCasts")
+upperchest_Cast = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle")
+upperchest_Cast_Crouch = NodePath("Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastCrouch")
+r_cast = NodePath("Raycasters/ClimbingCasts/R_castController/R_Cast")
+step_handler = NodePath("Components/StepHandlerComponent")
+audio_component = NodePath("Components/AudioController")
+rigidbody_interaction_component = NodePath("Components/ItemsInteractionComponent")
+inventory_handler = NodePath("Components/InventoryComponent/InventoryHandlingComponent")
+
+[node name="Components" type="Node3D" parent="."]
+
+[node name="StepHandlerComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
+script = ExtResource("2_fdopr")
+player = NodePath("../..")
+
+[node name="AudioController" type="Node" parent="Components" node_paths=PackedStringArray("player", "footstep_player", "footstep_surface_detector", "jump_audio_player", "landing_audio_player")]
+script = ExtResource("3_ou6tx")
+player = NodePath("../..")
+footstep_player = NodePath("../../FootstepPlayer")
+footstep_surface_detector = NodePath("../../FootstepPlayer")
+jump_audio_player = NodePath("../../FootstepPlayer")
+landing_audio_player = NodePath("../../FootstepPlayer")
+
+[node name="InventoryComponent" type="Node" parent="Components" node_paths=PackedStringArray("player", "drop_marker")]
+script = ExtResource("5_12ia1")
+player = NodePath("../..")
+grid_columns = 15
+grid_rows = 6
+hotbar_slots = 10
+drop_marker = NodePath("../ItemsInteractionComponent/DropMarker")
+
+[node name="InventoryHandlingComponent" type="Node" parent="Components/InventoryComponent" node_paths=PackedStringArray("inventory_component", "inventory_ui", "camera_controller", "state_machine", "pickup_interaction")]
+script = ExtResource("6_uefoi")
+inventory_component = NodePath("..")
+inventory_ui = NodePath("../../../Control/UI/InventoryUI")
+camera_controller = NodePath("../../../CameraController")
+state_machine = NodePath("../../../StateMachine")
+pickup_interaction = NodePath("../../ItemsInteractionComponent")
+
+[node name="PlayerInteractionComponent" parent="Components" node_paths=PackedStringArray("interaction_raycast", "carryable_position") instance=ExtResource("25_bjwns")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
+interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/InteractionRaycast")
+carryable_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/CarryablePosition")
+
+[node name="ItemsInteractionComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("interaction_raycast", "inventory_handler", "camera_controller", "hold_position", "cyber_scanner", "player", "loot_handler", "grab_handler", "small_grab_handler", "interactable_handler", "interact_control", "primary_action_label", "secondary_action_label")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35666072, 0)
+script = ExtResource("8_kaa6b")
+interaction_raycast = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/InteractionRaycast")
+inventory_handler = NodePath("../InventoryComponent/InventoryHandlingComponent")
+camera_controller = NodePath("../../CameraController")
+hold_position = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts/CarryablePosition")
+cyber_scanner = NodePath("../../Effects/ScannerEffect")
+player = NodePath("../..")
+loot_handler = NodePath("LootInteractionHandler")
+grab_handler = NodePath("GrabInteractionHandler")
+small_grab_handler = NodePath("GrabInteractionHandler/SmallGrabInteractionHandler")
+interactable_handler = NodePath("InteractableInteractionHandler")
+interact_control = NodePath("../../Control/UI/InteractControl")
+primary_action_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/PickupLabel")
+secondary_action_label = NodePath("../../Control/UI/InteractControl/Panel/VSplitContainer/GrapLabel")
+throw_action = "fire"
+throw_force = 25.0
+
+[node name="DropMarker" type="Marker3D" parent="Components/ItemsInteractionComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9155706, -1.4331703)
+visible = false
+
+[node name="GrabInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent"]
+script = ExtResource("8_rhee3")
+
+[node name="SmallGrabInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent/GrabInteractionHandler" node_paths=PackedStringArray("hand_marker")]
+script = ExtResource("9_k8xwc")
+hand_marker = NodePath("../../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/GrapMarker")
+grab_offset = Vector3(-0.59, -0.09, -0.785)
+override_rotation = Vector3(-0.075, -0.3, -0.1)
+override_scale = Vector3(0.5, 0.5, 0.5)
+
+[node name="LootInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent"]
+script = ExtResource("9_1br7g")
+
+[node name="InteractableInteractionHandler" type="Node" parent="Components/ItemsInteractionComponent"]
+script = ExtResource("10_k8xwc")
+
+[node name="PlayerHealthComponent" type="Node" parent="Components" node_paths=PackedStringArray("player")]
+script = ExtResource("9_b6iva")
+player = NodePath("../..")
+
+[node name="ArmorModule" type="Node" parent="Components/PlayerHealthComponent"]
+script = ExtResource("10_sy8o7")
+
+[node name="BleedingSystem" type="Node" parent="Components/PlayerHealthComponent"]
+script = ExtResource("11_pxa28")
+
+[node name="MovementInjuryEffects" type="Node" parent="Components/PlayerHealthComponent" node_paths=PackedStringArray("player", "movement_stats_provider", "health_component", "state_machine", "audio_component")]
+script = ExtResource("12_t14so")
+player = NodePath("../../..")
+movement_stats_provider = NodePath("../../MovementStatsProvider")
+health_component = NodePath("..")
+state_machine = NodePath("../../../StateMachine")
+audio_component = NodePath("../../AudioController")
+enable_injury_stamina = false
+
+[node name="CameraInjuryEffects" type="Node" parent="Components/PlayerHealthComponent" node_paths=PackedStringArray("camera_controller", "health_component", "camera_3d", "post_process_layer")]
+script = ExtResource("13_tnfk2")
+camera_controller = NodePath("../../../CameraController")
+health_component = NodePath("..")
+camera_3d = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D")
+post_process_layer = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D/Effects")
+
+[node name="HealingManager" type="Node" parent="Components"]
+script = ExtResource("12_xikej")
+
+[node name="MovementStatsProvider" type="Node" parent="Components" node_paths=PackedStringArray("player", "injury_effects")]
+script = ExtResource("15_mn68o")
+player = NodePath("../..")
+injury_effects = NodePath("../PlayerHealthComponent/MovementInjuryEffects")
+
+[node name="CombatHealthModifier" type="Node" parent="Components/MovementStatsProvider" node_paths=PackedStringArray("player_health", "weapon_manager", "camera_holder")]
+script = ExtResource("15_t2gqn")
+player_health = NodePath("../../PlayerHealthComponent")
+weapon_manager = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
+camera_holder = NodePath("../../../CameraController")
+
+[node name="LinkComponent" type="Node3D" parent="Components" node_paths=PackedStringArray("ammoManager", "weaponManager")]
+unique_name_in_owner = true
+script = ExtResource("15_7gkfl")
+ammoManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager/AmmunitionManager")
+weaponManager = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
+
+[node name="CameraRecoilComponenet" type="Node3D" parent="Components/LinkComponent"]
+script = ExtResource("16_0mih5")
+
+[node name="CameraController" type="Node3D" parent="." node_paths=PackedStringArray("player", "audio_component", "camera_base", "camera_offset", "CAMERA_CONTROLLER", "lean_shape_cast_left", "lean_shape_cast_right")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+script = ExtResource("3_uovkr")
+player = NodePath("..")
+audio_component = NodePath("../Components/AudioController")
+camera_base = NodePath("CameraBase")
+camera_offset = NodePath("CameraBase/CameraOffset")
+CAMERA_CONTROLLER = NodePath("CameraBase/CameraOffset/Camera3D")
+enable_idle_shake = false
+MOUSE_SENSITIVITY = 0.2
+CONTROLLER_SENSITIVITY = 2.5
+LEAN_AMOUNT = 0.8
+lean_shape_cast_left = NodePath("Raycasters/CameraLeftCast")
+lean_shape_cast_right = NodePath("Raycasters/CameraRightCast")
+ladder_climbing_states = Array[String](["ClimbLadderState", "LadderClimbState"])
+SHAKE_INTENSITY_IDLE = 0.01
+SHAKE_FREQUENCY_IDLE = 0.5
+SHAKE_FADE_SPEED = 0.1
+SHAKE_RANDOMNESS = 0.1
+
+[node name="CameraBase" type="Node3D" parent="CameraController"]
+
+[node name="CameraOffset" type="Node3D" parent="CameraController/CameraBase"]
+script = ExtResource("17_i5pff")
+
+[node name="Camera3D" type="Camera3D" parent="CameraController/CameraBase/CameraOffset"]
+physics_interpolation_mode = 1
+cull_mask = 1048559
+
+[node name="Effects" type="CanvasLayer" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+follow_viewport_enabled = true
+
+[node name="Control" type="Control" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="BlurRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects/Control"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DesaturationRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects/Control"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VignetteRect" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects/Control"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DistortionSpeedLines" type="ColorRect" parent="CameraController/CameraBase/CameraOffset/Camera3D/Effects/Control"]
+visible = false
+material = SubResource("ShaderMaterial_ius01")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="WeaponComponenet" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+
+[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("player", "state_machine", "cameraHolder", "cameraRecoilHolder", "camera", "weaponContainer", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "hud", "linkComponent", "combat_health", "interaction_raycast", "inventory_component") instance=ExtResource("19_3qkg6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.03999996, -0.25337216)
+shoot_action = "fire"
+player = NodePath("../../../../../..")
+state_machine = NodePath("../../../../../../StateMachine")
+cameraHolder = NodePath("../../../../..")
+cameraRecoilHolder = NodePath("../../..")
+camera = NodePath("../..")
+weaponContainer = NodePath("WeaponBase/WeaponContainer")
+shootManager = NodePath("ShootManager")
+reloadManager = NodePath("ReloadManager")
+ammoManager = NodePath("AmmunitionManager")
+animPlayer = NodePath("AnimationPlayer")
+animManager = NodePath("AnimationManager")
+hud = NodePath("../../../../../../HUD")
+linkComponent = NodePath("../../../../../../Components/LinkComponent")
+combat_health = NodePath("../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
+interaction_raycast = NodePath("../../InteractCasts/InteractionRaycast")
+inventory_component = NodePath("../../../../../../Components/InventoryComponent")
+
+[node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="0" node_paths=PackedStringArray("weaponManager", "combat_health")]
+weaponManager = NodePath("..")
+combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
+
+[node name="ReloadManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="1" node_paths=PackedStringArray("weaponManager", "combat_health")]
+weaponManager = NodePath("..")
+combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
+
+[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="3" node_paths=PackedStringArray("cameraHolder", "player", "animPlayer", "weaponManager", "combat_health")]
+cameraHolder = NodePath("../../../../../..")
+player = NodePath("../../../../../../..")
+animPlayer = NodePath("../AnimationPlayer")
+weaponManager = NodePath("..")
+combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
+
+[node name="WeaponBase" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="5" node_paths=PackedStringArray("raycast")]
+raycast = NodePath("../../WeaponCollider")
+
+[node name="WeaponCollider" type="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14458162, -0.10382497, 0)
+target_position = Vector3(0, 0, -0.5)
+
+[node name="GrapMarker" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.175, -0.065660715, -0.196)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/GrapMarker"]
+visible = false
+layers = 16
+mesh = SubResource("BoxMesh_1br7g")
+
+[node name="InteractCasts" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
+
+[node name="InteractionRaycast" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts" instance=ExtResource("4_rcx31")]
+visible = false
+target_position = Vector3(0, 0, -2.1)
+collision_mask = 2184
+
+[node name="CarryablePosition" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
+
+[node name="ItemDropShapeCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts"]
+visible = false
+shape = SubResource("BoxShape3D_57us7")
+target_position = Vector3(0, 0, -2)
+collision_mask = 3
+debug_shape_custom_color = Color(1, 0.368977, 0.687569, 1)
+script = ExtResource("5_rcx31")
+
+[node name="Anim" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts"]
+
+[node name="ItemsIntectionCast" type="ShapeCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/InteractCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.025275946, -1.3016729)
+visible = false
+shape = SubResource("BoxShape3D_xno33")
+exclude_parent = false
+target_position = Vector3(0, 0, 0)
+collision_mask = 128
+
+[node name="Raycasters" type="Node3D" parent="CameraController"]
+visible = false
+
+[node name="CameraLeftCast" type="ShapeCast3D" parent="CameraController/Raycasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 1.1100001, 0)
+shape = SubResource("SphereShape3D_5w0k0")
+
+[node name="CameraRightCast" type="ShapeCast3D" parent="CameraController/Raycasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 1.1100001, 0)
+shape = SubResource("SphereShape3D_5w0k0")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CameraController"]
+root_node = NodePath("../..")
+libraries = {
+&"": SubResource("AnimationLibrary_5w0k0")
+}
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state", "player", "movement_stats_provider")]
+script = ExtResource("4_l8yvu")
+initial_state = NodePath("IdleState")
+player = NodePath("..")
+movement_stats_provider = NodePath("../Components/MovementStatsProvider")
+
+[node name="IdleState" type="Node" parent="StateMachine"]
+script = ExtResource("5_5w0k0")
+
+[node name="WalkingState" type="Node" parent="StateMachine"]
+script = ExtResource("6_3og01")
+
+[node name="SprintingState" type="Node" parent="StateMachine"]
+script = ExtResource("7_fyafc")
+
+[node name="JumpingState" type="Node" parent="StateMachine"]
+script = ExtResource("8_tg6sc")
+
+[node name="FallingState" type="Node" parent="StateMachine"]
+script = ExtResource("9_yvtcv")
+air_control_factor = 0.85
+
+[node name="ClimbState" type="Node" parent="StateMachine" node_paths=PackedStringArray("upperchest_Cast_Idle", "crouchState", "standState", "fallingState")]
+script = ExtResource("10_h7h5r")
+vertical_speed = 5.0
+horizontal_speed = 3.0
+move_speed = 0.7
+upperchest_Cast_Idle = NodePath("../../Raycasters/ClimbingCasts/upperChestCasts/UpperChestCastIdle")
+crouchState = NodePath("../CrouchWalkingState")
+standState = NodePath("../IdleState")
+fallingState = NodePath("../FallingState")
+
+[node name="CrouchWalkingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast", "proneCast")]
+script = ExtResource("11_fdopr")
+is_toggle_crouch = true
+headCast = NodePath("../../Raycasters/HeadCast")
+proneCast = NodePath("../../Raycasters/ProneCast")
+
+[node name="DashState" type="Node" parent="StateMachine"]
+script = ExtResource("12_5b0ob")
+
+[node name="SlidingState" type="Node" parent="StateMachine" node_paths=PackedStringArray("headCast")]
+script = ExtResource("13_l8yvu")
+slide_friction = 5.0
+slide_duration = 2.5
+headCast = NodePath("../../Raycasters/HeadCast")
+crouch_speed = 4.0
+min_air_time_before_slide = 0.2
+
+[node name="WallRunState" type="Node" parent="StateMachine"]
+script = ExtResource("14_fyafc")
+
+[node name="LadderClimbState" type="Node" parent="StateMachine"]
+script = ExtResource("16_h7h5r")
+
+[node name="SwimmingState" type="Node" parent="StateMachine"]
+script = ExtResource("17_5b0ob")
+
+[node name="SprintSwimingState" type="Node" parent="StateMachine"]
+script = ExtResource("18_bygp4")
+
+[node name="SurfaceSwimmingState" type="Node" parent="StateMachine"]
+script = ExtResource("19_rcx31")
+
+[node name="StaticState" type="Node" parent="StateMachine"]
+script = ExtResource("25_uefoi")
+
+[node name="Raycasters" type="Node3D" parent="."]
+
+[node name="ProneCast" type="ShapeCast3D" parent="Raycasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1397371, 0)
+visible = false
+shape = SubResource("BoxShape3D_12ia1")
+debug_shape_custom_color = Color(0.9763817, 0.49272287, 0, 1)
+
+[node name="HeadCast" type="ShapeCast3D" parent="Raycasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.089416, 0)
+visible = false
+shape = SubResource("SphereShape3D_l8yvu")
+
+[node name="ClimbingCasts" type="Node3D" parent="Raycasters"]
+visible = false
+
+[node name="ChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1676488, -0.6089425)
+visible = false
+shape = SubResource("BoxShape3D_5w0k0")
+target_position = Vector3(0, -1.165, 0)
+collision_mask = 9
+
+[node name="midChestCast" type="ShapeCast3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.523, -0.609)
+visible = false
+shape = SubResource("BoxShape3D_fyafc")
+target_position = Vector3(0, -1.165, 0)
+collision_mask = 9
+
+[node name="upperChestCasts" type="Node3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 0.95, 0, 0, 0, 1, 0, 0, 0)
+visible = false
+
+[node name="UpperChestCastIdle" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7790252, -0.41949177)
+shape = SubResource("BoxShape3D_3og01")
+collision_mask = 9
+
+[node name="UpperChestCastCrouch" type="ShapeCast3D" parent="Raycasters/ClimbingCasts/upperChestCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7615201, -0.41919458)
+visible = false
+shape = SubResource("BoxShape3D_tg6sc")
+collision_mask = 9
+
+[node name="H_cast" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.381, 0)
+visible = false
+target_position = Vector3(0, 0, -2)
+collision_mask = 9
+script = ExtResource("15_3og01")
+
+[node name="H_cast_up" type="RayCast3D" parent="Raycasters/ClimbingCasts"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1025715, 0)
+visible = false
+target_position = Vector3(0, 0, -2)
+collision_mask = 9
+script = ExtResource("15_3og01")
+
+[node name="R_castController" type="Node3D" parent="Raycasters/ClimbingCasts"]
+
+[node name="R_Cast" type="RayCast3D" parent="Raycasters/ClimbingCasts/R_castController"]
+visible = false
+target_position = Vector3(0, -1.5, 0)
+collision_mask = 9
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Raycasters/ClimbingCasts/R_castController/R_Cast"]
+layers = 8
+mesh = SubResource("CapsuleMesh_3og01")
+
+[node name="StairsCasters" type="Node3D" parent="Raycasters"]
+visible = false
+
+[node name="BelowStairsRayCast" type="RayCast3D" parent="Raycasters/StairsCasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1920929e-07, 0)
+visible = false
+target_position = Vector3(0, 0, -1)
+
+[node name="StairsRayCast" type="RayCast3D" parent="Raycasters/StairsCasters"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.59379303, -0.79411024)
+visible = false
+target_position = Vector3(0, -0.5, 0)
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1920, 1080)
+render_target_update_mode = 4
+
+[node name="ViewportCam" type="Camera3D" parent="SubViewportContainer/SubViewport" node_paths=PackedStringArray("cam")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0.540581, 0)
+cull_mask = 16
+near = 0.01
+script = ExtResource("53_ius01")
+cam = NodePath("../../../CameraController/CameraBase/CameraOffset/Camera3D")
+
+[node name="Control" type="Control" parent="." node_paths=PackedStringArray("player", "state_machine")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("16_tg6sc")
+player = NodePath("..")
+state_machine = NodePath("../StateMachine")
+
+[node name="UI" type="Control" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="InteractControl" type="Control" parent="Control/UI"]
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="Panel" parent="Control/UI/InteractControl"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 36.0
+offset_top = 31.0
+offset_right = 222.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VSplitContainer" type="VSplitContainer" parent="Control/UI/InteractControl/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PickupLabel" type="Label" parent="Control/UI/InteractControl/Panel/VSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Press E to Pick up"
+
+[node name="GrapLabel" type="Label" parent="Control/UI/InteractControl/Panel/VSplitContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Hold E to Pick up"
+
+[node name="Crosshair" parent="Control/UI" instance=ExtResource("4_5w0k0")]
+layout_mode = 1
+crosshairThickness = 1.5
+crosshairSize = 6.0
+crosshairGap = 3.0
+crosshairDot = true
+breathingEnabled = false
+currentPreset = 1
+
+[node name="InventoryUI" parent="Control/UI" instance=ExtResource("29_thp3d")]
+visible = false
+layout_mode = 1
+
+[node name="WeaponControl" type="Control" parent="Control/UI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BottomPanel" type="MarginContainer" parent="Control/UI/WeaponControl"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 450
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 450
+theme_override_constants/margin_bottom = 30
+
+[node name="PanelContainer" type="PanelContainer" parent="Control/UI/WeaponControl/BottomPanel"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/UI/WeaponControl/BottomPanel/PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="Control/UI/WeaponControl/BottomPanel/PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Hotbar [1-8]"
+horizontal_alignment = 1
+
+[node name="Hotbar" type="HBoxContainer" parent="Control/UI/WeaponControl/BottomPanel/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="WeaponWheelBackground" type="ColorRect" parent="Control/UI/WeaponControl" node_paths=PackedStringArray("weapon_wheel_ui", "inventory_ui", "weapon_manager")]
+process_mode = 3
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.090457015, 0, 0.25528768, 0.55200005)
+script = ExtResource("44_xodnv")
+weapon_wheel_ui = NodePath("WeaponWheel")
+inventory_ui = NodePath("../../InventoryUI")
+weapon_manager = NodePath("../../../../CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
+
+[node name="WeaponWheel" type="Control" parent="Control/UI/WeaponControl/WeaponWheelBackground"]
+process_mode = 3
+visible = false
+custom_minimum_size = Vector2(600, 600)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -300.0
+offset_right = 300.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(300, 300)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("44_1hfpd")
+radius = 300
+width = 200
+center_radius = 100
+gap_size = 0.0
+selector_position = 2
+decorator_ring_position = 2
+circle_coverage = 1.0
+center_angle = 2.46045
+show_animation = true
+animation_speed_factor = 0.001
+outside_selection_factor = 3.5
+
+[node name="PauseMenu" type="Control" parent="Control"]
+visible = false
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="TextureRect" parent="Control/PauseMenu"]
+modulate = Color(0.5678874, 0.5678875, 6.97887e-07, 1)
+z_index = -1
+material = SubResource("ShaderMaterial_teryj")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("32_xno33")
+
+[node name="HandDDebug" type="Control" parent="Control" node_paths=PackedStringArray("player", "health_component", "healing_manager")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("42_ius01")
+player = NodePath("../..")
+health_component = NodePath("../../Components/PlayerHealthComponent")
+healing_manager = NodePath("../../Components/HealingManager")
+
+[node name="HealthDebug" type="Control" parent="Control"]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("50_t2gqn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_u6tj1")
+
+[node name="PlaceholderMesh" type="MeshInstance3D" parent="CollisionShape3D"]
+visible = false
+layers = 4
+mesh = SubResource("CapsuleMesh_6tv51")
+
+[node name="FootstepPlayer" type="AudioStreamPlayer3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0005284846, 0)
+visible = false
+stream = SubResource("AudioStreamRandomizer_ssunb")
+volume_db = -38.0
+max_polyphony = 8
+script = ExtResource("30_x2s2x")
+generic_fallback_footstep_profile = ExtResource("31_12ia1")
+footstep_material_library = ExtResource("32_uefoi")
+generic_fallback_landing_profile = ExtResource("31_12ia1")
+landing_material_library = ExtResource("32_uefoi")
+
+[node name="Effects" type="Node3D" parent="."]
+
+[node name="ScannerEffect" type="Node3D" parent="Effects" node_paths=PackedStringArray("main_camera", "scanning_viewport")]
+script = ExtResource("43_teryj")
+main_camera = NodePath("../../CameraController/CameraBase/CameraOffset/Camera3D")
+scanning_viewport = NodePath("ScanningViewport")
+
+[node name="ScanningViewport" type="SubViewportContainer" parent="Effects/ScannerEffect"]
+visible = false
+material = SubResource("ShaderMaterial_sy8o7")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch = true
+metadata/_edit_use_anchors_ = true
+
+[node name="SubViewport" type="SubViewport" parent="Effects/ScannerEffect/ScanningViewport"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1920, 1080)
+render_target_update_mode = 0
+
+[node name="ScanningCamera" type="Camera3D" parent="Effects/ScannerEffect/ScanningViewport/SubViewport"]
+unique_name_in_owner = true
+cull_mask = 2
+
+[node name="HUD" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+process_mode = 3
+script = ExtResource("57_ty5lw")
+metadata/_edit_use_anchors_ = true
+
+[node name="PlayerCharacterInfos" type="HBoxContainer" parent="HUD"]
+visible = false
+offset_left = 6.0
+offset_top = 9.0
+offset_right = 621.0
+offset_bottom = 175.0
+scale = Vector2(0.7, 0.7)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/PlayerCharacterInfos"]
+visible = false
+layout_mode = 2
+
+[node name="CurrStateLabel" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Current state :"
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="CurrDirectionLabel" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Current direction :"
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="DesiredMoveSpeedLabel" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Desired move speed :"
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="VelocityLabel" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Velocity :"
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="NbJumpsInAirAllowedLabel" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Nb jumps in air allowed : "
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HUD/PlayerCharacterInfos"]
+visible = false
+layout_mode = 2
+
+[node name="CurrStateLabelText" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="CurrDirectionLabelText" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="DesiredMoveSpeedLabelText" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="VelocityLabelText" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="NbJumpsInAirAllowedLabelText" type="Label" parent="HUD/PlayerCharacterInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="WeaponsInfos" type="HBoxContainer" parent="HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 802.0
+offset_top = -235.0
+offset_right = 1348.0
+offset_bottom = -103.0
+grow_vertical = 0
+scale = Vector2(0.7, 0.7)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/WeaponsInfos"]
+layout_mode = 2
+
+[node name="WeaponStackLabel" type="Label" parent="HUD/WeaponsInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Weapon stack :"
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="WeaponNameLabel" type="Label" parent="HUD/WeaponsInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Weapon name :"
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="TotalAmmoInMagLabel" type="Label" parent="HUD/WeaponsInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Total ammo in mag : "
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="TotalAmmoLabel" type="Label" parent="HUD/WeaponsInfos/VBoxContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Total ammo : "
+label_settings = SubResource("LabelSettings_xodnv")
+vertical_alignment = 1
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HUD/WeaponsInfos"]
+layout_mode = 2
+
+[node name="WeaponStackLabelText" type="Label" parent="HUD/WeaponsInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="WeaponNameLabelText" type="Label" parent="HUD/WeaponsInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="TotalAmmoInMagLabelText" type="Label" parent="HUD/WeaponsInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="TotalAmmoLabelText" type="Label" parent="HUD/WeaponsInfos/VBoxContainer2"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "..................."
+label_settings = SubResource("LabelSettings_mvol4")
+vertical_alignment = 1
+
+[node name="Crosshair" type="TextureRect" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("59_1hfpd")
+expand_mode = 1
+
+[connection signal="item_selected" from="Control/UI/WeaponControl/WeaponWheelBackground/WeaponWheel" to="Control/UI/WeaponControl/WeaponWheelBackground" method="_on_weapon_wheel_item_selected"]
+
+[editable path="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]

@@ -27,3 +27,10 @@ func projectile_hit(force: float, direction: Vector3, hit_position: Vector3 = Ve
     else:
         var local_hit_pos = hit_position - rigid_body.global_position
         rigid_body.apply_impulse(impulse_vector, local_hit_pos)
+
+func apply_realistic_kick(force: float, direction: Vector3, hit_pos: Vector3):
+    var lift = Vector3.UP * (force * 0.1) # Add 10% of force as upward lift
+    var final_force = (direction.normalized() * force) + lift
+    var local_pos = hit_pos - rigid_body.global_position
+    
+    rigid_body.apply_impulse(final_force, local_pos)
