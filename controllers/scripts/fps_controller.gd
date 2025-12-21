@@ -92,7 +92,12 @@ var LandingVolume: float = 0.8
 @onready var footstep_player = $FootstepPlayer
 @onready var footstep_surface_detector : FootstepSurfaceDetector = $FootstepPlayer
 
+@export_category("Weapons Settings")
+@export var weapon_manager: WeaponManager
 
+## ---------------------------------------------------------
+## INTERNAL STATE VARIABLES
+## ---------------------------------------------------------
 # Current speed (modified by states)
 var SPEED: float = 5.0
 var previous_velocity : Vector3

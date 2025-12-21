@@ -40,7 +40,9 @@ func check_transitions() -> State:
 		if check_fall_speed():
 			
 			player.footstep_player._play_interaction("landing")
-			CAMERA_CONTROLLER.add_fall_kick(2.5)
+			CAMERA_CONTROLLER.add_fall_kick(3.5)
+			
+		player.weapon_manager.animManager.on_landing(player.velocity)
 		# Check for crouch on landing
 		if Input.is_action_just_pressed("crouch"):
 			return state_machine.get_state("CrouchWalkingState")

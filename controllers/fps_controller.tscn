@@ -571,7 +571,7 @@ font_size = 30
 outline_size = 1
 outline_color = Color(0, 0, 0, 1)
 
-[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "h_cast", "h_cast_up", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler") groups=["Player"]]
+[node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "h_cast", "h_cast_up", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler", "weapon_manager") groups=["Player"]]
 collision_layer = 2
 collision_mask = 2319
 platform_on_leave = 2
@@ -593,6 +593,7 @@ step_handler = NodePath("Components/StepHandlerComponent")
 audio_component = NodePath("Components/AudioController")
 rigidbody_interaction_component = NodePath("Components/ItemsInteractionComponent")
 inventory_handler = NodePath("Components/InventoryComponent/InventoryHandlingComponent")
+weapon_manager = NodePath("CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager")
 
 [node name="Components" type="Node3D" parent="."]
 
@@ -855,12 +856,15 @@ combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/
 weaponManager = NodePath("..")
 combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
 
-[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="3" node_paths=PackedStringArray("cameraHolder", "player", "animPlayer", "weaponManager", "combat_health")]
+[node name="AnimationManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="3" node_paths=PackedStringArray("cameraHolder", "player", "animPlayer", "weaponManager", "combat_health", "state_machine")]
 cameraHolder = NodePath("../../../../../..")
 player = NodePath("../../../../../../..")
 animPlayer = NodePath("../AnimationPlayer")
 weaponManager = NodePath("..")
 combat_health = NodePath("../../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
+state_machine = NodePath("../../../../../../../StateMachine")
+use_smooth_effects = false
+weight_scale = 100.0
 
 [node name="WeaponBase" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="5" node_paths=PackedStringArray("raycast")]
 raycast = NodePath("../../WeaponCollider")
