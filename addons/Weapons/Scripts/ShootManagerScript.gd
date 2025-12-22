@@ -69,7 +69,8 @@ func shoot():
             break
         
         perform_single_shot(current_weapon)
-        
+        print("Shot fired from %s" % current_weapon.weaponName)
+        Engine_effects.frameFreeze(0.15, .25)  # Brief hit stop for impact feel
         # Smooth fire rate with modifiers
         var modified_time = current_weapon.timeBetweenShots
         if use_smooth_modifiers and combat_health:

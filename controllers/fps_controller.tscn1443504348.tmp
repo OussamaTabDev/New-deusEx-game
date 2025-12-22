@@ -842,31 +842,9 @@ collision_mask = 128
 [node name="WeaponComponenet" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, 0, 0)
 
-[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" node_paths=PackedStringArray("weapon_database", "weapon_switcher", "weapon_inputs", "weapon_visuals", "weapon_drop_pickup", "weapon_health_checker", "player", "camera", "cameraHolder", "cameraRecoilHolder", "weaponContainer", "hud", "interaction_raycast", "shootManager", "reloadManager", "ammoManager", "animPlayer", "animManager", "linkComponent", "state_machine", "combat_health", "inventory_component") instance=ExtResource("19_3qkg6")]
+[node name="WeaponManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet" instance=ExtResource("19_3qkg6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.03999996, -0.25337216)
 script = ExtResource("28_pqb0r")
-weapon_database = NodePath("WeaponDatabase")
-weapon_switcher = NodePath("WeaponSwitcher")
-weapon_inputs = NodePath("WeaponInputHandler")
-weapon_visuals = NodePath("WeaponVisualsManager")
-weapon_drop_pickup = NodePath("WeaponDropPickup")
-weapon_health_checker = NodePath("WeaponHealthChecker")
-player = NodePath("../../../../../..")
-camera = NodePath("../..")
-cameraHolder = NodePath("../../../../..")
-cameraRecoilHolder = NodePath("../../..")
-weaponContainer = NodePath("WeaponBase/WeaponContainer")
-hud = NodePath("../../../../../../HUD")
-interaction_raycast = NodePath("../../InteractCasts/InteractionRaycast")
-shootManager = NodePath("ShootManager")
-reloadManager = NodePath("ReloadManager")
-ammoManager = NodePath("AmmunitionManager")
-animPlayer = NodePath("AnimationPlayer")
-animManager = NodePath("AnimationManager")
-linkComponent = NodePath("../../../../../../Components/LinkComponent")
-state_machine = NodePath("../../../../../../StateMachine")
-combat_health = NodePath("../../../../../../Components/MovementStatsProvider/CombatHealthModifier")
-inventory_component = NodePath("../../../../../../Components/InventoryComponent")
 
 [node name="ShootManager" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager" index="0" node_paths=PackedStringArray("weaponManager", "combat_health")]
 weaponManager = NodePath("..")

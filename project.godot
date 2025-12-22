@@ -26,6 +26,7 @@ InputHelper="*res://addons/input_helper/input_helper.gd"
 Audio="*res://addons/quick_audio/./Audio.gd"
 PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
 InputActions="*res://controllers/UI/input_actions.gd"
+Engine_effects="*res://Scripts/engine_effects.gd"
 
 [display]
 
