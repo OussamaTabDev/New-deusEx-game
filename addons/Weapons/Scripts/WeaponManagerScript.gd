@@ -1,7 +1,7 @@
 # Modified WeaponManager.gd - Hotbar-Based Weapon Switching + Hold F to Unequip
 
 extends Node3D
-class_name WeaponManagerv0
+class_name WeaponManager0
 
 var weaponList : Dictionary = {} # All weapon resources
 @export var weaponResources : Array[WeaponResource]

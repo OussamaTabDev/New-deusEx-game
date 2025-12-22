@@ -70,7 +70,7 @@ func shoot():
         
         perform_single_shot(current_weapon)
         print("Shot fired from %s" % current_weapon.weaponName)
-        Engine_effects.frameFreeze(0.15, .25)  # Brief hit stop for impact feel
+        Engine_effects.frameFreeze(0.15, .15)  # Brief hit stop for impact feel
         # Smooth fire rate with modifiers
         var modified_time = current_weapon.timeBetweenShots
         if use_smooth_modifiers and combat_health:
@@ -94,7 +94,7 @@ func perform_single_shot(w_ref):
         weaponManager.animManager.playAnimation("ShootAnim%s" % w_ref.weaponName, w_ref.shootAnimSpeed, true)
     
     if w_ref.showMuzzleFlash:
-        weaponManager.displayMuzzleFlash()
+        weaponManager.visuals.display_muzzle_flash()
     
     # Smooth recoil
     var modified_recoil = w_ref.recoilVal * recoil_mult
@@ -216,13 +216,17 @@ func hitscanShot(targetPoint: Vector3, w_ref):
         
         if collider.is_in_group("Enemies") and collider.has_method("hitscanHit"):
             collider.hitscanHit(damage, bulletDir, result.position)
+            Engine_effects.frameFreeze(0.15, .15)  # Brief hit stop for impact feel
         elif collider.is_in_group("EnemiesHead") and collider.has_method("hitscanHit"):
             collider.hitscanHit(damage * w_ref.headshotDamageMult, bulletDir, result.position)
+            Engine_effects.frameFreeze(0.15, .15)  # Brief hit stop for impact feel
         elif collider.is_in_group("HitableObjects") and collider.hit_force_component:
             collider.hit_force_component.hitscan_hit(damage / 6.0, bulletDir, result.position)
-            weaponManager.displayBulletHole(result.position, result.normal, collider)
+            weaponManager.visuals.display_bullet_hole(result.position, result.normal, collider)
+            Engine_effects.frameFreeze(0.15, .15)  # Brief hit stop for impact feel
         else:
-            weaponManager.displayBulletHole(result.position, result.normal, collider)
+            pass
+            weaponManager.visuals.display_bullet_hole(result.position, result.normal, collider)
 
 func projectileShot(targetPoint: Vector3, w_ref):
     var spread_mult = _cached_spread if use_smooth_modifiers else 1.0

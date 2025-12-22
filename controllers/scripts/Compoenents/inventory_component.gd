@@ -23,6 +23,7 @@ signal hotbar_item_used(slot: int, item: InventoryItem)
 @export var hotbar_slots: int = 8
 @export var enable_weight_limit: bool = false
 @export var drop_marker : Marker3D
+@export var weapon_manager : WeaponManager
 # Grid storage: key = "x,y", value = {item: InventoryItem, is_origin: bool}
 var grid: Dictionary = {}
 var equipment_slots: Dictionary = {}

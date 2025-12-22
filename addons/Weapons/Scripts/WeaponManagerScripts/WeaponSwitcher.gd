@@ -1,145 +1,253 @@
-# WeaponSwitcher.gd - Handles weapon switching logic
-
+# WeaponSwitcher.gd - Handles weapon switching and equipping
 extends Node
 class_name WeaponSwitcher
 
-var weapon_database: WeaponDatabase
-var weapon_visuals: WeaponVisualsManager
-var weapon_health_checker: WeaponHealthChecker
-var animManager: Node3D
-var shootManager: ShootManager
-var reloadManager: ReloadManager
+var weapon_manager: WeaponManager
+var database: WeaponDatabase
+var inventory_component: InventoryComponent
+var anim_manager: Node3D
+var anim_player: AnimationPlayer
 var player: CharacterBody3D
-var hud: CanvasLayer
 
-# Current state references (set by WeaponManager each frame)
-var cW = null
-var pW = null
+var currentHotbarSlot: int = -1  # Current active hotbar slot
+var is_holding_f: bool = false
+var f_hold_duration: float = 0.0
+const F_UNEQUIP_THRESHOLD: float = 0.3  # seconds
 
+var ignore_next_shoot: bool = false
 
-func hide_all_weapons():
-    """Hide all weapon models"""
-    for weapon_id in weapon_database.weaponList.keys():
-        var weapon = weapon_database.weaponList[weapon_id]
-        if weapon.weaponSlot and weapon.weaponSlot.model:
-            weapon.weaponSlot.model.visible = false
+func _process(delta: float) -> void:
+	# Process F key hold for unequipping
+	process_f_hold(delta)
 
+func switch_to_hotbar_slot(slot: int):
+	"""Switch to weapon in specific hotbar slot"""
+	
+	# Check if able to equip weapons
+	if not weapon_manager.health_checker.can_equip_weapon():
+		print("❌ Cannot equip weapon - Right arm too damaged!")
+		weapon_manager.health_checker.show_arm_damaged_message()
+		return
+	
+	if not inventory_component:
+		return
+	
+	if slot < 0 or slot >= inventory_component.hotbar_slots:
+		return
+	
+	# Get item from hotbar
+	var item = inventory_component.hotbar[slot]
+	# Must be a weapon
+	if not item or item.type != "weapon":
+		print("No weapon in hotbar slot %d" % (slot + 1))
+		return
+	
+	# Must have weapon_id attribute
+	if not item.attributes.has("weapon_id"):
+		return
+	
+	var weapon_id = int(item.attributes.weapon_id)
+	
+	# Check if weapon exists
+	if not database.has_weapon(weapon_id):
+		print("Weapon ID %d not found!" % weapon_id)
+		return
+	
+	# Don't switch to same weapon
+	if weapon_manager.cW and weapon_manager.cW.weaponId == weapon_id:
+		return
+	
+	# Switch to this weapon
+	if weapon_manager.cW:
+		exit_weapon(weapon_id, slot)
+	else:
+		enter_weapon(weapon_id, slot)
 
-func switch_to_hotbar_slot(slot: int, inventory: InventoryComponent, current_weapon, current_slot: int) -> Dictionary:
-    """
-    Determine if we should switch weapons
-    Returns: {success: bool, should_exit: bool, weapon_id: int, slot: int}
-    """
-    
-    if not inventory:
-        return {success = false}
-    
-    if slot < 0 or slot >= inventory.hotbar_slots:
-        return {success = false}
-    
-    # Get item from hotbar
-    var item = inventory.hotbar[slot]
-    
-    # Must be a weapon
-    if not item or item.type != "weapon":
-        print("No weapon in hotbar slot %d" % (slot + 1))
-        return {success = false}
-    
-    # Must have weapon_id
-    if not item.attributes.has("weapon_id"):
-        return {success = false}
-    
-    var weapon_id = int(item.attributes.weapon_id)
-    
-    # Check if weapon exists
-    if not weapon_database.has_weapon(weapon_id):
-        print("Weapon ID %d not found!" % weapon_id)
-        return {success = false}
-    
-    # Don't switch to same weapon
-    if current_weapon and current_weapon.weaponId == weapon_id:
-        return {success = false}
-    
-    # Determine if we need to exit current weapon
-    var should_exit = (current_weapon != null)
-    
-    return {
-        success = true,
-        should_exit = should_exit,
-        weapon_id = weapon_id,
-        slot = slot
-    }
+func exit_weapon(nextWeaponId: int, nextSlot: int):
+	"""Unequip current weapon based on WeaponResource.unequipTime"""
+	var cW = weapon_manager.cW
+	
+	if nextWeaponId == cW.weaponId:
+		return
+	
+	weapon_manager.pW = cW
+	weapon_manager.canChangeWeapons = false
+	weapon_manager.canUseWeapon = false
+	weapon_manager.unequipped_weapon = true
+	
+	# Cancel current actions
+	if cW.isShooting: cW.isShooting = false
+	if cW.isReloading: cW.isReloading = false
+	
+	# Play Animation
+	if cW.unequipAnimName != "":
+		anim_manager.playAnimation("UnequipAnim%s" % cW.weaponName, cW.unequipAnimSpeed, false)
+		if cW.unequipSound:
+			weapon_manager.weapon_sound_management(cW.unequipSound, cW.unequipSoundSpeed)
+	
+	# Wait for the EXACT time defined in WeaponResource
+	if cW.unequipTime > 0:
+		await weapon_manager.get_tree().create_timer(cW.unequipTime).timeout
+	
+	# Hide current model
+	if weapon_manager.cWModel:
+		weapon_manager.cWModel.visible = false
+	
+	# Enter next weapon
+	enter_weapon(nextWeaponId, nextSlot)
 
+func enter_weapon(nextWeaponId: int, slot: int):
+	"""Equip new weapon based on WeaponResource.equipTime"""
+	
+	# Check if physically able to equip weapons
+	if not weapon_manager.health_checker.can_equip_weapon():
+		print("❌ Cannot equip weapon - Right arm too damaged!")
+		weapon_manager.canChangeWeapons = true
+		return
+	
+	if player.is_graping():
+		return
+	
+	# Load the new resource
+	weapon_manager.cW = database.get_weapon(nextWeaponId)
+	currentHotbarSlot = slot
+	weapon_manager.cWModel = weapon_manager.cW.weaponSlot.model
+	
+	# Make Visible
+	weapon_manager.cWModel.visible = true
+	
+	# Update Managers
+	weapon_manager.shootManager.getCurrentWeapon(weapon_manager.cW)
+	weapon_manager.reloadManager.getCurrentWeapon(weapon_manager.cW)
+	anim_manager.getCurrentWeapon(weapon_manager.cW, weapon_manager.cWModel)
+	
+	# Play Sound & Animation
+	if weapon_manager.cW.equipSound:
+		weapon_manager.weapon_sound_management(weapon_manager.cW.equipSound, weapon_manager.cW.equipSoundSpeed)
+	
+	anim_player.playback_default_blend_time = weapon_manager.cW.animBlendTime
+	
+	if weapon_manager.cW.equipAnimName != "":
+		anim_manager.playAnimation("EquipAnim%s" % weapon_manager.cW.weaponName, weapon_manager.cW.equipAnimSpeed, false)
+	
+	# Wait for the EXACT time defined in WeaponResource
+	if weapon_manager.cW.equipTime > 0:
+		await weapon_manager.get_tree().create_timer(weapon_manager.cW.equipTime).timeout
+	
+	# Enable control
+	if not weapon_manager.cW: return 
+	if weapon_manager.cW.isShooting: weapon_manager.cW.isShooting = false
+	if weapon_manager.cW.isReloading: weapon_manager.cW.isReloading = false
+	
+	weapon_manager.unequipped_weapon = false
+	weapon_manager.canUseWeapon = true
+	weapon_manager.canChangeWeapons = true
+	ignore_next_shoot = false
+	
+	print("Equipped: %s (Slot %d)" % [weapon_manager.cW.weaponName, slot + 1])
 
-func play_unequip(weapon: WeaponResource, model: Node3D, audio_manager: PackedScene):
-    """Play unequip animation and wait"""
-    # Cancel current actions
-    if weapon.isShooting:
-        weapon.isShooting = false
-    if weapon.isReloading:
-        weapon.isReloading = false
-    
-    # Play animation
-    if weapon.unequipAnimName != "":
-        animManager.playAnimation("UnequipAnim%s" % weapon.weaponName, weapon.unequipAnimSpeed, false)
-        if weapon.unequipSound:
-            _play_weapon_sound(weapon, audio_manager, weapon.unequipSound, weapon.unequipSoundSpeed)
-    
-    # Wait for exact unequip time
-    if weapon.unequipTime > 0:
-        await get_tree().create_timer(weapon.unequipTime).timeout
+func equip_previous_weapon():
+	"""Re-equip the previous weapon if available"""
+	print("Re-equipping previous weapon...")
+	
+	if not weapon_manager.pW:
+		return
+	
+	var weapon_id = weapon_manager.pW.weaponId
+	for i in range(inventory_component.hotbar_slots):
+		var item = inventory_component.hotbar[i]
+		if item and item.type == "weapon" and item.attributes.get("weapon_id") == weapon_id:
+			switch_to_hotbar_slot(i)
+			return
 
+func unequip_current_weapon():
+	"""Unequips the current weapon and clears state"""
+	if not weapon_manager.cW:
+		return
+	
+	weapon_manager.pW = weapon_manager.cW
+	weapon_manager.unequipped_weapon = true
+	weapon_manager.canChangeWeapons = false
+	weapon_manager.canUseWeapon = false
+	
+	# Cancel actions
+	weapon_manager.cW.isShooting = false
+	weapon_manager.cW.isReloading = false
+	
+	# Play unequip anim/sound
+	if weapon_manager.cW.unequipAnimName != "":
+		anim_manager.playAnimation("UnequipAnim%s" % weapon_manager.cW.weaponName, weapon_manager.cW.unequipAnimSpeed, false)
+		if weapon_manager.cW.unequipSound:
+			weapon_manager.weapon_sound_management(weapon_manager.cW.unequipSound, weapon_manager.cW.unequipSoundSpeed)
+	
+	# Wait for unequip time
+	if weapon_manager.cW.unequipTime > 0:
+		await weapon_manager.get_tree().create_timer(weapon_manager.cW.unequipTime).timeout
+	
+	# Hide model
+	if weapon_manager.cWModel:
+		weapon_manager.cWModel.visible = false
+	
+	# Clear references
+	weapon_manager.cW = null
+	weapon_manager.cWModel = null
+	currentHotbarSlot = -1
+	
+	# Re-enable controls
+	weapon_manager.canUseWeapon = true
+	weapon_manager.canChangeWeapons = true
+	
+	print("Weapon unequipped (via F hold)")
 
-func play_equip(weapon: WeaponResource, anim_player: AnimationPlayer, audio_manager: PackedScene):
-    """Play equip animation and wait"""
-    # Play sound
-    if weapon.equipSound:
-        _play_weapon_sound(weapon, audio_manager, weapon.equipSound, weapon.equipSoundSpeed)
-    
-    # Set blend time
-    anim_player.playback_default_blend_time = weapon.animBlendTime
-    
-    # Play animation
-    if weapon.equipAnimName != "":
-        animManager.playAnimation("EquipAnim%s" % weapon.weaponName, weapon.equipAnimSpeed, false)
-    
-    # Wait for exact equip time
-    if weapon.equipTime > 0:
-        await get_tree().create_timer(weapon.equipTime).timeout
+func scroll_hotbar(direction: int):
+	"""Scroll through hotbar slots"""
+	if not inventory_component:
+		return
+	
+	var start_slot = currentHotbarSlot if currentHotbarSlot >= 0 else 0
+	var checked = 0
+	var next_slot = start_slot
+	
+	# Find next occupied slot
+	while checked < inventory_component.hotbar_slots:
+		next_slot = (next_slot + direction) % inventory_component.hotbar_slots
+		if next_slot < 0:
+			next_slot = inventory_component.hotbar_slots - 1
+		
+		var item = inventory_component.hotbar[next_slot]
+		if item and item.type == "weapon":
+			switch_to_hotbar_slot(next_slot)
+			return
+		
+		checked += 1
+		if next_slot == start_slot:
+			break
 
+func process_f_hold(delta: float):
+	"""Process F key hold for unequipping"""
+	if is_holding_f and weapon_manager.cW != null:
+		f_hold_duration += delta
+		if f_hold_duration >= F_UNEQUIP_THRESHOLD and weapon_manager.canChangeWeapons:
+			is_holding_f = false
+			f_hold_duration = 0.0
+			unequip_current_weapon()
+	
+	if player.is_graping():
+		unequip_current_weapon()
 
-func equip_previous_weapon(previous_weapon, inventory: InventoryComponent):
-    """Re-equip the previous weapon if available"""
-    print("Re-equipping previous weapon...")
-    
-    if not previous_weapon:
-        return
-    
-    var weapon_id = previous_weapon.weaponId
-    
-    # Find weapon in hotbar
-    for i in range(inventory.hotbar_slots):
-        var item = inventory.hotbar[i]
-        if item and item.type == "weapon" and item.attributes.get("weapon_id") == weapon_id:
-            # Trigger switch through main manager
-            if weapon_database.weaponList.has(weapon_id):
-                print("Found previous weapon in slot %d" % i)
-                # Return the slot to switch to
-                return i
-    
-    return -1
-
-
-func _play_weapon_sound(weapon: WeaponResource, audio_manager: PackedScene, sound: AudioStream, speed: float):
-    """Play weapon sound"""
-    var audioIns: AudioStreamPlayer3D = audio_manager.instantiate()
-    get_tree().get_root().add_child.call_deferred(audioIns)
-    await get_tree().process_frame
-    
-    if audioIns.is_inside_tree():
-        audioIns.global_transform = weapon.weaponSlot.attackPoint.global_transform
-        audioIns.bus = "Sfx"
-        var random_pitch = randf_range(0.95, 1.05)
-        audioIns.pitch_scale = speed * random_pitch
-        audioIns.stream = sound
-        audioIns.play()
+func sync_hotbar_with_inventory(item: InventoryItem, hotbar_index: int):
+	"""Sync hotbar changes from inventory UI to weapon manager"""
+	if item and hotbar_index >= 0 :
+		# Find weapon item in inventory
+		var weapon_item = null
+		for inv_item in inventory_component.get_all_items():
+			if inv_item.type == "weapon" and inv_item.attributes.get("weapon_id") == item.attributes.get("weapon_id"):
+				weapon_item = inv_item
+				break
+		
+		if not weapon_item:
+			print("Weapon not found in inventory!")
+			return
+		# Update currentHotbarSlot if needed
+		if item == weapon_item:
+			currentHotbarSlot = hotbar_index

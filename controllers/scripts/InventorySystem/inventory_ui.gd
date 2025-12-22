@@ -82,10 +82,7 @@ var last_input_time: int = 0
 const INPUT_DELAY_MS: int = 150 # Prevent super fast scrolling
 
 func _ready():
-    # Visibility initialization
-    # visible = false # Always true so hotbar can show
-    # main_container.visible = false
-    # background.visible = false
+    
     hide()
     # Connect Buttons
     auto_organize_btn.pressed.connect(_on_auto_organize_pressed)
@@ -409,6 +406,9 @@ func _input(event):
 
                 # Assign to new slot
                 inventory_component.hotbar[hotbar_index] = hovered_item
+                ## update weapon manager , weapon hotbar sync
+                # print("hotbar slots :" , inventory_component.hotbar)
+                inventory_component.weapon_manager.switcher.sync_hotbar_with_inventory(hovered_item, hotbar_index)
                 refresh_display()
                 get_viewport().set_input_as_handled()
                 

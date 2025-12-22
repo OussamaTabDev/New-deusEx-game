@@ -638,7 +638,6 @@ inventory_ui = NodePath("../../../Control/UI/InventoryUI")
 camera_controller = NodePath("../../../CameraController")
 state_machine = NodePath("../../../StateMachine")
 pickup_interaction = NodePath("../../ItemsInteractionComponent")
-wheel_time_scale = null
 
 [node name="PlayerInteractionComponent" parent="Components" node_paths=PackedStringArray("interaction_raycast", "carryable_position") instance=ExtResource("25_bjwns")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
