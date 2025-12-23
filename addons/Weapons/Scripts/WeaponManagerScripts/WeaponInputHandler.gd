@@ -40,6 +40,9 @@ func handle_input(event: InputEvent):
 			KEY_6: slot = 5
 			KEY_7: slot = 6
 			KEY_8: slot = 7
+			KEY_9: slot = 8
+			KEY_0: slot = 9
+			
 		
 		if slot >= 0:
 			switcher.switch_to_hotbar_slot(slot)

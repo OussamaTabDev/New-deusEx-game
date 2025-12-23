@@ -10,6 +10,7 @@ points = PackedVector3Array(0.4799999, 0.45, 0.049978457, 0.46997643, 0.38991773
 [node name="9mm pistol" type="RigidBody3D"]
 collision_layer = 136
 collision_mask = 2441
+mass = 0.4
 script = ExtResource("1_beawo")
 cogito_name = "9mm pistol"
 display_name = "9mm pistol"

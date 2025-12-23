@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MeleeWeaponResource" load_steps=5 format=3 uid="uid://bcfgjtgc4e8bp"]
+
+[ext_resource type="Script" uid="uid://f4yurw20rwrn" path="res://addons/Weapons/Scripts/WeaponManagerScripts/ThrowableMeleeSystem/MeleeWeaponResource.gd" id="1_wvqs0"]
+[ext_resource type="AudioStream" uid="uid://5onay5pmsghw" path="res://addons/cogito/DynamicFootstepSystem/Assets/Audio/Wood/footstep_wood-01.ogg" id="1_xoppl"]
+[ext_resource type="AudioStream" uid="uid://ocm2blyfthyq" path="res://addons/cogito/Assets/Audio/Kenney/woosh1.ogg" id="3_r3g7y"]
+[ext_resource type="PackedScene" uid="uid://dbwtv5g0mcn5i" path="res://materials/Weapons/melee/combat_knife/combat_knife.tscn" id="4_fqnbv"]
+
+[resource]
+script = ExtResource("1_wvqs0")
+weapon_id = 30
+weapon_name = "Knife 15"
+description = "Knife 15"
+swing_sound = ExtResource("3_r3g7y")
+hit_sound = ExtResource("1_xoppl")
+weapon_scene = ExtResource("4_fqnbv")
+metadata/_custom_type_script = "uid://f4yurw20rwrn"

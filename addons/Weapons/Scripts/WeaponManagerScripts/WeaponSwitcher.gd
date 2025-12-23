@@ -63,6 +63,7 @@ func switch_to_hotbar_slot(slot: int):
 	else:
 		enter_weapon(weapon_id, slot)
 
+
 func exit_weapon(nextWeaponId: int, nextSlot: int):
 	"""Unequip current weapon based on WeaponResource.unequipTime"""
 	var cW = weapon_manager.cW

@@ -1,159 +1,274 @@
-# GrenadeProjectile.gd - Spawned grenade instance
-
+# GrenadeProjectile.gd - Spawned grenade with physics and explosion
 extends RigidBody3D
 class_name GrenadeProjectile
 
-@export_group("Grenade Stats")
-@export var damage: float = 100.0
-@export var blast_radius: float = 5.0
-@export var fuse_time: float = 3.0
-@export var explosion_force: float = 20.0
-
-@export_group("Effects")
-@export var explosion_scene: PackedScene
-@export var beep_sound: AudioStream
-@export var explosion_sound: AudioStream
-
-# State
-var cook_time: float = 0.0
-var time_alive: float = 0.0
+var throwable_data: ThrowableResource
+var cooked_time: float = 0.0
+var fuse_timer: float = 0.0
 var has_exploded: bool = false
 
-# Beeping
-var beep_interval: float = 0.5
-var last_beep_time: float = 0.0
+# Audio
+var beep_audio: AudioStreamPlayer3D
+var beep_interval: float = 1.0
+var beep_timer: float = 0.0
 
 # Visual
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-@onready var audio_player: AudioStreamPlayer3D = $AudioPlayer
-@onready var beep_timer: Timer = $BeepTimer
-
+var model: MeshInstance3D
+var trail: GPUParticles3D
 
 func _ready():
+	# Setup collision
 	contact_monitor = true
-	max_contacts_reported = 5
+	max_contacts_reported = 10
+	body_entered.connect(_on_body_entered)
 	
-	# Start beeping
-	if beep_timer:
-		beep_timer.wait_time = beep_interval
-		beep_timer.timeout.connect(_on_beep)
-		beep_timer.start()
-	
-	# Schedule explosion
-	var remaining_time = fuse_time - cook_time
-	if remaining_time <= 0:
-		explode()
-	else:
-		await get_tree().create_timer(remaining_time).timeout
-		explode()
+	# Setup audio
+	beep_audio = AudioStreamPlayer3D.new()
+	add_child(beep_audio)
 
+func initialize(data: ThrowableResource, velocity: Vector3, cook_time: float):
+	"""Initialize grenade with data"""
+	throwable_data = data
+	cooked_time = cook_time
+	fuse_timer = max(0.0, data.fuse_time - cook_time)
+	
+	linear_velocity = velocity
+	mass = data.projectile_mass
+	
+	# Setup beeping
+	if data.beep_sound:
+		beep_audio.stream = data.beep_sound
+	
+	# Add trail effect
+	if data.trail_effect:
+		trail = data.trail_effect.instantiate()
+		add_child(trail)
+		trail.emitting = true
+	
+	print("Grenade fuse: %.1fs" % fuse_timer)
 
 func _process(delta: float):
-	time_alive += delta
+	if has_exploded:
+		return
 	
-	# Speed up beeping as explosion nears
-	var remaining = fuse_time - cook_time - time_alive
-	if remaining < 1.0:
-		beep_interval = 0.1
-	elif remaining < 2.0:
-		beep_interval = 0.3
+	# Update fuse
+	fuse_timer -= delta
+	
+	# Beeping gets faster
+	var fuse_percent = 1.0 - (fuse_timer / throwable_data.fuse_time)
+	beep_interval = lerp(1.0, 0.05, fuse_percent)
+	
+	beep_timer += delta
+	if beep_timer >= beep_interval and throwable_data.beep_sound:
+		beep_audio.play()
+		beep_timer = 0.0
+	
+	# Check explosion
+	if fuse_timer <= 0:
+		explode()
 
-
-func set_cook_time(time: float):
-	"""Set how long grenade was cooked before throw"""
-	cook_time = time
-
-
-func set_stats(stats: Dictionary):
-	"""Set grenade stats"""
-	if stats.has("damage"):
-		damage = stats.damage
-	if stats.has("blast_radius"):
-		blast_radius = stats.blast_radius
-	if stats.has("fuse_time"):
-		fuse_time = stats.fuse_time
-
+func _on_body_entered(body: Node):
+	"""Handle collision"""
+	if has_exploded:
+		return
+	
+	# Play bounce sound
+	if throwable_data.bounce_sound and linear_velocity.length() > 2.0:
+		play_sound(throwable_data.bounce_sound, 0.8)
+	
+	# Impact explosion for molotovs
+	if throwable_data.throwable_type == ThrowableResource.ThrowableType.MOLOTOV:
+		explode()
 
 func explode():
-	"""Explode and deal damage"""
+	"""Trigger explosion"""
 	if has_exploded:
 		return
 	
 	has_exploded = true
 	
+	print("BOOM!")
+	
 	# Spawn explosion effect
-	if explosion_scene:
-		var explosion = explosion_scene.instantiate()
-		get_tree().get_root().add_child(explosion)
-		explosion.global_position = global_position
+	if throwable_data.explosion_effect:
+		var effect = throwable_data.explosion_effect.instantiate()
+		get_tree().root.add_child(effect)
+		effect.global_position = global_position
 	
 	# Play explosion sound
-	if explosion_sound and audio_player:
-		audio_player.stream = explosion_sound
-		audio_player.play()
+	if throwable_data.explosion_sound:
+		play_sound(throwable_data.explosion_sound, 1.0)
 	
-	# Deal damage in radius
-	_deal_explosion_damage()
+	# Deal damage
+	apply_explosion_damage()
 	
-	# Hide mesh
-	if mesh_instance:
-		mesh_instance.visible = false
+	# Apply physics force
+	if throwable_data.applies_force:
+		apply_explosion_force()
 	
-	# Disable physics
-	freeze = true
+	# Special effects
+	apply_special_effects()
 	
-	# Wait for sound to finish then delete
-	await get_tree().create_timer(2.0).timeout
+	# Destroy grenade
 	queue_free()
 
-
-func _deal_explosion_damage():
-	"""Damage all entities in blast radius"""
+func apply_explosion_damage():
+	"""Apply damage to nearby entities"""
 	var space_state = get_world_3d().direct_space_state
-	
-	# Get all overlapping bodies
 	var query = PhysicsShapeQueryParameters3D.new()
 	var sphere = SphereShape3D.new()
-	sphere.radius = blast_radius
+	sphere.radius = throwable_data.explosion_radius
 	query.shape = sphere
-	query.transform = Transform3D(Basis(), global_position)
-	query.collision_mask = 1  # Adjust for your layers
+	query.transform.origin = global_position
+	query.collision_mask = 4 + 2  # Enemies + Players
 	
 	var results = space_state.intersect_shape(query)
 	
 	for result in results:
-		var body = result.collider
+		var target = result.collider
+		var distance = global_position.distance_to(target.global_position)
 		
-		# Skip self
-		if body == self:
-			continue
-		
-		# Calculate damage falloff
-		var distance = global_position.distance_to(body.global_position)
-		var damage_falloff = 1.0 - (distance / blast_radius)
-		damage_falloff = clamp(damage_falloff, 0.0, 1.0)
-		
-		var final_damage = damage * damage_falloff
+		# Calculate damage with falloff
+		var damage = throwable_data.explosion_damage
+		if throwable_data.damage_falloff:
+			var falloff = 1.0 - (distance / throwable_data.explosion_radius)
+			falloff = clamp(falloff, 0.1, 1.0)
+			damage *= falloff
 		
 		# Apply damage
-		if body.has_method("take_damage"):
-			body.take_damage(final_damage, "explosive")
+		if target.has_method("take_damage"):
+			target.take_damage(damage, self)
+			print("Explosion hit %s for %.1f damage" % [target.name, damage])
+
+func apply_explosion_force():
+	"""Apply physics force to nearby objects"""
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsShapeQueryParameters3D.new()
+	var sphere = SphereShape3D.new()
+	sphere.radius = throwable_data.explosion_radius
+	query.shape = sphere
+	query.transform.origin = global_position
+	query.collision_mask = 7  # All physics layers
+	
+	var results = space_state.intersect_shape(query)
+	
+	for result in results:
+		var target = result.collider
+		if target is RigidBody3D:
+			var distance = global_position.distance_to(target.global_position)
+			var direction = (target.global_position - global_position).normalized()
+			
+			# Calculate force with falloff
+			var force = throwable_data.explosion_force
+			if throwable_data.force_falloff:
+				var falloff = 1.0 - (distance / throwable_data.explosion_radius)
+				force *= falloff
+			
+			target.apply_central_impulse(direction * force)
+
+func apply_special_effects():
+	"""Apply special effects (fire, flash, smoke)"""
+	
+	# Fire effect (molotov)
+	if throwable_data.applies_fire:
+		spawn_fire_area()
+	
+	# Flash effect (flashbang)
+	if throwable_data.applies_flash:
+		apply_flash_effect()
+	
+	# Smoke effect
+	if throwable_data.applies_smoke:
+		spawn_smoke_area()
+
+func spawn_fire_area():
+	"""Create fire damage area"""
+	# Create area for fire damage over time
+	var fire_area = Area3D.new()
+	get_tree().root.add_child(fire_area)
+	fire_area.global_position = global_position
+	
+	var collision = CollisionShape3D.new()
+	var sphere = SphereShape3D.new()
+	sphere.radius = throwable_data.explosion_radius * 0.8
+	collision.shape = sphere
+	fire_area.add_child(collision)
+	
+	fire_area.collision_mask = 4 + 2  # Enemies + Players
+	
+	# Fire particles
+	var fire_particles = GPUParticles3D.new()
+	fire_area.add_child(fire_particles)
+	fire_particles.emitting = true
+	fire_particles.amount = 50
+	fire_particles.lifetime = 2.0
+	
+	# Damage over time
+	var timer = 0.0
+	var duration = throwable_data.fire_duration
+	
+	while timer < duration:
+		await get_tree().create_timer(0.5).timeout
+		timer += 0.5
 		
-		# Apply explosion force
-		if body is RigidBody3D:
-			var direction = (body.global_position - global_position).normalized()
-			var force = direction * explosion_force * damage_falloff
-			body.apply_central_impulse(force)
+		if not is_instance_valid(fire_area):
+			break
+		
+		# Apply fire damage to overlapping bodies
+		for body in fire_area.get_overlapping_bodies():
+			if body.has_method("take_damage"):
+				body.take_damage(throwable_data.fire_damage_per_second * 0.5, self)
+	
+	fire_area.queue_free()
 
+func apply_flash_effect():
+	"""Apply flashbang effect to nearby players"""
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsShapeQueryParameters3D.new()
+	var sphere = SphereShape3D.new()
+	sphere.radius = throwable_data.flash_radius
+	query.shape = sphere
+	query.transform.origin = global_position
+	query.collision_mask = 2  # Player layer
+	
+	var results = space_state.intersect_shape(query)
+	
+	for result in results:
+		var target = result.collider
+		if target.has_method("apply_flash"):
+			target.apply_flash(throwable_data.flash_duration)
+			print("Flashed %s!" % target.name)
 
-func _on_beep():
-	"""Play beep sound"""
-	if beep_sound and audio_player:
-		audio_player.stream = beep_sound
-		audio_player.play()
+func spawn_smoke_area():
+	"""Create smoke area"""
+	var smoke_area = Area3D.new()
+	get_tree().root.add_child(smoke_area)
+	smoke_area.global_position = global_position
+	
+	var collision = CollisionShape3D.new()
+	var sphere = SphereShape3D.new()
+	sphere.radius = throwable_data.smoke_radius
+	collision.shape = sphere
+	smoke_area.add_child(collision)
+	
+	# Smoke particles
+	var smoke_particles = GPUParticles3D.new()
+	smoke_area.add_child(smoke_particles)
+	smoke_particles.emitting = true
+	smoke_particles.amount = 100
+	smoke_particles.lifetime = 3.0
+	
+	# Remove after duration
+	await get_tree().create_timer(throwable_data.smoke_duration).timeout
+	smoke_area.queue_free()
 
-
-func _on_body_entered(body: Node):
-	"""Handle collision"""
-	# Grenades can bounce
-	pass
+func play_sound(sound: AudioStream, pitch: float = 1.0):
+	"""Play 3D sound"""
+	var audio = AudioStreamPlayer3D.new()
+	get_tree().root.add_child(audio)
+	audio.global_position = global_position
+	audio.stream = sound
+	audio.pitch_scale = pitch * randf_range(0.95, 1.05)
+	audio.play()
+	await audio.finished
+	audio.queue_free()

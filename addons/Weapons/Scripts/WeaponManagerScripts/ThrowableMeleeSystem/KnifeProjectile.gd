@@ -1,125 +1,138 @@
-# KnifeProjectile.gd - Thrown knife instance
-
+# KnifeProjectile.gd - Thrown knife/axe with sticking behavior
 extends RigidBody3D
 class_name KnifeProjectile
 
-@export_group("Knife Stats")
-@export var damage: float = 50.0
-@export var stick_on_hit: bool = true
-@export var despawn_time: float = 10.0
-
-@export_group("Effects")
-@export var trail_effect: PackedScene
-@export var impact_sound: AudioStream
-@export var whoosh_sound: AudioStream
-
-# State
-var has_hit: bool = false
-var stuck_in: Node3D = null
-var time_alive: float = 0.0
+var throwable_data: ThrowableResource
+var has_stuck: bool = false
+var stuck_to: Node3D = null
+var stuck_offset: Vector3 = Vector3.ZERO
+var despawn_timer: float = 10.0
 
 # Visual
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-@onready var collision_shape: CollisionShape3D = $CollisionShape3D
-@onready var audio_player: AudioStreamPlayer3D = $AudioPlayer
-
-# Trail
-var trail_instance: Node3D
-
+var model: Node3D
+var trail: GPUParticles3D
 
 func _ready():
 	contact_monitor = true
-	max_contacts_reported = 1
+	max_contacts_reported = 5
 	body_entered.connect(_on_body_entered)
-	
-	# Spawn trail effect
-	if trail_effect:
-		trail_instance = trail_effect.instantiate()
-		add_child(trail_instance)
-	
-	# Play whoosh sound
-	if whoosh_sound and audio_player:
-		audio_player.stream = whoosh_sound
-		audio_player.play()
-	
-	# Align knife to flight direction
-	_align_to_velocity()
 
+func initialize(data: ThrowableResource, velocity: Vector3, _cook_time: float):
+	"""Initialize knife/axe"""
+	throwable_data = data
+	linear_velocity = velocity
+	mass = data.projectile_mass
+	
+	# Add trail effect
+	if data.trail_effect:
+		trail = data.trail_effect.instantiate()
+		add_child(trail)
+		trail.emitting = true
+	
+	# Rotate to face flight direction
+	look_at(global_position + velocity.normalized(), Vector3.UP)
 
 func _process(delta: float):
-	time_alive += delta
-	
-	# Despawn after time
-	if time_alive >= despawn_time:
-		queue_free()
-	
-	# Keep aligned to velocity while flying
-	if not has_hit:
-		_align_to_velocity()
-
-
-func _align_to_velocity():
-	"""Point knife in direction of travel"""
-	if linear_velocity.length() > 0.1:
-		look_at(global_position + linear_velocity.normalized(), Vector3.UP)
-
-
-func _on_body_entered(body: Node):
-	"""Handle knife hitting something"""
-	if has_hit:
-		return
-	
-	has_hit = true
-	
-	# Stop trail
-	if trail_instance:
-		trail_instance.queue_free()
-	
-	# Play impact sound
-	if impact_sound and audio_player:
-		audio_player.stream = impact_sound
-		audio_player.play()
-	
-	# Check what we hit
-	var is_enemy = body.has_method("take_damage")
-	
-	if is_enemy:
-		# Damage enemy
-		body.take_damage(damage, "pierce")
+	if has_stuck:
+		# Follow stuck object
+		if is_instance_valid(stuck_to):
+			global_position = stuck_to.global_position + stuck_to.global_transform.basis * stuck_offset
 		
-		# Stick to enemy
-		if stick_on_hit and body is Node3D:
-			_stick_to(body)
-		else:
+		# Despawn timer
+		despawn_timer -= delta
+		if despawn_timer <= 0:
 			queue_free()
 	else:
-		# Stick to world geometry
-		if stick_on_hit:
-			_stick_to(body)
-		else:
-			queue_free()
+		# Rotate to face flight direction while flying
+		if linear_velocity.length() > 0.1:
+			var forward = linear_velocity.normalized()
+			look_at(global_position + forward, Vector3.UP)
 
-
-func _stick_to(body: Node3D):
-	"""Make knife stick into surface"""
-	stuck_in = body
+func _on_body_entered(body: Node):
+	"""Handle collision"""
+	if has_stuck:
+		return
 	
-	# Disable physics
+	# Check if can stick
+	if not throwable_data.can_stick:
+		# Bounce and deal impact damage
+		deal_impact_damage(body)
+		return
+	
+	# Stick to surface/enemy
+	stick_to(body)
+
+func stick_to(body: Node):
+	"""Stick knife to surface or enemy"""
+	has_stuck = true
+	stuck_to = body
+	
+	# Stop physics
 	freeze = true
-	collision_shape.disabled = true
+	if trail:
+		trail.emitting = false
 	
-	# Reparent to hit object
-	var old_transform = global_transform
-	get_parent().remove_child(self)
-	body.add_child(self)
-	global_transform = old_transform
+	# Calculate local offset
+	if body is Node3D:
+		stuck_offset = body.global_transform.basis.inverse() * (global_position - body.global_position)
 	
-	# Remove after delay
-	await get_tree().create_timer(despawn_time - time_alive).timeout
-	queue_free()
+	# Deal stuck damage to enemies
+	if body.has_method("take_damage"):
+		body.take_damage(throwable_data.stuck_damage, self)
+		print("Knife stuck in %s for %.1f damage!" % [body.name, throwable_data.stuck_damage])
+		
+		# Continuous damage over time (bleeding)
+		apply_bleed_damage(body)
+	else:
+		print("Knife stuck in surface")
+	
+	# Play impact sound
+	if throwable_data.bounce_sound:
+		play_sound(throwable_data.bounce_sound, 1.2)
+	
+	# Spawn impact effect
+	if throwable_data.impact_effect:
+		var effect = throwable_data.impact_effect.instantiate()
+		get_tree().root.add_child(effect)
+		effect.global_position = global_position
 
+func deal_impact_damage(body: Node):
+	"""Deal damage on impact (non-sticking)"""
+	if body.has_method("take_damage"):
+		body.take_damage(throwable_data.direct_hit_damage, self)
+		print("Hit %s for %.1f damage!" % [body.name, throwable_data.direct_hit_damage])
+	
+	# Spawn effect
+	if throwable_data.impact_effect:
+		var effect = throwable_data.impact_effect.instantiate()
+		get_tree().root.add_child(effect)
+		effect.global_position = global_position
+	
+	# Play sound
+	if throwable_data.bounce_sound:
+		play_sound(throwable_data.bounce_sound)
 
-func set_stats(stats: Dictionary):
-	"""Set knife stats"""
-	if stats.has("damage"):
-		damage = stats.damage
+func apply_bleed_damage(enemy: Node):
+	"""Apply damage over time while stuck"""
+	var bleed_duration = 5.0
+	var bleed_damage = throwable_data.stuck_damage * 0.2  # 20% of stuck damage per tick
+	var tick_interval = 1.0
+	var elapsed = 0.0
+	
+	while elapsed < bleed_duration and is_instance_valid(enemy):
+		await get_tree().create_timer(tick_interval).timeout
+		elapsed += tick_interval
+		
+		if is_instance_valid(enemy) and enemy.has_method("take_damage"):
+			enemy.take_damage(bleed_damage, self)
+
+func play_sound(sound: AudioStream, pitch: float = 1.0):
+	"""Play 3D sound"""
+	var audio = AudioStreamPlayer3D.new()
+	get_tree().root.add_child(audio)
+	audio.global_position = global_position
+	audio.stream = sound
+	audio.pitch_scale = pitch * randf_range(0.95, 1.05)
+	audio.play()
+	await audio.finished
+	audio.queue_free()

@@ -89,7 +89,7 @@ streams_count = 1
 stream_0/stream = ExtResource("12_lny03")
 
 [node name="barrel" type="RigidBody3D"]
-collision_layer = 8
+collision_layer = 72
 collision_mask = 777
 mass = 20.0
 continuous_cd = true
@@ -98,6 +98,8 @@ max_contacts_reported = 10
 script = ExtResource("1_p1u1m")
 cogito_name = "Barrel"
 display_name = "Barrel"
+can_apply_force = false
+can_take_damage = false
 
 [node name="CarryableComponent" parent="." instance=ExtResource("5_vqdq1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05015427, 0)
@@ -132,6 +134,8 @@ impact_sounds = SubResource("AudioStreamRandomizer_lpphm")
 
 [node name="FlaotingComponent" parent="." node_paths=PackedStringArray("rigid_body") instance=ExtResource("13_lny03")]
 rigid_body = NodePath("..")
+
+[node name="Damage" type="Node" parent="."]
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]
 [connection signal="body_exited" from="." to="." method="_on_body_exited"]

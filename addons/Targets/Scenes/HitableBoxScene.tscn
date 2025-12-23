@@ -17,7 +17,7 @@ uv1_triplanar = true
 
 [node name="HitableBox" type="RigidBody3D" node_paths=PackedStringArray("hit_force_component") groups=["HitableObjects"]]
 collision_layer = 16
-collision_mask = 31
+collision_mask = 95
 mass = 0.5
 continuous_cd = true
 script = ExtResource("1_wqlms")

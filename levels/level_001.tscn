@@ -1,4 +1,4 @@
-[gd_scene load_steps=53 format=3 uid="uid://b1yleqbb8tc7x"]
+[gd_scene load_steps=54 format=3 uid="uid://b1yleqbb8tc7x"]
 
 [ext_resource type="PackedScene" uid="uid://btv0a42cgxt8g" path="res://levels/WE_test.tscn" id="1_db21n"]
 [ext_resource type="Material" uid="uid://cn1gsy15bkaff" path="res://materials/grid.tres" id="2_x5xie"]
@@ -30,6 +30,7 @@
 [ext_resource type="PackedScene" uid="uid://dmdg81bv5coav" path="res://materials/Weapons/ammo/medium_ammo.tscn" id="27_qhkng"]
 [ext_resource type="PackedScene" uid="uid://cw7av03royukr" path="res://materials/Weapons/Shotguns/shotgun_p/pump_shotgun.tscn" id="29_0rmec"]
 [ext_resource type="PackedScene" uid="uid://j6qdm8btt2bt" path="res://materials/Weapons/ammo/shotgun_shells.tscn" id="30_exsf3"]
+[ext_resource type="PackedScene" uid="uid://dbwtv5g0mcn5i" path="res://materials/Weapons/melee/combat_knife/combat_knife.tscn" id="31_8k40e"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_gd0ev"]
 material = ExtResource("2_x5xie")
@@ -199,7 +200,7 @@ normal_texture = SubResource("NoiseTexture2D_m48vv")
 refraction_enabled = true
 refraction_texture = SubResource("NoiseTexture2D_ecv8m")
 uv1_scale = Vector3(0.05, 0.05, 0.05)
-uv1_offset = Vector3(0.7909934, 0, 0)
+uv1_offset = Vector3(0.1880002, 0, 0)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
@@ -565,3 +566,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.60106, 0.0566829, 4.29523
 
 [node name="AmmoPistol6" parent="." instance=ExtResource("27_qhkng")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.332144, 0.05668278, 3.8720458)
+
+[node name="Knife15" parent="." instance=ExtResource("31_8k40e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.941988, 0.18699212, 9.690886)

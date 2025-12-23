@@ -1,4 +1,4 @@
-[gd_scene load_steps=113 format=4 uid="uid://c3ffql15mo0aj"]
+[gd_scene load_steps=120 format=4 uid="uid://c3ffql15mo0aj"]
 
 [ext_resource type="Script" uid="uid://dgro2pfgmo45x" path="res://controllers/scripts/fps_controller.gd" id="1_pgc1p"]
 [ext_resource type="Script" uid="uid://tgn7wxexofdy" path="res://controllers/scripts/Compoenents/StairsHandling.gd" id="2_fdopr"]
@@ -74,10 +74,17 @@
 [ext_resource type="Script" uid="uid://b03lttr14d87" path="res://addons/Weapons/Scripts/WeaponManagerScripts/WeaponHealthChecker.gd" id="41_t4veo"]
 [ext_resource type="Script" uid="uid://c3tv7kqkyftel" path="res://controllers/debugs/hand_d_debug.gd" id="42_ius01"]
 [ext_resource type="Script" uid="uid://pbrukx187qbl" path="res://addons/Weapons/Scripts/WeaponManagerScripts/WeaponDropPickup.gd" id="42_t6plt"]
+[ext_resource type="Script" uid="uid://c6g0bb41ndjsk" path="res://addons/Weapons/Scripts/WeaponManagerScripts/ThrowableMeleeSystem/ThrowableSystem.gd" id="43_1wbtu"]
 [ext_resource type="Script" uid="uid://bgjtlul6bmw6u" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gd" id="43_teryj"]
 [ext_resource type="Script" uid="uid://d2k0wiwesmehx" path="res://addons/RadialMenu/RadialMenu.gd" id="44_1hfpd"]
 [ext_resource type="Shader" uid="uid://bragsbfphgcjf" path="res://shaders/uis/cyberpunk_scanner/cyberpunk_scanner.gdshader" id="44_b6iva"]
+[ext_resource type="Script" uid="uid://cnc3v0o7xo1mg" path="res://addons/Weapons/Scripts/WeaponManagerScripts/ThrowableMeleeSystem/MeleeSystem.gd" id="44_jyohi"]
 [ext_resource type="Script" uid="uid://colxmwot5x3a1" path="res://controllers/scripts/InventorySystem/weapon_wheel_Controller.gd" id="44_xodnv"]
+[ext_resource type="Script" uid="uid://djdam4syuxscl" path="res://addons/Weapons/Scripts/WeaponManagerScripts/ThrowableMeleeSystem/MeleeDatabase.gd" id="45_t4veo"]
+[ext_resource type="Script" uid="uid://f4yurw20rwrn" path="res://addons/Weapons/Scripts/WeaponManagerScripts/ThrowableMeleeSystem/MeleeWeaponResource.gd" id="46_756ri"]
+[ext_resource type="Script" uid="uid://uyuo5v6yslqa" path="res://addons/Weapons/Scripts/WeaponManagerScripts/ThrowableMeleeSystem/ThrowableDatabase.gd" id="46_t6plt"]
+[ext_resource type="Script" uid="uid://clsov75o0smo4" path="res://addons/Weapons/Scripts/WeaponManagerScripts/ThrowableMeleeSystem/UnifiedCombatHandler.gd" id="47_756ri"]
+[ext_resource type="Resource" uid="uid://bcfgjtgc4e8bp" path="res://addons/Weapons/Resources/melee/knife_15.tres" id="47_hgjw3"]
 [ext_resource type="Script" uid="uid://bttqruj5f5vj" path="res://controllers/scripts/HeathAndDamageSystem/health_debug.gd" id="50_t2gqn"]
 [ext_resource type="Script" uid="uid://ba0b0ekmy1qub" path="res://addons/PlayerCharacter/Scripts/Camera/ViewportCameraScript.gd" id="53_ius01"]
 [ext_resource type="Script" uid="uid://dx02l6p6behb8" path="res://addons/PlayerCharacter/Scripts/UI/HUDScript.gd" id="57_ty5lw"]
@@ -586,7 +593,7 @@ outline_color = Color(0, 0, 0, 1)
 
 [node name="player" type="CharacterBody3D" node_paths=PackedStringArray("CAMERA_CONTROLLER", "state_machine", "anim_player", "head_Cast", "h_cast", "h_cast_up", "chest_Cast", "mid_chest_Cast", "upperchestCastNode", "upperchest_Cast", "upperchest_Cast_Crouch", "r_cast", "step_handler", "audio_component", "rigidbody_interaction_component", "inventory_handler", "weapon_manager") groups=["Player"]]
 collision_layer = 2
-collision_mask = 2319
+collision_mask = 2375
 platform_on_leave = 2
 script = ExtResource("1_pgc1p")
 JUMP_VELOCITY = 4.8
@@ -638,7 +645,6 @@ inventory_ui = NodePath("../../../Control/UI/InventoryUI")
 camera_controller = NodePath("../../../CameraController")
 state_machine = NodePath("../../../StateMachine")
 pickup_interaction = NodePath("../../ItemsInteractionComponent")
-wheel_time_scale = null
 
 [node name="PlayerInteractionComponent" parent="Components" node_paths=PackedStringArray("interaction_raycast", "carryable_position") instance=ExtResource("25_bjwns")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.015487, 0)
@@ -890,7 +896,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, -0.012, 0.144)
 
 [node name="leftHandContainer" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager/WeaponBase" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.67602e-09, -0.0115472, 0.14430411)
-visible = false
 
 [node name="GrapMarker" type="Marker3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager/WeaponBase/leftHandContainer"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.125, -0.105660796, 0.057372168)
@@ -910,6 +915,7 @@ muzzleFlashSpawner = NodePath("PistolModel/PistolMuzzleFlashSpawner")
 
 [node name="PistolModel" type="Node3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager/WeaponBase/leftHandContainer/Pistol"]
 transform = Transform3D(1, 0, 2.84217e-14, 0, 1, 0, -2.84217e-14, 0, 1, 0, 0, 0)
+visible = false
 
 [node name="pistol_1" type="MeshInstance3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager/WeaponBase/leftHandContainer/Pistol/PistolModel"]
 transform = Transform3D(100, 2.22045e-14, 2.22045e-14, -2.22045e-14, 100, 7.54979e-06, -2.22045e-14, -7.54979e-06, 100, 0, 0, 0)
@@ -942,6 +948,22 @@ script = ExtResource("41_t4veo")
 
 [node name="WeaponDropPickup" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]
 script = ExtResource("42_t6plt")
+
+[node name="MeleeSystem" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]
+script = ExtResource("44_jyohi")
+
+[node name="ThrowableSystem" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]
+script = ExtResource("43_1wbtu")
+
+[node name="MeleeDatabase" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]
+script = ExtResource("45_t4veo")
+melee_resources = Array[ExtResource("46_756ri")]([ExtResource("47_hgjw3")])
+
+[node name="ThrowableDatabase" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]
+script = ExtResource("46_t6plt")
+
+[node name="UnifiedCombatHandler" type="Node" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet/WeaponManager"]
+script = ExtResource("47_756ri")
 
 [node name="WeaponCollider" type="RayCast3D" parent="CameraController/CameraBase/CameraOffset/Camera3D/WeaponComponenet"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14458162, -0.10382497, 0)

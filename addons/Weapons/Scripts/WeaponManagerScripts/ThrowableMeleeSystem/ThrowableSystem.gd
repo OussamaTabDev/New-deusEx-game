@@ -1,292 +1,301 @@
-# ThrowableSystem.gd - Handles throwable items (grenades, knives, etc.)
-
+# ThrowableSystem.gd - Handles throwable items with trajectory preview
 extends Node
 class_name ThrowableSystem
 
-var weapon_manager: WeaponManager
-var inventory_component: InventoryComponent
+@onready var weapon_manager: WeaponManager = $".."
 var player: CharacterBody3D
 var camera: Camera3D
+var inventory_component: InventoryComponent
 
-# Throwable settings
-@export_group("Throw Settings")
-@export var throw_force: float = 15.0
-@export var throw_upward_angle: float = 15.0  # Degrees
-@export var max_throw_distance: float = 30.0
-@export var trajectory_preview: bool = true
-@export var trajectory_points: int = 20
+# Current throwable
+var current_throwable: ThrowableResource = null
+var current_throwable_model: Node3D = null
 
-# Cooking grenade
-var is_cooking_grenade: bool = false
-var cook_start_time: float = 0.0
-var current_throwable: InventoryItem = null
-var current_throwable_slot: int = -1
+# Cooking state
+var is_cooking: bool = false
+var cook_timer: float = 0.0
+var can_throw: bool = true
 
-# Preview
-var trajectory_line: Line3D
-var throw_preview_enabled: bool = false
+# Trajectory preview
+var trajectory_line: MeshInstance3D
+var trajectory_points: Array[Vector3] = []
+var show_preview: bool = false
 
-# Throwable data
-var throwable_instances: Dictionary = {}  # weapon_id -> PackedScene
-
+# Audio
+var beep_audio: AudioStreamPlayer3D
+var beep_interval: float = 1.0
+var beep_timer: float = 0.0
 
 func _ready():
-	if trajectory_preview:
-		_create_trajectory_line()
-
+	setup_trajectory_preview()
+	setup_beep_audio()
 
 func _process(delta: float):
-	if is_cooking_grenade:
-		_update_cooking(delta)
+	if is_cooking:
+		update_cooking(delta)
+		if show_preview:
+			update_trajectory_preview()
+
+func setup_trajectory_preview():
+	"""Create visual trajectory line"""
+	trajectory_line = MeshInstance3D.new()
+	var immediate_mesh = ImmediateMesh.new()
+	trajectory_line.mesh = immediate_mesh
 	
-	if throw_preview_enabled:
-		_update_trajectory_preview()
-
-
-func _create_trajectory_line():
-	"""Create visual trajectory preview"""
-	trajectory_line = Line3D.new()
-	add_child(trajectory_line)
+	# Material for trajectory line
+	var material = StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(1, 1, 0, 0.5)  # Yellow with transparency
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	trajectory_line.material_override = material
+	
+	weapon_manager.add_child(trajectory_line)
 	trajectory_line.visible = false
-	trajectory_line.width = 2.0
-	# Set material for line visibility
 
+func setup_beep_audio():
+	"""Setup cooking beep audio"""
+	beep_audio = AudioStreamPlayer3D.new()
+	weapon_manager.add_child(beep_audio)
 
-func is_item_throwable(item: InventoryItem) -> bool:
-	"""Check if item can be thrown"""
-	if not item:
-		return false
-	
-	return item.type == "throwable" or item.attributes.get("is_throwable", false)
+func set_current_throwable(throwable: ThrowableResource, model: Node3D):
+	"""Set active throwable"""
+	current_throwable = throwable
+	current_throwable_model = model
+	reset_cooking()
 
+func clear_throwable():
+	"""Clear current throwable"""
+	current_throwable = null
+	current_throwable_model = null
+	is_cooking = false
+	hide_trajectory()
 
-func get_throw_type(item: InventoryItem) -> String:
-	"""Get throwable type: grenade, knife, molotov, etc."""
-	return item.attributes.get("throw_type", "generic")
-
-
-func start_throw(item: InventoryItem, hotbar_slot: int):
-	"""Begin throw sequence"""
-	if not is_item_throwable(item):
-		print("Item is not throwable!")
+func start_cooking():
+	"""Begin cooking grenade/throwable"""
+	if not current_throwable or not can_throw:
 		return
 	
-	current_throwable = item
-	current_throwable_slot = hotbar_slot
+	if not current_throwable.can_cook:
+		# Instant throw for non-cookable items
+		throw_projectile()
+		return
 	
-	var throw_type = get_throw_type(item)
+	is_cooking = true
+	cook_timer = 0.0
+	show_preview = true
+	beep_timer = 0.0
 	
-	match throw_type:
-		"grenade":
-			_start_grenade_cook()
-		"knife", "throwable_weapon":
-			_instant_throw()
-		"molotov", "flashbang":
-			_start_grenade_cook()  # Similar to grenade
-		_:
-			_instant_throw()
-
-
-func _start_grenade_cook():
-	"""Start cooking a grenade"""
-	is_cooking_grenade = true
-	cook_start_time = Time.get_ticks_msec() / 1000.0
-	throw_preview_enabled = true
+	print("Cooking %s..." % current_throwable.throwable_name)
 	
-	# Play pull pin animation/sound
-	_play_throwable_animation("pull_pin")
-	_play_throwable_sound("pin_pull")
+	# Start beeping
+	if current_throwable.beep_sound:
+		beep_audio.stream = current_throwable.beep_sound
+
+func update_cooking(delta: float):
+	"""Update cooking timer"""
+	cook_timer += delta
 	
-	print("Cooking grenade... Release to throw!")
-
-
-func _update_cooking(delta: float):
-	"""Update grenade cook timer"""
-	var cook_time = (Time.get_ticks_msec() / 1000.0) - cook_start_time
-	var max_cook_time = current_throwable.attributes.get("max_cook_time", 3.0)
+	# Update beep speed (faster as it gets closer to explosion)
+	if current_throwable.beep_sound:
+		var cook_percent = cook_timer / current_throwable.fuse_time
+		beep_interval = lerp(1.0, 0.1, cook_percent)
+		
+		beep_timer += delta
+		if beep_timer >= beep_interval:
+			beep_audio.play()
+			beep_timer = 0.0
 	
-	# Auto-throw if cooked too long
-	if cook_time >= max_cook_time:
-		print("Grenade cooked too long - auto throwing!")
-		execute_throw()
-
+	# Auto-throw when fully cooked
+	if current_throwable.auto_throw_at_max and cook_timer >= current_throwable.fuse_time:
+		print("Auto-throwing!")
+		throw_projectile()
 
 func release_throw():
-	"""Release throw button - execute throw"""
-	if is_cooking_grenade:
-		execute_throw()
-
-
-func cancel_throw():
-	"""Cancel throw (re-equip previous weapon?)"""
-	is_cooking_grenade = false
-	throw_preview_enabled = false
-	current_throwable = null
-	current_throwable_slot = -1
-	
-	if trajectory_line:
-		trajectory_line.visible = false
-
-
-func execute_throw():
-	"""Actually throw the item"""
-	if not current_throwable:
+	"""Release to throw"""
+	if not is_cooking:
 		return
 	
-	is_cooking_grenade = false
-	throw_preview_enabled = false
+	if cook_timer < current_throwable.min_cook_time:
+		print("Not cooked enough!")
+		return
 	
-	# Calculate throw direction
-	var throw_dir = _calculate_throw_direction()
+	throw_projectile()
+
+func throw_projectile():
+	"""Spawn and throw the projectile"""
+	if not current_throwable or not current_throwable.projectile_scene:
+		print("No projectile scene!")
+		return
 	
-	# Spawn throwable instance
-	var throwable_instance = _spawn_throwable_instance()
+	# Calculate throw vector
+	var throw_origin = camera.global_position
+	var throw_direction = -camera.global_transform.basis.z
 	
-	if throwable_instance:
-		# Position and launch
-		throwable_instance.global_position = camera.global_position + camera.global_transform.basis.z * -0.5
+	# Apply arc (throw upward angle)
+	throw_direction.y += current_throwable.throw_arc
+	throw_direction = throw_direction.normalized()
+	
+	# Spawn projectile
+	var projectile = current_throwable.projectile_scene.instantiate()
+	weapon_manager.get_tree().root.add_child(projectile)
+	projectile.global_position = throw_origin + throw_direction * 1.0
+	
+	# Initialize projectile
+	if projectile.has_method("initialize"):
+		projectile.initialize(
+			current_throwable,
+			throw_direction * current_throwable.throw_force,
+			cook_timer
+		)
+	elif projectile is RigidBody3D:
+		projectile.linear_velocity = throw_direction * current_throwable.throw_force
+	
+	# Play throw sound
+	if current_throwable.throw_sound:
+		play_sound(current_throwable.throw_sound)
+	
+	# Remove from inventory
+	consume_throwable()
+	
+	# Reset state
+	reset_cooking()
+	hide_trajectory()
+	
+	print("Threw %s!" % current_throwable.throwable_name)
+	
+	# Check for next throwable of same type
+	check_for_next_throwable()
+
+func cancel_cooking():
+	"""Cancel cooking/throwing"""
+	if is_cooking:
+		print("Cooking cancelled")
+		reset_cooking()
+		hide_trajectory()
+
+func reset_cooking():
+	"""Reset cooking state"""
+	is_cooking = false
+	cook_timer = 0.0
+	beep_timer = 0.0
+	show_preview = false
+	if beep_audio:
+		beep_audio.stop()
+
+func update_trajectory_preview():
+	"""Calculate and display throw trajectory"""
+	if not current_throwable or not current_throwable.show_trajectory:
+		return
+	
+	trajectory_points.clear()
+	
+	var start_pos = camera.global_position
+	var direction = -camera.global_transform.basis.z
+	direction.y += current_throwable.throw_arc
+	direction = direction.normalized()
+	
+	var velocity = direction * current_throwable.throw_force
+	var gravity = ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)
+	var position = start_pos
+	
+	var time_step = current_throwable.trajectory_point_spacing
+	var max_points = current_throwable.trajectory_point_count
+	
+	for i in range(max_points):
+		trajectory_points.append(position)
 		
-		if throwable_instance is RigidBody3D:
-			throwable_instance.linear_velocity = throw_dir * throw_force
-			throwable_instance.angular_velocity = Vector3(
-				randf_range(-5, 5),
-				randf_range(-5, 5),
-				randf_range(-5, 5)
-			)
+		# Update position with physics
+		velocity.y -= gravity * time_step
+		velocity *= (1.0 - current_throwable.air_resistance * time_step)
+		position += velocity * time_step
 		
-		# Pass cook time if grenade
-		if throwable_instance.has_method("set_cook_time"):
-			var cook_time = (Time.get_ticks_msec() / 1000.0) - cook_start_time
-			throwable_instance.set_cook_time(cook_time)
+		# Check for ground collision
+		var space_state = weapon_manager.get_world_3d().direct_space_state
+		var query = PhysicsRayQueryParameters3D.create(
+			trajectory_points[i] if i > 0 else start_pos,
+			position
+		)
+		query.collision_mask = 1  # World layer
 		
-		# Pass damage/stats
-		if throwable_instance.has_method("set_stats"):
-			throwable_instance.set_stats({
-				"damage": current_throwable.attributes.get("damage", 100),
-				"blast_radius": current_throwable.attributes.get("blast_radius", 5.0),
-				"fuse_time": current_throwable.attributes.get("fuse_time", 3.0)
-			})
+		var result = space_state.intersect_ray(query)
+		if result:
+			trajectory_points.append(result.position)
+			break
 	
-	# Play throw animation
-	_play_throwable_animation("throw")
-	_play_throwable_sound("throw")
-	
-	# Consume item from inventory
-	current_throwable.stack_count -= 1
-	if current_throwable.stack_count <= 0:
-		inventory_component.remove_item(current_throwable)
-		inventory_component.hotbar[current_throwable_slot] = null
-	
-	# Hide trajectory
-	if trajectory_line:
+	draw_trajectory()
+
+func draw_trajectory():
+	"""Draw the trajectory line"""
+	if trajectory_points.size() < 2:
 		trajectory_line.visible = false
-	
-	# Clear state
-	current_throwable = null
-	current_throwable_slot = -1
-	
-	print("Throwable launched!")
-
-
-func _calculate_throw_direction() -> Vector3:
-	"""Calculate throw direction with arc"""
-	var forward = -camera.global_transform.basis.z
-	
-	# Apply upward angle
-	var angle_rad = deg_to_rad(throw_upward_angle)
-	var throw_dir = forward.rotated(camera.global_transform.basis.x, -angle_rad)
-	
-	return throw_dir.normalized()
-
-
-func _spawn_throwable_instance() -> Node3D:
-	"""Create throwable instance in world"""
-	if not current_throwable:
-		return null
-	
-	var scene_path = current_throwable.attributes.get("throwable_scene", "")
-	if scene_path == "":
-		print("No throwable_scene defined in item!")
-		return null
-	
-	var throwable_scene = load(scene_path)
-	if not throwable_scene:
-		print("Failed to load throwable scene: %s" % scene_path)
-		return null
-	
-	var instance = throwable_scene.instantiate()
-	get_tree().get_root().add_child(instance)
-	
-	return instance
-
-
-func _update_trajectory_preview():
-	"""Show predicted throw arc"""
-	if not trajectory_line or not throw_preview_enabled:
 		return
 	
 	trajectory_line.visible = true
-	trajectory_line.clear_points()
 	
-	# Calculate trajectory points
-	var start_pos = camera.global_position
-	var throw_dir = _calculate_throw_direction()
-	var velocity = throw_dir * throw_force
+	var immediate_mesh = trajectory_line.mesh as ImmediateMesh
+	immediate_mesh.clear_surfaces()
+	immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
 	
-	var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
-	var time_step = 0.1
+	for point in trajectory_points:
+		immediate_mesh.surface_add_vertex(trajectory_line.to_local(point))
 	
-	for i in range(trajectory_points):
-		var time = i * time_step
-		var pos = start_pos + velocity * time
-		pos.y -= 0.5 * gravity * time * time
-		
-		trajectory_line.add_point(pos)
-		
-		# Stop at max distance
-		if start_pos.distance_to(pos) > max_throw_distance:
-			break
+	immediate_mesh.surface_end()
 
+func hide_trajectory():
+	"""Hide trajectory preview"""
+	show_preview = false
+	if trajectory_line:
+		trajectory_line.visible = false
 
-func _play_throwable_animation(anim_name: String):
-	"""Play throwable animation"""
-	# Implement with your animation system
-	pass
-
-
-func _play_throwable_sound(sound_name: String):
-	"""Play throwable sound"""
-	# Implement with your audio system
-	pass
-
-
-# Helper class for trajectory line (if not using built-in)
-class Line3D extends MeshInstance3D:
-	var points: PackedVector3Array = []
-	var width: float = 2.0
+func consume_throwable():
+	"""Remove one throwable from inventory"""
+	if not inventory_component:
+		return
 	
-	func _ready():
-		mesh = ImmediateMesh.new()
-	
-	func clear_points():
-		points.clear()
-	
-	func add_point(point: Vector3):
-		points.append(point)
-		_update_mesh()
-	
-	func _update_mesh():
-		if points.size() < 2:
+	# Find throwable in inventory
+	for item in inventory_component.get_all_items():
+		if item.type == "throwable" and item.attributes.get("throwable_id") == current_throwable.throwable_id:
+			item.stack_count -= 1
+			if item.stack_count <= 0:
+				inventory_component.remove_item(item)
 			return
-		
-		var immediate_mesh = mesh as ImmediateMesh
-		immediate_mesh.clear_surfaces()
-		immediate_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
-		
-		for point in points:
-			immediate_mesh.surface_add_vertex(point)
-		
-		immediate_mesh.surface_end()
-		
-func _instant_throw():
-	pass
+
+func check_for_next_throwable():
+	"""Auto-equip next throwable of same type"""
+	if not inventory_component:
+		return
+	
+	var throwable_id = current_throwable.throwable_id
+	
+	# Check hotbar for same throwable
+	for i in range(inventory_component.hotbar_slots):
+		var item = inventory_component.hotbar[i]
+		if item and item.type == "throwable" and item.attributes.get("throwable_id") == throwable_id:
+			if item.stack_count > 0:
+				# Still have some, keep equipped
+				return
+	
+	# No more of this type, unequip
+	weapon_manager.switcher.unequip_current_weapon()
+
+func get_cook_percentage() -> float:
+	"""Get cooking progress 0-1"""
+	if not current_throwable or not is_cooking:
+		return 0.0
+	return clamp(cook_timer / current_throwable.fuse_time, 0.0, 1.0)
+
+func get_remaining_fuse() -> float:
+	"""Get remaining fuse time"""
+	if not current_throwable or not is_cooking:
+		return 0.0
+	return max(0.0, current_throwable.fuse_time - cook_timer)
+
+func play_sound(sound: AudioStream, pitch: float = 1.0):
+	"""Play 3D sound"""
+	var audio = AudioStreamPlayer3D.new()
+	weapon_manager.add_child(audio)
+	audio.stream = sound
+	audio.pitch_scale = pitch * randf_range(0.95, 1.05)
+	audio.play()
+	await audio.finished
+	audio.queue_free()
